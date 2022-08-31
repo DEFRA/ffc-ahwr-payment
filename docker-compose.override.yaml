@@ -2,14 +2,14 @@
 # to provide dependencies and expose ports for local testing
 
 services:
-  ffc-template-node:
+  ffc-ahwr-payment:
     build:
       target: development
-    image: ffc-template-node-development
-    container_name: ffc-template-node-development
+    image: ffc-ahwr-payment-development
+    container_name: ffc-ahwr-payment-development
     ports:
-      - "3000:3000"
-      - "9229:9229"
+      - "3005:3000"
+      - "9235:9229"
     volumes:
       - ./app:/home/node/app
       - ./package.json:/home/node/package.json
