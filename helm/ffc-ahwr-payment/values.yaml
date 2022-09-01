@@ -37,6 +37,7 @@ container:
   paymentRequestTopicAddress: ffc-pay-request
   paymentResponseTopicAddress: ffc-pay-request-response
   paymentResponseSubscriptionAddress: ffc-ahwr-application
+  sendPaymentRequest: "true"
   imagePullPolicy: IfNotPresent
   requestMemory: 10Mi
   requestCpu: 10m
