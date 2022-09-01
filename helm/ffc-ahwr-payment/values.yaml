@@ -4,16 +4,11 @@ namespace: ffc-ahwr
 workstream: ffc-ahwr
 image: ffc-ahwr-payment
 
-labels: {}
-
-aadPodIdentity: true
+labels:
+  component: service
 
 appInsights:
   connectionString:
-
-azureIdentity:
-  clientID:
-  resourceID:
 
 containerConfigMap:
   name: ffc-ahwr-payment-config-map
@@ -21,6 +16,10 @@ containerConfigMap:
 containerSecret:
   name: ffc-ahwr-payment-container-secret
   type: Opaque
+
+service:
+  port: 80
+  type: ClusterIP
 
 deployment:
   cpuThreshold: 40
@@ -65,3 +64,9 @@ readinessProbe:
   initialDelaySeconds: 10
   periodSeconds: 10
   failureThreshold: 3
+
+aadPodIdentity: true
+
+azureIdentity:
+  clientID:
+  resourceID:
