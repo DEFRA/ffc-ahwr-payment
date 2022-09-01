@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     data: DataTypes.JSONB,
     createdAt: { type: DataTypes.DATE, defaultValue: Date.now() },
     updatedAt: { type: DataTypes.DATE, defaultValue: null },
-    status: { type: DataTypes.STRING, defaultValue: 'sent' }
+    status: { type: DataTypes.STRING, defaultValue: 'on-hold' }
   }, {
     freezeTableName: true,
     tableName: 'payment'
