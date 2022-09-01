@@ -1,7 +1,8 @@
+
 #!/usr/bin/env sh
-if [ -z "$(docker network ls --filter name=^ffc-ahwr$ --format={{.Name}})" ]; then
-  echo "Creating ffc-ahwr Docker network"
-  docker network create ffc-ahwr
+if [ -z "$(docker network ls --filter name=^ffc-awhr$ --format={{.Name}})" ]; then
+  echo "Creating ffc-awhr Docker network"
+  docker network create ffc-awhr
 fi
 
 set -e
@@ -10,8 +11,12 @@ projectRoot="$(a="/$0"; a=${a%/*}; a=${a:-.}; a=${a#/}/; cd "$a/.." || return; p
 cd "${projectRoot}"
 
 docker-compose down
+docker-compose -f docker-compose.migrate.yaml down
+# Ensure container images are up to date
+docker-compose -f docker-compose.migrate.yaml run database-up
 
 docker-compose \
   -f docker-compose.yaml \
   -f docker-compose.override.yaml \
-  up "$@"
+  -f docker-compose.link.yaml \
+  up $@
