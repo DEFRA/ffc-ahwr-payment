@@ -42,7 +42,7 @@ container:
   requestCpu: 10m
   limitMemory: 40Mi
   limitCpu: 40m
-  port: 3005
+  port: 3000
 
 postgresService:
   postgresDb: ffc_ahwr_payment
@@ -53,14 +53,14 @@ postgresService:
 
 livenessProbe:
   path: /healthz
-  port: 3005
+  port: 3000
   initialDelaySeconds: 10
   periodSeconds: 10
   failureThreshold: 3
 
 readinessProbe:
   path: /healthy
-  port: 3005
+  port: 3000
   initialDelaySeconds: 10
   periodSeconds: 10
   failureThreshold: 3
