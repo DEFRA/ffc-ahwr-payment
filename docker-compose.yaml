@@ -5,6 +5,34 @@ services:
       target: production
     image: ffc-ahwr-payment
     container_name: ffc-ahwr-payment
+    depends_on:
+      - ffc-ahwr-payment-postgres
     environment:
       APPINSIGHTS_CLOUDROLE: ffc-ahwr-payment-local
-      APPINSIGHTS_INSTRUMENTATIONKEY: ${APPINSIGHTS_INSTRUMENTATIONKEY}
+      APPLICATIONINSIGHTS_CONNECTION_STRING: ${APPLICATIONINSIGHTS_CONNECTION_STRING}
+      APPLICATIONPAYMENTREQUEST_QUEUE_ADDRESS: ${APPLICATIONPAYMENTREQUEST_QUEUE_ADDRESS:-ffc-ahwr-payment-request}${MESSAGE_QUEUE_SUFFIX}
+      MESSAGE_QUEUE_HOST: ${MESSAGE_QUEUE_HOST:-notset}
+      MESSAGE_QUEUE_PASSWORD: ${MESSAGE_QUEUE_PASSWORD:-notset}
+      MESSAGE_QUEUE_USER: ${MESSAGE_QUEUE_USER:-notset}
+      PAYMENTREQUEST_TOPIC_ADDRESS: ${PAYMENTREQUEST_TOPIC_ADDRESS:-ffc-pay-request}${MESSAGE_QUEUE_SUFFIX}
+      PAYMENTRESPONSE_TOPIC_ADDRESS: ${PAYMENTRESPONSE_TOPIC_ADDRESS:-ffc-pay-request-response}${MESSAGE_QUEUE_SUFFIX}
+      PAYMENTRESPONSE_SUBSCRIPTION_ADDRESS: ${PAYMENTRESPONSE_SUBSCRIPTION_ADDRESS:-ffc-ahwr-application}
+      POSTGRES_DB: ffc_ahwr_payment
+      POSTGRES_HOST: ${POSTGRES_HOST:-ffc-ahwr-payment-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_SCHEMA_PASSWORD:-ppp}
+      POSTGRES_PORT: 5432
+      POSTGRES_SCHEMA_NAME: ${POSTGRES_SCHEMA_NAME:-public}
+      POSTGRES_USERNAME: ${POSTGRES_SCHEMA_USERNAME:-postgres}
+      SEND_PAYMENT_REQUEST: "true"
+
+  ffc-ahwr-payment-postgres:
+    image: postgres:11.4-alpine
+    environment:
+      POSTGRES_DB: ffc_ahwr_payment
+      POSTGRES_PASSWORD: ppp
+      POSTGRES_USERNAME: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data: {}
