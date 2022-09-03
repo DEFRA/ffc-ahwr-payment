@@ -1,12 +1,15 @@
 const Joi = require('joi')
-const { get, set } = require('../../repositories/payment-repository')
+const { get } = require('../../repositories/payment-repository')
+const { savePaymentRequest } = require('../../messaging/save-payment-request')
+const species = require('../../constants/species')
+
 module.exports = [{
   method: 'GET',
-  path: '/api/payment/{ref}',
+  path: '/api/payment/{reference}',
   options: {
     validate: {
       params: Joi.object({
-        ref: Joi.string().valid()
+        reference: Joi.string().valid()
       })
     },
     handler: async (request, h) => {
@@ -24,15 +27,17 @@ module.exports = [{
   options: {
     validate: {
       payload: Joi.object({
-        ref: Joi.string().valid()
+        reference: Joi.string().required(),
+        sbi: Joi.string().required(),
+        whichReview: Joi.string().valid(species.beef, species.dairy, species.pigs, species.sheep)
       }),
       failAction: async (_request, h, err) => {
         return h.response({ err }).code(400).takeover()
       }
     },
     handler: async (request, h) => {
-      const payment = await set(request.payload.reference, request.payload)
-      return h.response(payment).code(200)
+      await savePaymentRequest(request.payload)
+      return h.response().code(200)
     }
   }
 }]
