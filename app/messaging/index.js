@@ -7,21 +7,21 @@ let applicationClaimReceiver
 let paymentActionReceiver
 
 const start = async () => {
-  console.info('Starting message receivers')
-  console.info('Application payment request queue: ' + JSON.stringify(applicationPaymentRequestQueue.address))
-  console.info('Payment response subscription: ' + JSON.stringify(paymentResponseSubscription.topic) + ' ' + JSON.stringify(paymentResponseSubscription.address))
+  console.log('Starting message receivers')
+  console.log('Application payment request queue: ' + JSON.stringify(applicationPaymentRequestQueue.address))
+  console.log('Payment response subscription: ' + JSON.stringify(paymentResponseSubscription.topic) + ' ' + JSON.stringify(paymentResponseSubscription.address))
 
   const applicationClaimAction = message => processApplicationPaymentRequest(message, applicationClaimReceiver)
   applicationClaimReceiver = new MessageReceiver(applicationPaymentRequestQueue, applicationClaimAction)
   await applicationClaimReceiver.subscribe()
 
-  console.info(`Ready to receive messages on ${JSON.stringify(applicationPaymentRequestQueue.address)}`)
+  console.log(`Ready to receive messages on ${JSON.stringify(applicationPaymentRequestQueue.address)}`)
 
   const paymentRequestAction = message => processPaymentResponse(message, paymentActionReceiver)
   paymentActionReceiver = new MessageReceiver(paymentResponseSubscription, paymentRequestAction)
   await paymentActionReceiver.subscribe()
 
-  console.info(`Ready to receive messages on subscription ${JSON.stringify(paymentResponseSubscription.address)}`)
+  console.log(`Ready to receive messages on subscription ${JSON.stringify(paymentResponseSubscription.address)}`)
 }
 
 const stop = async () => {
