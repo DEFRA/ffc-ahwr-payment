@@ -3,7 +3,7 @@ const msgTypePrefix = 'uk.gov.ffc.ahwr'
 
 const sharedConfigSchema = {
   appInsights: Joi.object(),
-  host: Joi.string().default('localhost'),
+  host: Joi.string(),
   password: Joi.string(),
   username: Joi.string(),
   useCredentialChain: Joi.bool().default(false)
@@ -11,17 +11,17 @@ const sharedConfigSchema = {
 
 const schema = Joi.object({
   applicationPaymentRequestQueue: {
-    address: Joi.string().default('applicationPaymentRequestQueue'),
+    address: Joi.string(),
     type: Joi.string(),
     ...sharedConfigSchema
   },
   paymentRequestTopic: {
-    address: Joi.string().default('paymentRequestTopic'),
+    address: Joi.string(),
     ...sharedConfigSchema
   },
   paymentResponseSubscription: {
     topic: Joi.string().default('paymentResponseTopic'),
-    address: Joi.string().default('paymentResponseSubscription'),
+    address: Joi.string(),
     type: Joi.string().default('subscription'),
     ...sharedConfigSchema
   },

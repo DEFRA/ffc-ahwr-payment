@@ -44,6 +44,8 @@ describe('Application Insights', () => {
     expect(setupMock).toHaveBeenCalledTimes(1)
     expect(startMock).toHaveBeenCalledTimes(1)
     expect(tags[cloudRoleTag]).toEqual(appName)
+    expect(consoleLogSpy).toHaveBeenCalledTimes(1)
+    expect(consoleLogSpy).toHaveBeenCalledWith('App Insights Running')
   })
 
   test('logs not running when env var does not exist', () => {

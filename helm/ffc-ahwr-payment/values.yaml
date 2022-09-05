@@ -34,6 +34,7 @@ deployment:
 
 container:
   applicationPaymentRequestQueueAddress: ffc-ahwr-payment-request
+  messageQueueHost: namespace.servicebus.windows.net
   paymentRequestTopicAddress: ffc-pay-request
   paymentResponseTopicAddress: ffc-pay-request-response
   paymentResponseSubscriptionAddress: ffc-ahwr-application
@@ -55,13 +56,13 @@ postgresService:
 livenessProbe:
   path: /healthz
   port: 3000
-  initialDelaySeconds: 10
+  initialDelaySeconds: 120
   periodSeconds: 10
   failureThreshold: 3
 
 readinessProbe:
   path: /healthy
   port: 3000
-  initialDelaySeconds: 10
+  initialDelaySeconds: 120
   periodSeconds: 10
   failureThreshold: 3
