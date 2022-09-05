@@ -23,7 +23,7 @@ services:
       POSTGRES_PORT: 5432
       POSTGRES_SCHEMA_NAME: ${POSTGRES_SCHEMA_NAME:-public}
       POSTGRES_USERNAME: ${POSTGRES_SCHEMA_USERNAME:-postgres}
-      SEND_PAYMENT_REQUEST: "true"
+      SEND_PAYMENT_REQUEST: "false"
 
   ffc-ahwr-payment-postgres:
     image: postgres:11.4-alpine
