@@ -1,5 +1,5 @@
 const Joi = require('joi')
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid')
 const { get } = require('../../repositories/payment-repository')
 const { savePaymentRequest } = require('../../messaging/save-payment-request')
 const species = require('../../constants/species')
