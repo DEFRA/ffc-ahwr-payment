@@ -9,6 +9,8 @@ function setup () {
     const appName = process.env.APPINSIGHTS_CLOUDROLE
     console.log('App Insights Running - appName', appName)
     appInsights.defaultClient.context.tags[cloudRoleTag] = appName
+
+    console.log('App Insights Running - appName', appInsights.defaultClient.context.tags[cloudRoleTag])
   } else {
     console.log('App Insights Not Running!')
   }
