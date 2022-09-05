@@ -8,13 +8,12 @@ data:
   APPLICATIONPAYMENTREQUEST_QUEUE_ADDRESS: {{ quote .Values.container.applicationPaymentRequestQueueAddress }}-{{ .Values.environmentCode }}
   PAYMENTREQUEST_TOPIC_ADDRESS: {{ quote .Values.container.paymentRequestTopicAddress }}-{{ .Values.environmentCode }}
   PAYMENTRESPONSE_TOPIC_ADDRESS: {{ quote .Values.container.paymentResponseTopicAddress }}-{{ .Values.environmentCode }}
-  PAYMENTRESPONSE_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.paymentResponseSubscriptionAddress }}-{{ .Values.environmentCode }}
   {{ else }}
   APPLICATIONPAYMENTREQUEST_QUEUE_ADDRESS: {{ quote .Values.container.applicationPaymentRequestQueueAddress }}
   PAYMENTREQUEST_TOPIC_ADDRESS: {{ quote .Values.container.paymentRequestTopicAddress }}
   PAYMENTRESPONSE_TOPIC_ADDRESS: {{ quote .Values.container.paymentResponseTopicAddress }}
-  PAYMENTRESPONSE_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.paymentResponseSubscriptionAddress }}
   {{- end }}
+  PAYMENTRESPONSE_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.paymentResponseSubscriptionAddress }}
   POSTGRES_DB: {{ quote .Values.postgresService.postgresDb }}
   POSTGRES_HOST: {{ quote .Values.postgresService.postgresExternalName }}
   POSTGRES_PORT: {{ quote .Values.postgresService.postgresPort }}
