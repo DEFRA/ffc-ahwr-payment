@@ -6,7 +6,6 @@ const dbConfig = config[process.env.NODE_ENV]
 const modelPath = path.join(__dirname, 'models')
 
 module.exports = (() => {
-  console.log(config)
   const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, dbConfig)
 
   fs
@@ -22,7 +21,6 @@ module.exports = (() => {
     }
   }
 
-  console.log('Database connected')
   return {
     models: sequelize.models,
     sequelize
