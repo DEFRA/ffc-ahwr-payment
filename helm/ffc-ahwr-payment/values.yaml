@@ -1,8 +1,8 @@
 environment: development
+image: ffc-ahwr-payment
 name: ffc-ahwr-payment
 namespace: ffc-ahwr
 workstream: ffc-ahwr
-image: ffc-ahwr-payment
 
 labels: {}
 
