@@ -1,4 +1,5 @@
 const routes = [].concat(
+  require('../routes/api/payment'),
   require('../routes/healthy'),
   require('../routes/healthz')
 )

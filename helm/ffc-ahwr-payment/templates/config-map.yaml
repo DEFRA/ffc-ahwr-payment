@@ -3,8 +3,9 @@
 data:
   NODE_ENV: {{ quote .Values.environment }}
   PORT: {{ quote .Values.container.port }}
-  APPLICATIONPAYMENTREQUEST_QUEUE_ADDRESS: {{ quote .Values.container.applicationPaymentRequestQueueAddress }}
   APPINSIGHTS_CLOUDROLE: {{ quote .Values.name }}
+  APPLICATIONPAYMENTREQUEST_QUEUE_ADDRESS: {{ quote .Values.container.applicationPaymentRequestQueueAddress }}
+  MESSAGE_QUEUE_HOST: {{ quote .Values.container.messageQueueHost }}
   PAYMENTREQUEST_TOPIC_ADDRESS: {{ quote .Values.container.paymentRequestTopicAddress }}
   PAYMENTRESPONSE_TOPIC_ADDRESS: {{ quote .Values.container.paymentResponseTopicAddress }}
   PAYMENTRESPONSE_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.paymentResponseSubscriptionAddress }}
