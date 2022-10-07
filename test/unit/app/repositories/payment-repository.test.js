@@ -9,7 +9,7 @@ beforeEach(() => {
   jest.clearAllMocks()
 })
 
-const reference = 'VV-1234-567'
+const reference = 'AHWR-1234-567'
 
 describe('Payment Repository test', () => {
   test('Set creates record for data', async () => {
