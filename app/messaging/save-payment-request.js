@@ -37,6 +37,8 @@ const savePaymentRequest = async (applicationPaymentRequest) => {
       const paymentRequest = buildPaymentRequest(applicationPaymentRequest)
       if (validatePaymentRequest(paymentRequest)) {
         await set(reference, paymentRequest)
+
+        return paymentRequest
       } else {
         throw new Error(`Payment request schema not valid for reference ${reference}`)
       }
