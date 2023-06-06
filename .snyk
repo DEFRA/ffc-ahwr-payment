@@ -5,5 +5,10 @@ ignore:
   SNYK-JS-HAPISTATEHOOD-2769251:
     - '@hapi/hapi > @hapi/statehood':
         reason: None given
-        expires: '2022-09-30T13:48:18.349Z'
+        expires: '2022-09-30T13:48:18.349Z'  
+  SNYK-JS-SEQUELIZE-3324088:
+    - '*':
+        reason: no known fix
+        expires: '2023-03-22T12:15:56.831Z'
+        created: '2023-02-20T12:15:56.840Z'
 patch: {}
