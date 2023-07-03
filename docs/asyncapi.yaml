@@ -1,0 +1,25 @@
+asyncapi: '2.5.0'
+info:
+  title: Payment Service
+  version: 0.6.4
+  description: Payment Service for Animal Health and Welfare Review 
+channels:
+  ffc-ahwr-payment-request:
+    subscribe:
+      message:
+        $ref: '#/components/messages/PaymentRequest'
+components:
+  messages:
+    PaymentRequest:
+      payload:
+        type: object
+        properties:
+          reference:
+            type: string
+            description: Application reference
+          sbi:
+            type: string
+            description: SBI number
+          whichReview:
+            type: string
+            description: Specify the review type
