@@ -23,7 +23,7 @@
     "@hapi/hapi": "^20.2.1",
     "applicationinsights": "^2.2.1",
     "ffc-messaging": "^2.3.4",
-    "hapi-pino": "10.1.0",
+    "hapi-pino": "10.2.0",
     "joi": "^17.6.0",
     "log-timestamp": "0.3.0",
     "pg": "^8.7.3",
