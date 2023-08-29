@@ -6,6 +6,7 @@ const paymentRepository = require('../../../../app/repositories/payment-reposito
 describe(('Process payment response'), () => {
   const consoleError = jest.spyOn(console, 'error')
   const agreementNumber = 'AA-1234-567'
+  jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
 
   const receiver = {
     completeMessage: jest.fn(),
