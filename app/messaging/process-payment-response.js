@@ -5,7 +5,7 @@ const appInsights = require('applicationinsights')
 const processPaymentResponse = async (message, receiver) => {
   try {
     const messageBody = message.body
-    const paymentRequest = messageBody.paymentRequest
+    const paymentRequest = messageBody?.paymentRequest
     const agreementNumber = paymentRequest?.agreementNumber
     const status = messageBody?.accepted ? 'success' : failedPaymentRequest(messageBody)
     if (paymentRequest && agreementNumber) {
@@ -33,7 +33,7 @@ const processPaymentResponse = async (message, receiver) => {
         properties: {
           status: 'failed',
           agreementNumber,
-          value: paymentRequest.value
+          value: paymentRequest?.value
         }
       })
       console.error('Received process payments response with no payment request and agreement number', util.inspect(message.body, false, null, true))

@@ -1,6 +1,7 @@
 const processApplicationPaymentRequest = require('../../../../app/messaging/process-application-payment-request')
 const savePaymentRequest = require('../../../../app/messaging/save-payment-request')
 jest.mock('../../../../app/messaging/save-payment-request')
+jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
 
 describe(('Process application payment request'), () => {
   const consoleError = jest.spyOn(console, 'error')

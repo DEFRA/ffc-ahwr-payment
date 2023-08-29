@@ -4,7 +4,6 @@ jest.mock('../../../../app/repositories/payment-repository')
 const paymentRepository = require('../../../../app/repositories/payment-repository')
 jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
 
-
 describe(('Process payment response'), () => {
   const consoleError = jest.spyOn(console, 'error')
   const agreementNumber = 'AA-1234-567'
@@ -96,7 +95,7 @@ describe(('Process payment response'), () => {
   test('console.error raised due to error thrown in updateByReference', async () => {
     paymentRepository.updateByReference.mockResolvedValueOnce(() => { throw new Error() })
     await processPaymentResponse({}, receiver)
-    expect(consoleError).toHaveBeenCalledTimes(1)
+    expect(consoleError).toHaveBeenCalledTimes(2)
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
     expect(paymentRepository.updateByReference).toHaveBeenCalledTimes(0)
   })
