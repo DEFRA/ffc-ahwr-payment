@@ -31,7 +31,7 @@ describe(('Process application payment request'), () => {
     , receiver)
 
     expect(savePaymentRequest).toHaveBeenCalledTimes(1)
-    expect(receiver.completeMessage).toHaveBeenCalledTimes(1)
+    expect(receiver.completeMessage).toHaveBeenCalledTimes(0)
   })
 
   test('console.error raised due to error thrown in updateByReference', async () => {
