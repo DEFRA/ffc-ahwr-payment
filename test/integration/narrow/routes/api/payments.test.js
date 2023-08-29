@@ -1,4 +1,6 @@
 const paymentRepository = require('../../../../../app/repositories/payment-repository')
+jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
+
 const reference = 'ABC-1234'
 paymentRepository.get = jest.fn()
   .mockResolvedValueOnce({ dataValues: { reference, createdBy: 'admin', createdAt: new Date(), data: {} } })
