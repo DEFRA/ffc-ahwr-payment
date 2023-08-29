@@ -2,12 +2,12 @@ const util = require('util')
 const processPaymentResponse = require('../../../../app/messaging/process-payment-response')
 jest.mock('../../../../app/repositories/payment-repository')
 const paymentRepository = require('../../../../app/repositories/payment-repository')
+jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
+
 
 describe(('Process payment response'), () => {
   const consoleError = jest.spyOn(console, 'error')
   const agreementNumber = 'AA-1234-567'
-  jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
-
   const receiver = {
     completeMessage: jest.fn(),
     abandonMessage: jest.fn(),
