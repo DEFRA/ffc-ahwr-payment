@@ -3,6 +3,7 @@ const processPaymentResponse = require('../../../../app/messaging/process-paymen
 jest.mock('../../../../app/repositories/payment-repository')
 const paymentRepository = require('../../../../app/repositories/payment-repository')
 jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
+const appInsights = require('applicationinsights')
 
 describe(('Process payment response'), () => {
   const consoleError = jest.spyOn(console, 'error')
@@ -42,6 +43,7 @@ describe(('Process payment response'), () => {
       }]
     })
     expect(receiver.completeMessage).toHaveBeenCalledTimes(1)
+    expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
   })
 
   test('Update the payment with failed status', async () => {
@@ -69,6 +71,7 @@ describe(('Process payment response'), () => {
         },
         false, null, true)
     )
+    expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
   })
 
   test('console.error raised due to no agreement number within message', async () => {
@@ -90,13 +93,25 @@ describe(('Process payment response'), () => {
     )
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
     expect(paymentRepository.updateByReference).toHaveBeenCalledTimes(0)
+    expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
   })
 
-  test('console.error raised due to error thrown in updateByReference', async () => {
-    paymentRepository.updateByReference.mockResolvedValueOnce(() => { throw new Error() })
+  test('console.error raised due empty message', async () => {
     await processPaymentResponse({}, receiver)
     expect(consoleError).toHaveBeenCalledTimes(2)
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
     expect(paymentRepository.updateByReference).toHaveBeenCalledTimes(0)
+    expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
+  })
+
+  test('error raised due to error thrown in updateByReference', async () => {
+    const paymentRequest = { value: 0, agreementNumber }
+    const accepted = 'success'
+    await processPaymentResponse({ body: { paymentRequest, accepted } }, receiver)
+    paymentRepository.updateByReference.mockImplementation(async () => { throw new Error('Fake Error') })
+    expect(consoleError).toHaveBeenCalledTimes(0)
+    expect(paymentRepository.updateByReference).toHaveBeenCalledWith(agreementNumber, accepted, paymentRequest)
+    expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(0)
+    expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
   })
 })

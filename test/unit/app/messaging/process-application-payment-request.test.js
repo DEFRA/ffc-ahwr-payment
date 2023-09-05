@@ -1,6 +1,7 @@
 const processApplicationPaymentRequest = require('../../../../app/messaging/process-application-payment-request')
 const savePaymentRequest = require('../../../../app/messaging/save-payment-request')
 jest.mock('../../../../app/messaging/save-payment-request')
+const appInsights = require('applicationinsights')
 jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
 const sendPaymentRequest = require('../../../../app/messaging/send-payment-request')
 jest.mock('../../../../app/messaging/send-payment-request')
@@ -35,6 +36,7 @@ describe(('Process application payment request'), () => {
 
     expect(savePaymentRequest).toHaveBeenCalledTimes(1)
     expect(receiver.completeMessage).toHaveBeenCalledTimes(1)
+    expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
   })
 
   test('console.error raised due to error thrown in updateByReference', async () => {
@@ -42,5 +44,6 @@ describe(('Process application payment request'), () => {
     await processApplicationPaymentRequest({}, receiver)
     expect(consoleError).toHaveBeenCalledTimes(1)
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
+    expect(appInsights.defaultClient.trackException).toHaveBeenCalledTimes(1)
   })
 })

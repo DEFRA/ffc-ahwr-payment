@@ -19,7 +19,7 @@ const processPaymentResponse = async (message, receiver) => {
       await updateByReference(agreementNumber, status, paymentRequest)
 
       appInsights.defaultClient.trackEvent({
-        name: 'payment',
+        name: 'payment-response',
         properties: {
           status,
           agreementNumber,
@@ -29,7 +29,7 @@ const processPaymentResponse = async (message, receiver) => {
       await receiver.completeMessage(message)
     } else {
       appInsights.defaultClient.trackEvent({
-        name: 'payment',
+        name: 'payment-response',
         properties: {
           status: 'failed',
           agreementNumber,
