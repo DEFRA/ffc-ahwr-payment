@@ -17,7 +17,7 @@ describe(('Process payment response'), () => {
     jest.clearAllMocks()
   })
 
-  test('Sucessfully update the payment with success status', async () => {
+  test('Successfully update the payment with success status', async () => {
     paymentRepository.updateByReference.mockResolvedValueOnce()
     await processPaymentResponse({
       body: {
