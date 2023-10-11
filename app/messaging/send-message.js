@@ -4,6 +4,7 @@ const createMessage = require('./create-message')
 const sendMessage = async (body, type, config, options) => {
   const message = createMessage(body, type, options)
   const sender = new MessageSender(config)
+  console.log('MESSAGE::::', message)
   await sender.sendMessage(message)
   await sender.closeConnection()
 }
