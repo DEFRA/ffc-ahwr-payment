@@ -1,6 +1,6 @@
 {
   "name": "ffc-ahwr-payment",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "FFC Vet Visits Payment Service",
   "homepage": "https://github.com/DEFRA/ffc-ahwr-payment",
   "main": "app/index.js",
@@ -33,7 +33,7 @@
     "standard": "^17.0.0"
   },
   "overrides": {
-    "semver" : "7.5.2"
+    "semver": "7.5.2"
   },
   "devDependencies": {
     "blipp": "4.0.2",
