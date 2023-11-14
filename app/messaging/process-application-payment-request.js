@@ -18,7 +18,14 @@ const processApplicationPaymentRequest = async (message, receiver) => {
     })
   } catch (err) {
     await receiver.deadLetterMessage(message)
-    appInsights.defaultClient.trackException({ exception: err })
+    appInsights.defaultClient.trackException({
+      exception: err ?? new Error('unknown'),
+      properties: {
+        agreementNo: message.body?.reference ?? '',
+        payload: message.body ?? '',
+        messageId: message.id ?? ''
+      }
+    })
     console.error('Unable to process application payment request:', err)
   }
 }
