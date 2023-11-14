@@ -24,7 +24,6 @@ const processApplicationPaymentRequest = async (message, receiver) => {
         agreementNo: message.body?.reference ?? '',
         payload: message.body ?? '',
         messageId: message.id ?? '',
-        message: message ? { ...message } : {}
       }
     })
     console.error('Unable to process application payment request:', err)
