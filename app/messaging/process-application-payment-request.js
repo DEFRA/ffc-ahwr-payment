@@ -21,8 +21,8 @@ const processApplicationPaymentRequest = async (message, receiver) => {
     appInsights.defaultClient.trackException({
       exception: err ?? new Error('unknown'),
       properties: {
-        agreementNo: messageBody.reference,
-        payload: messageBody,
+        agreementNo: messageBody?.reference ?? '',
+        payload: messageBody ?? '',
         request: paymentRequest ?? 'Server Error'
       }
     })
