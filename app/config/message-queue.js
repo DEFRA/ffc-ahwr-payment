@@ -25,7 +25,18 @@ const schema = Joi.object({
     type: Joi.string().default('subscription'),
     ...sharedConfigSchema
   },
-  submitPaymentRequestMsgType: Joi.string()
+  paymentDataResponseQueueAddress: {
+    address: Joi.string(),
+    type: Joi.string(),
+    ...sharedConfigSchema
+  },
+  paymentDataRequestTopicAddress: {
+    address: Joi.string(),
+    type: Joi.string(),
+    ...sharedConfigSchema
+  },
+  submitPaymentRequestMsgType: Joi.string(),
+  submitPaymentDataRequestMsgType: Joi.string()
 })
 
 const sharedConfig = {
@@ -52,7 +63,18 @@ const config = {
     type: 'subscription',
     ...sharedConfig
   },
-  submitPaymentRequestMsgType: `${msgTypePrefix}.submit.payment.request`
+  paymentDataResponseQueueAddress: {
+    address: process.env.PAYMENTDATARESPONSE_QUEUE_ADDRESS,
+    type: 'queue',
+    ...sharedConfig
+  },
+  paymentDataRequestTopicAddress: {
+    address: process.env.PAYMENTDATAREQUEST_TOPIC_ADDRESS,
+    type: 'topic',
+    ...sharedConfig
+  },
+  submitPaymentRequestMsgType: `${msgTypePrefix}.submit.payment.request`,
+  submitPaymentDataRequestMsgType: `${msgTypePrefix}.submit.payment.data.request`
 }
 
 const { error, value } = schema.validate(config, { abortEarly: false })

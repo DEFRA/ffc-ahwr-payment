@@ -24,6 +24,8 @@ services:
       POSTGRES_SCHEMA_NAME: ${POSTGRES_SCHEMA_NAME:-public}
       POSTGRES_USERNAME: ${POSTGRES_SCHEMA_USERNAME:-postgres}
       SEND_PAYMENT_REQUEST: "true"
+      CHECK_PAYMENT_STATUS_SCHEDULER_ENABLED: "true"
+      CHECK_PAYMENT_STATUS_SCHEDULER_SCHEDULE: "*/30 * * * *"
 
   ffc-ahwr-payment-postgres:
     image: postgres:11.4-alpine

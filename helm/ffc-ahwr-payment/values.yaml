@@ -38,12 +38,16 @@ container:
   paymentRequestTopicAddress: ffc-pay-request
   paymentResponseTopicAddress: ffc-pay-request-response
   paymentResponseSubscriptionAddress: ffc-ahwr-application
+  paymentDataRequestTopicAddress: ffc-pay-data-request
+  paymentDataResponseQueueAddress: ffc-pay-data-request-response
   sendPaymentRequest: "true"
   imagePullPolicy: IfNotPresent
   requestMemory: 10Mi
   requestCpu: 10m
   limitMemory: 120Mi
   limitCpu: 120m
+  checkPaymentStatusSchedulerEnabled:
+  checkPaymentStatusSchedulerSchedule:
   port: 3000
 
 postgresService:

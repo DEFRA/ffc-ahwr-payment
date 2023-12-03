@@ -9,9 +9,13 @@ data:
   PAYMENTREQUEST_TOPIC_ADDRESS: {{ quote .Values.container.paymentRequestTopicAddress }}
   PAYMENTRESPONSE_TOPIC_ADDRESS: {{ quote .Values.container.paymentResponseTopicAddress }}
   PAYMENTRESPONSE_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.paymentResponseSubscriptionAddress }}
+  PAYMENTDATAREQUEST_TOPIC_ADDRESS: {{ quote .Values.container.paymentDataRequestTopicAddress }}
+  PAYMENTDATARESPONSE_QUEUE_ADDRESS: {{ quote .Values.container.paymentDataResponseQueueAddress }}
   POSTGRES_DB: {{ quote .Values.postgresService.postgresDb }}
   POSTGRES_HOST: {{ quote .Values.postgresService.postgresExternalName }}
   POSTGRES_PORT: {{ quote .Values.postgresService.postgresPort }}
   POSTGRES_SCHEMA_NAME: {{ quote .Values.postgresService.postgresSchema }}
   SEND_PAYMENT_REQUEST: {{ quote .Values.container.sendPaymentRequest }}
+  CHECK_PAYMENT_STATUS_SCHEDULER_ENABLED: {{ quote .Values.container.checkPaymentStatusSchedulerEnabled }}
+  CHECK_PAYMENT_STATUS_SCHEDULER_SCHEDULE: {{ quote .Values.container.checkPaymentStatusSchedulerSchedule }}
 {{- end -}}
