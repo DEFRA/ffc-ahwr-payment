@@ -18,5 +18,5 @@ ignore:
   SNYK-JS-INFLIGHT-6095116:
     - 'standard@17.1.0 > eslint@8.57.0 > file-entry-cache@6.0.1 > flat-cache@3.2.0 > rimraf@3.0.2 > glob@7.2.3 > inflight@1.0.6':
         reason: no known fix
-        expires: '2023-12-01T12:00:00.000Z'
+        expires: '2025-12-01T12:00:00.000Z'
 patch: {}
