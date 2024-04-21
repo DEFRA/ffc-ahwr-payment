@@ -9,10 +9,14 @@ jest.mock('../../../../app/messaging/send-payment-request')
 describe(('Process application payment request'), () => {
   const consoleError = jest.spyOn(console, 'error')
   const reference = 'AA-1234-567'
-  const applicationPaymentRequest = {
+  const applicationPaymentRequestMissingFrn = {
     reference,
     sbi: '123456789',
     whichReview: 'beef'
+  }
+  const applicationPaymentRequest = {
+    ...applicationPaymentRequestMissingFrn,
+    frn: '123456789'
   }
 
   sendPaymentRequest.mockResolvedValueOnce()

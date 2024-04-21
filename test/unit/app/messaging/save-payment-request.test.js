@@ -4,10 +4,14 @@ const paymentRepository = require('../../../../app/repositories/payment-reposito
 jest.mock('../../../../app/messaging/send-message')
 
 const reference = 'AA-123-456'
-const applicationPaymentRequest = {
+const applicationPaymentRequestMissingFrn = {
   reference,
   sbi: '123456789',
   whichReview: 'beef'
+}
+const applicationPaymentRequest = {
+  ...applicationPaymentRequestMissingFrn,
+  frn: '123456789'
 }
 
 describe(('Save payment request'), () => {
@@ -18,6 +22,12 @@ describe(('Save payment request'), () => {
   test('Set creates record for payment', async () => {
     paymentRepository.get.mockResolvedValueOnce()
     await savePaymentRequest(applicationPaymentRequest)
+    expect(paymentRepository.set).toHaveBeenCalledTimes(1)
+  })
+
+  test('Set creates record for payment without frm', async () => {
+    paymentRepository.get.mockResolvedValueOnce()
+    await savePaymentRequest(applicationPaymentRequestMissingFrn)
     expect(paymentRepository.set).toHaveBeenCalledTimes(1)
   })
 
