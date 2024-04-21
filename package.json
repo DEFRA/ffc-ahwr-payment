@@ -30,7 +30,7 @@
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.16.2",
     "uuid": "^8.3.2",
-    "standard": "^17.0.0"
+    "standard": "^17.1.0"
   },
   "overrides": {
     "semver": "7.5.2"
@@ -40,7 +40,7 @@
     "jest": "^27.5.1",
     "jest-junit": "^13.0.0",
     "nodemon": "^2.0.15",
-    "standard": "^16.0.4"
+    "standard": "^17.1.0"
   },
   "standard": {
     "globals": [

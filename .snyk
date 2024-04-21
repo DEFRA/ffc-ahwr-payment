@@ -12,7 +12,11 @@ ignore:
         expires: '2023-03-22T12:15:56.831Z'
         created: '2023-02-20T12:15:56.840Z'
   SNYK-JS-WORDWRAP-3149973:
-    - standard@16.0.4 > eslint@7.18.0 > optionator@0.9.1 > word-wrap@1.2.3:
+    - 'standard@16.0.4 > eslint@7.18.0 > optionator@0.9.1 > word-wrap@1.2.3':
+        reason: no known fix
+        expires: '2023-12-01T12:00:00.000Z'
+  SNYK-JS-INFLIGHT-6095116:
+    - 'standard@17.1.0 > eslint@8.57.0 > file-entry-cache@6.0.1 > flat-cache@3.2.0 > rimraf@3.0.2 > glob@7.2.3 > inflight@1.0.6':
         reason: no known fix
         expires: '2023-12-01T12:00:00.000Z'
 patch: {}
