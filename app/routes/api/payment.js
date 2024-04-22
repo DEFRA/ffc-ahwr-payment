@@ -31,7 +31,8 @@ module.exports = [{
       payload: Joi.object({
         reference: Joi.string().required(),
         sbi: Joi.string().required(),
-        whichReview: Joi.string().valid(species.beef, species.dairy, species.pigs, species.sheep)
+        whichReview: Joi.string().valid(species.beef, species.dairy, species.pigs, species.sheep),
+        frn: Joi.string().allow(null).optional()
       }),
       failAction: async (_request, h, err) => {
         return h.response({ err }).code(400).takeover()
