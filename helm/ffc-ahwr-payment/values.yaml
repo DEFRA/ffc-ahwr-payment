@@ -38,6 +38,7 @@ container:
   paymentRequestTopicAddress: ffc-pay-request
   paymentResponseTopicAddress: ffc-pay-request-response
   paymentResponseSubscriptionAddress: ffc-ahwr-application
+  azureStorageEndemicsSettingsContainerName:
   sendPaymentRequest: "true"
   imagePullPolicy: IfNotPresent
   requestMemory: 10Mi
