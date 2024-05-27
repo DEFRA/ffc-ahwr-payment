@@ -1,13 +1,28 @@
 const savePaymentRequest = require('../../../../app/messaging/save-payment-request')
+const { getBlob } = require('../../../../app/storage')
+const { getPaymentData } = require('../../../../app/lib/getPaymentData')
+const pricesConfig = require('../../../data/claim-prices-config.json')
 jest.mock('../../../../app/repositories/payment-repository')
+jest.mock('../../../../app/lib/getPaymentData')
+jest.mock('../../../../app/storage')
 const paymentRepository = require('../../../../app/repositories/payment-repository')
 jest.mock('../../../../app/messaging/send-message')
-
+jest.mock('../../../../app/config', () => ({
+  storage: {
+    storageAccount: 'mockStorageAccount',
+    useConnectionString: false,
+    endemicsSettingsContainer: 'endemics-settings',
+    connectionString: 'connectionString'
+  }
+}))
 const reference = 'AA-123-456'
 const applicationPaymentRequestMissingFrn = {
   reference,
   sbi: '123456789',
-  whichReview: 'beef'
+  whichReview: 'beef',
+  isEndemics: false,
+  testResults: null
+
 }
 const applicationPaymentRequest = {
   ...applicationPaymentRequestMissingFrn,
@@ -17,6 +32,8 @@ const applicationPaymentRequest = {
 describe(('Save payment request'), () => {
   beforeEach(async () => {
     jest.clearAllMocks()
+    getBlob.mockReturnValue(JSON.stringify(pricesConfig))
+    getPaymentData.mockReturnValue({ standardCode: 'AHWR-Beef', value: 522 })
   })
 
   test('Set creates record for payment', async () => {
@@ -42,6 +59,11 @@ describe(('Save payment request'), () => {
   })
 })
 describe('Save payment request part 2', () => {
+  beforeEach(async () => {
+    jest.clearAllMocks()
+    getBlob.mockReturnValue(JSON.stringify(pricesConfig))
+    getPaymentData.mockReturnValue({ standardCode: 'AHWR-Beef', value: 522 })
+  })
   test('throws error if payment request is undefined', async () => {
     await expect(savePaymentRequest(undefined)).rejects.toThrow()
   })
