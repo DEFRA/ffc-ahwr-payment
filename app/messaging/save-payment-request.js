@@ -1,17 +1,17 @@
 const { description, paymentRequestNumber, sourceSystem } = require('../constants/payment-request')
 const { get, set } = require('../repositories/payment-repository')
-const speciesData = require('./species')
 const validateApplicationPaymentRequest = require('./application-payment-request-schema')
 const validatePaymentRequest = require('./payment-request-schema')
-
-const buildPaymentRequest = (application) => {
+const { getPaymentData } = require('../lib/getPaymentData')
+const { getBlob } = require('../storage')
+const buildPaymentRequest = async (application) => {
   const agreementNumber = application.reference
   const sbi = application.sbi
   const marketingYear = new Date().getFullYear()
   const species = application.whichReview
-  const standardCode = speciesData[species]?.code
-  const value = speciesData[species]?.value
-
+  const { isEndemics, testResults } = application
+  const pricesConfig = await getBlob('claim-prices-config.json')
+  const { standardCode, value } = getPaymentData(species, testResults, pricesConfig, isEndemics)
   return {
     sourceSystem,
     sbi,
@@ -20,8 +20,8 @@ const buildPaymentRequest = (application) => {
     agreementNumber,
     value,
     invoiceLines: [{
-      standardCode,
       description,
+      standardCode,
       value
     }]
   }
@@ -34,7 +34,7 @@ const savePaymentRequest = async (applicationPaymentRequest) => {
     const paymentExists = await checkIfPaymentExists(reference)
 
     if (!paymentExists) {
-      const paymentRequest = buildPaymentRequest(applicationPaymentRequest)
+      const paymentRequest = await buildPaymentRequest(applicationPaymentRequest)
       if (validatePaymentRequest(paymentRequest)) {
         await set(reference, paymentRequest)
 

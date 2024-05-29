@@ -5,6 +5,18 @@ describe('Index test', () => {
   jest.mock('../../../app/messaging')
   jest.mock('../../../app/insights')
   jest.mock('../../../app/server')
+  jest.mock('../../../app/config', () => ({
+    storage: {
+      storageAccount: 'mockStorageAccount',
+      useConnectionString: false,
+      endemicsSettingsContainer: 'endemics-settings',
+      connectionString: 'connectionString'
+    },
+    messageQueueConfig: {
+      submitPaymentRequestMsgType: jest.fn()
+    }
+  }))
+
   mockCreateServer.mockResolvedValue({
     info: {
       uri: 'http://localhost:3000'

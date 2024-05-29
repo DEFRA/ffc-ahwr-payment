@@ -31,6 +31,8 @@ module.exports = [{
       payload: Joi.object({
         reference: Joi.string().required(),
         sbi: Joi.string().required(),
+        isEndemics: Joi.boolean().default(false),
+        testResults: Joi.string().allow(null).optional(),
         whichReview: Joi.string().valid(species.beef, species.dairy, species.pigs, species.sheep),
         frn: Joi.string().allow(null).optional()
       }),
