@@ -1,6 +1,5 @@
 const Joi = require('joi')
 
-// Define config schema
 const schema = Joi.object({
   connectionString: Joi.string().required(),
   endemicsSettingsContainer: Joi.string().default('endemics-settings'),
@@ -9,7 +8,6 @@ const schema = Joi.object({
   useConnectionString: Joi.bool().default(false)
 })
 
-// Build config
 const config = {
   connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
   useConnectionString: process.env.AZURE_STORAGE_USE_CONNECTION_STRING,
@@ -17,12 +15,10 @@ const config = {
   storageAccount: process.env.AZURE_STORAGE_ACCOUNT_NAME
 }
 
-// Validate config
 const result = schema.validate(config, {
   abortEarly: false
 })
 
-// Throw if config is invalid
 if (result.error) {
   throw new Error(`The blob storage config is invalid. ${result.error.message}`)
 }
