@@ -2,12 +2,25 @@ const { getPaymentData } = require('../../../../app/lib/getPaymentData')
 const pricesConfig = require('../../../data/claim-prices-config.json')
 
 describe('getPaymentData', () => {
-  test('returns correct payment data for beef with positive test result', () => {
+  test('returns correct payment data for beef review with test result', () => {
     const typeOfLivestock = 'beef'
     const testResults = 'positive'
     const isEndemics = true
 
-    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics)
+    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics, 'R')
+
+    expect(paymentData).toEqual({
+      standardCode: 'AHWR-Beef',
+      value: 522
+    })
+  })
+
+  test('returns correct payment data for beef positive follow up with test result', () => {
+    const typeOfLivestock = 'beef'
+    const testResults = 'positive'
+    const isEndemics = true
+
+    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics, 'E')
 
     expect(paymentData).toEqual({
       standardCode: 'AHWR-Beef',
@@ -15,12 +28,51 @@ describe('getPaymentData', () => {
     })
   })
 
-  test('returns correct payment data for dairy with negative test result', () => {
+  test('returns correct payment data for beef negative follow up with test result', () => {
+    const typeOfLivestock = 'beef'
+    const testResults = 'negative'
+    const isEndemics = true
+
+    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics, 'E')
+
+    expect(paymentData).toEqual({
+      standardCode: 'AHWR-Beef',
+      value: 215
+    })
+  })
+
+  test('returns correct payment data for review dairy with negative test result', () => {
     const typeOfLivestock = 'dairy'
     const testResults = 'negative'
     const isEndemics = true
 
-    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics)
+    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics, 'R')
+
+    expect(paymentData).toEqual({
+      standardCode: 'AHWR-Dairy',
+      value: 372
+    })
+  })
+
+  test('returns correct payment data for dairy positive follow up with test result', () => {
+    const typeOfLivestock = 'dairy'
+    const testResults = 'positive'
+    const isEndemics = true
+
+    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics, 'E')
+
+    expect(paymentData).toEqual({
+      standardCode: 'AHWR-Dairy',
+      value: 1714
+    })
+  })
+
+  test('returns correct payment data for dairy negative follow up with test result', () => {
+    const typeOfLivestock = 'dairy'
+    const testResults = 'negative'
+    const isEndemics = true
+
+    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics, 'E')
 
     expect(paymentData).toEqual({
       standardCode: 'AHWR-Dairy',
@@ -28,12 +80,24 @@ describe('getPaymentData', () => {
     })
   })
 
-  test('returns correct payment data for pigs without test result', () => {
+  test('returns correct payment data for pigs review', () => {
     const typeOfLivestock = 'pigs'
     const testResults = null
     const isEndemics = true
 
-    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics)
+    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics, 'R')
+
+    expect(paymentData).toEqual({
+      standardCode: 'AHWR-Pigs',
+      value: 557
+    })
+  })
+  test('returns correct payment data for pigs follow up', () => {
+    const typeOfLivestock = 'pigs'
+    const testResults = null
+    const isEndemics = true
+
+    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics, 'E')
 
     expect(paymentData).toEqual({
       standardCode: 'AHWR-Pigs',
@@ -41,12 +105,25 @@ describe('getPaymentData', () => {
     })
   })
 
-  test('returns correct payment data for sheep without test result', () => {
+  test('returns correct payment data for sheep review without test result', () => {
     const typeOfLivestock = 'sheep'
     const testResults = null
     const isEndemics = true
 
-    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics)
+    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics, 'R')
+
+    expect(paymentData).toEqual({
+      standardCode: 'AHWR-Sheep',
+      value: 436
+    })
+  })
+
+  test('returns correct payment data for sheep follow up without test result', () => {
+    const typeOfLivestock = 'sheep'
+    const testResults = null
+    const isEndemics = true
+
+    const paymentData = getPaymentData(typeOfLivestock, testResults, pricesConfig, isEndemics, 'E')
 
     expect(paymentData).toEqual({
       standardCode: 'AHWR-Sheep',

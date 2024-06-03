@@ -32,9 +32,10 @@ module.exports = [{
         reference: Joi.string().required(),
         sbi: Joi.string().required(),
         isEndemics: Joi.boolean().default(false),
-        testResults: Joi.string().allow(null).optional(),
+        reviewTestResults: Joi.string().allow(null).optional(),
         whichReview: Joi.string().valid(species.beef, species.dairy, species.pigs, species.sheep),
-        frn: Joi.string().allow(null).optional()
+        frn: Joi.string().allow(null).optional(),
+        claimType: Joi.string().default('')
       }),
       failAction: async (_request, h, err) => {
         return h.response({ err }).code(400).takeover()
