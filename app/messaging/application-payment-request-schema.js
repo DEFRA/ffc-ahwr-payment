@@ -3,10 +3,11 @@ const joi = require('joi')
 const applicationPaymentRequestSchema = joi.object({
   reference: joi.string().required(),
   sbi: joi.string().required(),
-  isEndemics: joi.boolean().allow(null).optional(),
-  testResults: joi.string().allow(null).optional(),
+  isEndemics: joi.boolean().default(false),
+  reviewTestResults: joi.string().allow(null).optional(),
   whichReview: joi.string().required(),
-  frn: joi.string().optional()
+  frn: joi.string().optional(),
+  claimType: joi.string().default('')
 })
 
 const validateApplicationPaymentRequest = (applicationPaymentRequest) => {

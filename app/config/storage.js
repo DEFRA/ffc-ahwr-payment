@@ -3,12 +3,10 @@ const Joi = require('joi')
 // Define config schema
 const schema = Joi.object({
   connectionString: Joi.string().required(),
-  usersContainer: Joi.string().default('users'),
-  usersFile: Joi.string().default('users.json'),
   endemicsSettingsContainer: Joi.string().default('endemics-settings'),
   endemicsPricesFile: Joi.string().default('endemics-prices-config.json'),
   storageAccount: Joi.string().required(),
-  useConnectionString: Joi.bool().default(true)
+  useConnectionString: Joi.bool().default(false)
 })
 
 // Build config

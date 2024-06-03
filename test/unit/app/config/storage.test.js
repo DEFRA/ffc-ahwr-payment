@@ -24,8 +24,6 @@ describe('Config Validation', () => {
     // Mock environment variables
     process.env.AZURE_STORAGE_CONNECTION_STRING = 'connection-string'
     process.env.AZURE_STORAGE_ACCOUNT_NAME = 'storage-account'
-    process.env.AZURE_STORAGE_USERS_CONTAINER = 'users-container'
-    process.env.AZURE_STORAGE_DOCUMENT_CONTAINER = 'document-container'
     process.env.AZURE_STORAGE_USE_CONNECTION_STRING = 'true'
     process.env.AZURE_STORAGE_CREATE_CONTAINERS = 'false'
 
@@ -36,9 +34,7 @@ describe('Config Validation', () => {
       endemicsSettingsContainer: 'endemics-settings',
       endemicsPricesFile: 'endemics-prices-config.json',
       storageAccount: 'storage-account',
-      useConnectionString: true,
-      usersContainer: 'users',
-      usersFile: 'users.json'
+      useConnectionString: true
     })
   })
 })

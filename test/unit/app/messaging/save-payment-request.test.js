@@ -20,9 +20,7 @@ const applicationPaymentRequestMissingFrn = {
   reference,
   sbi: '123456789',
   whichReview: 'beef',
-  isEndemics: false,
-  testResults: null
-
+  isEndemics: false
 }
 const applicationPaymentRequest = {
   ...applicationPaymentRequestMissingFrn,

@@ -1,17 +1,20 @@
 const { beef, dairy } = require('../constants/species')
 const speciesData = require('../messaging/species')
-
-const getPaymentData = (typeOfLivestock, testResults, pricesConfig, isEndemics) => {
+const { endemics } = require('../constants/claimTypes')
+const { review, followUp } = require('../constants/endemicsPaymentTypes')
+const getPaymentData = (typeOfLivestock, testResults, pricesConfig, isEndemics, claimType) => {
   if (isEndemics) {
-    if ((typeOfLivestock === beef || typeOfLivestock === dairy) && testResults) {
+    const isFollowUp = claimType === endemics
+    const endemicsPaymentType = isFollowUp ? followUp : review
+    if ((typeOfLivestock === beef || typeOfLivestock === dairy) && testResults && isFollowUp) {
       return {
-        standardCode: pricesConfig[typeOfLivestock].code,
-        value: pricesConfig[typeOfLivestock].value[testResults]
+        standardCode: pricesConfig[endemicsPaymentType][typeOfLivestock].code,
+        value: pricesConfig[endemicsPaymentType][typeOfLivestock].value[testResults]
       }
     } else {
       return {
-        standardCode: pricesConfig[typeOfLivestock].code,
-        value: pricesConfig[typeOfLivestock].value
+        standardCode: pricesConfig[endemicsPaymentType][typeOfLivestock].code,
+        value: pricesConfig[endemicsPaymentType][typeOfLivestock].value
       }
     }
   }
