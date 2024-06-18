@@ -1,6 +1,6 @@
 {
   "name": "ffc-ahwr-payment",
-  "version": "0.6.10",
+  "version": "0.6.11",
   "description": "FFC Vet Visits Payment Service",
   "homepage": "https://github.com/DEFRA/ffc-ahwr-payment",
   "main": "app/index.js",
@@ -21,11 +21,11 @@
   "license": "OGL-UK-3.0",
   "dependencies": {
     "@azure/data-tables": "^13.2.1",
-    "@azure/identity": "^2.0.4",
+    "@azure/identity": "^4.2.1",
     "@azure/storage-blob": "^12.11.0",
     "@hapi/hapi": "^20.2.1",
     "applicationinsights": "^2.2.1",
-    "ffc-messaging": "^2.3.4",
+    "ffc-messaging": "^2.9.1",
     "hapi-pino": "10.1.0",
     "joi": "^17.6.0",
     "log-timestamp": "0.3.0",
@@ -38,8 +38,8 @@
   },
   "overrides": {
     "semver": "7.5.2",
-    "@azure/identity": {
-      "jsonwebtoken": "9.0.0"
+    "mssql": {
+      "@azure/identity": "4.2.1"
     }
   },
   "devDependencies": {
