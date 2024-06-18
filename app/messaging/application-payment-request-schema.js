@@ -1,4 +1,5 @@
 const joi = require('joi')
+const appInsights = require('applicationinsights')
 
 const applicationPaymentRequestSchema = joi.object({
   reference: joi.string().required(),
@@ -14,6 +15,7 @@ const validateApplicationPaymentRequest = (applicationPaymentRequest) => {
   const validate = applicationPaymentRequestSchema.validate(applicationPaymentRequest)
 
   if (validate.error) {
+    appInsights.defaultClient.trackException({ exception: validate.error })
     console.error('Application payment request validation error', validate.error)
     return false
   }

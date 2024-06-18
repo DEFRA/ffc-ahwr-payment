@@ -12,7 +12,6 @@ const buildPaymentRequest = async (application) => {
   const { isEndemics, reviewTestResults, claimType } = application
   const pricesConfig = await getBlob('claim-prices-config.json')
   const { standardCode, value } = getPaymentData(species, reviewTestResults, pricesConfig, isEndemics, claimType)
-  console.log('>>>>>>>>>>>>', standardCode, value)
 
   return {
     sourceSystem,

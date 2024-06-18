@@ -2,6 +2,7 @@ const savePaymentRequest = require('../../../../app/messaging/save-payment-reque
 const { getBlob } = require('../../../../app/storage')
 const { getPaymentData } = require('../../../../app/lib/getPaymentData')
 const pricesConfig = require('../../../data/claim-prices-config.json')
+
 jest.mock('../../../../app/repositories/payment-repository')
 jest.mock('../../../../app/lib/getPaymentData')
 jest.mock('../../../../app/storage')
@@ -15,6 +16,7 @@ jest.mock('../../../../app/config', () => ({
     connectionString: 'connectionString'
   }
 }))
+jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
 const reference = 'AA-123-456'
 const applicationPaymentRequestMissingFrn = {
   reference,
