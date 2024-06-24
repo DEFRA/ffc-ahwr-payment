@@ -60,5 +60,4 @@ const { error, value } = schema.validate(config, { abortEarly: false })
 if (error) {
   throw new Error(`The message queue config is invalid. ${error.message}`)
 }
-console.log('Message queue config validated>>>>>>>', value)
 module.exports = value
