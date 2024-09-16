@@ -9,9 +9,9 @@ const buildPaymentRequest = async (application) => {
   const sbi = application.sbi
   const marketingYear = new Date().getFullYear()
   const species = application.whichReview
-  const { isEndemics, reviewTestResults, claimType } = application
+  const { isEndemics, reviewTestResults, claimType, optionalPiHuntValue } = application
   const pricesConfig = await getBlob('claim-prices-config.json')
-  const { standardCode, value } = getPaymentData(species, reviewTestResults, pricesConfig, isEndemics, claimType)
+  const { standardCode, value } = getPaymentData(species, reviewTestResults, pricesConfig, isEndemics, claimType, optionalPiHuntValue)
 
   return {
     sourceSystem,
