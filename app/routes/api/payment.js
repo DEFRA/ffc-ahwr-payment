@@ -35,7 +35,8 @@ module.exports = [{
         reviewTestResults: Joi.string().allow(null).optional(),
         whichReview: Joi.string().valid(species.beef, species.dairy, species.pigs, species.sheep),
         frn: Joi.string().allow(null).optional(),
-        claimType: Joi.string().default('')
+        claimType: Joi.string().default(''),
+        optionalPiHuntValue: Joi.string().allow(null).optional()
       }),
       failAction: async (_request, h, err) => {
         return h.response({ err }).code(400).takeover()
