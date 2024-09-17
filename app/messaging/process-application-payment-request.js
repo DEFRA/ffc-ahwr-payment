@@ -13,7 +13,8 @@ const processApplicationPaymentRequest = async (message, receiver) => {
     appInsights.defaultClient.trackEvent({
       name: 'process-payment',
       properties: {
-        value: messageBody
+        value: messageBody,
+        paymentRequest
       }
     })
   } catch (err) {
