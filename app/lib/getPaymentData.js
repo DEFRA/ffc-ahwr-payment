@@ -15,15 +15,13 @@ const getPaymentData = (typeOfLivestock, testResults, pricesConfig, isEndemics, 
           standardCode,
           value: yesOrNoPiHunt
             ? pricesConfig[endemicsPaymentType][typeOfLivestock].value[testResults][yesOrNoPiHunt]
-            : pricesConfig[endemicsPaymentType][typeOfLivestock].value[testResults]['noPiHunt']
+            : pricesConfig[endemicsPaymentType][typeOfLivestock].value[testResults].noPiHunt
         }
       }
-
       return {
         standardCode,
         value: pricesConfig[endemicsPaymentType][typeOfLivestock].value[testResults]
       }
-
     } else {
       return {
         standardCode,
