@@ -6,17 +6,25 @@ const getPaymentData = (typeOfLivestock, testResults, pricesConfig, isEndemics, 
   if (isEndemics) {
     const isFollowUp = claimType === endemics
     const endemicsPaymentType = isFollowUp ? followUp : review
+    const standardCode = pricesConfig[endemicsPaymentType][typeOfLivestock].code
     if ((typeOfLivestock === beef || typeOfLivestock === dairy) && testResults && isFollowUp) {
       const isNegative = testResults === 'negative'
+
+      if (isNegative) {
+        return {
+          standardCode,
+          value: yesOrNoPiHunt
+            ? pricesConfig[endemicsPaymentType][typeOfLivestock].value[testResults][yesOrNoPiHunt]
+            : pricesConfig[endemicsPaymentType][typeOfLivestock].value[testResults].noPiHunt
+        }
+      }
       return {
-        standardCode: pricesConfig[endemicsPaymentType][typeOfLivestock].code,
-        value: isNegative && yesOrNoPiHunt
-          ? pricesConfig[endemicsPaymentType][typeOfLivestock].value[testResults][yesOrNoPiHunt]
-          : pricesConfig[endemicsPaymentType][typeOfLivestock].value[testResults]
+        standardCode,
+        value: pricesConfig[endemicsPaymentType][typeOfLivestock].value[testResults]
       }
     } else {
       return {
-        standardCode: pricesConfig[endemicsPaymentType][typeOfLivestock].code,
+        standardCode,
         value: pricesConfig[endemicsPaymentType][typeOfLivestock].value
       }
     }
