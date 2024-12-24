@@ -1,7 +1,7 @@
 import { BlobServiceClient } from '@azure/storage-blob'
 import { DefaultAzureCredential } from '@azure/identity'
-import { config } from './config/storage'
-import { streamToBuffer } from './lib/streamToBuffer'
+import { config } from './config/storage.js'
+import { streamToBuffer } from './lib/streamToBuffer.js'
 
 let blobServiceClient
 let initialised = false

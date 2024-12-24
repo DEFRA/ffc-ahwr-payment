@@ -1,4 +1,4 @@
-import { updateByReference } from '../repositories/payment-repository'
+import { updateByReference } from '../repositories/payment-repository.js'
 import util from 'util'
 import appInsights from 'applicationinsights'
 

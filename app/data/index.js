@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize'
 import { config } from '../config/db.js'
-import paymentFn from './models/payment'
+import paymentFn from './models/payment.js'
 
 const dbConfig = config[process.env.NODE_ENV]
 

@@ -1,5 +1,5 @@
-import { config } from '../config'
-import { sendMessage } from './send-message'
+import { config } from '../config/index.js'
+import { sendMessage } from './send-message.js'
 
 export const sendPaymentRequest = async (paymentRequest, sessionId) => {
   const { sendPaymentRequest, messageQueueConfig: { submitPaymentRequestMsgType, paymentRequestTopic } } = config

@@ -1,9 +1,9 @@
-import { paymentRequest } from '../constants/constants'
-import { get, set } from '../repositories/payment-repository'
-import { validateApplicationPaymentRequest } from './application-payment-request-schema'
-import { validatePaymentRequest } from './payment-request-schema'
-import { getPaymentData } from '../lib/getPaymentData'
-import { getBlob } from '../storage'
+import { paymentRequest } from '../constants/constants.js'
+import { get, set } from '../repositories/payment-repository.js'
+import { validateApplicationPaymentRequest } from './application-payment-request-schema.js'
+import { validatePaymentRequest } from './payment-request-schema.js'
+import { getPaymentData } from '../lib/getPaymentData.js'
+import { getBlob } from '../storage.js'
 
 const buildPaymentRequest = async (application) => {
   const { description, paymentRequestNumber, sourceSystem } = paymentRequest

@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
-import { savePaymentRequest } from './save-payment-request'
-import { sendPaymentRequest } from './send-payment-request'
+import { savePaymentRequest } from './save-payment-request.js'
+import { sendPaymentRequest } from './send-payment-request.js'
 import appInsights from 'applicationinsights'
 
 export const processApplicationPaymentRequest = async (logger, message, receiver) => {

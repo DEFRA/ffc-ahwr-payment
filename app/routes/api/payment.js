@@ -1,9 +1,9 @@
 import joi from 'joi'
 import { v4 as uuidv4 } from 'uuid'
-import { get } from '../../repositories/payment-repository'
-import { savePaymentRequest } from '../../messaging/save-payment-request'
-import { species } from '../../constants/constants'
-import { sendPaymentRequest } from '../../messaging/send-payment-request'
+import { get } from '../../repositories/payment-repository.js'
+import { savePaymentRequest } from '../../messaging/save-payment-request.js'
+import { species } from '../../constants/constants.js'
+import { sendPaymentRequest } from '../../messaging/send-payment-request.js'
 
 export const paymentApiRoutes = [{
   method: 'GET',

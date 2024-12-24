@@ -1,5 +1,5 @@
 import { MessageSender } from 'ffc-messaging'
-import { createMessage } from './create-message'
+import { createMessage } from './create-message.js'
 
 export const sendMessage = async (body, type, config, options) => {
   const message = createMessage(body, type, options)

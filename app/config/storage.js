@@ -1,11 +1,11 @@
-const Joi = require('joi')
+import joi from 'joi'
 
-const schema = Joi.object({
-  connectionString: Joi.string().required(),
-  endemicsSettingsContainer: Joi.string().required(),
-  endemicsPricesFile: Joi.string().required(),
-  storageAccount: Joi.string().required(),
-  useConnectionString: Joi.bool().default(false)
+const schema = joi.object({
+  connectionString: joi.string().required(),
+  endemicsSettingsContainer: joi.string().required(),
+  endemicsPricesFile: joi.string().required(),
+  storageAccount: joi.string().required(),
+  useConnectionString: joi.bool().default(false)
 })
 
 const storageConfig = {

@@ -1,9 +1,9 @@
 import hapi from '@hapi/hapi'
-import { config } from './config/index'
-import { errorPlugin } from './plugins/errors'
-import loggerPlugin from './plugins/logger'
-import { healthRoutes } from './routes/health'
-import { paymentApiRoutes } from './routes/api/payment'
+import { config } from './config/index.js'
+import { errorPlugin } from './plugins/errors.js'
+import loggerPlugin from './plugins/logger.js'
+import { healthRoutes } from './routes/health.js'
+import { paymentApiRoutes } from './routes/api/payment.js'
 import blippPkg from 'blipp'
 
 export async function createServer () {

@@ -1,4 +1,4 @@
-import { species, speciesAmounts, claimTypes, endemicsPaymentTypes } from '../constants/constants'
+import { species, speciesAmounts, claimTypes, endemicsPaymentTypes } from '../constants/constants.js'
 export const getPaymentData = (typeOfLivestock, testResults, pricesConfig, isEndemics, claimType, yesOrNoPiHunt) => {
   if (isEndemics) {
     const isFollowUp = claimType === claimTypes.endemics

@@ -1,12 +1,12 @@
 import { MessageReceiver } from 'ffc-messaging'
-import { processApplicationPaymentRequest } from './process-application-payment-request'
-import { processPaymentResponse } from './process-payment-response'
-import { config } from '../config/message-queue'
+import { processApplicationPaymentRequest } from './process-application-payment-request.js'
+import { processPaymentResponse } from './process-payment-response.js'
+import { config } from '../config/message-queue.js'
 
 let applicationClaimReceiver
 let paymentActionReceiver
 
-const start = async (logger) => {
+export const start = async (logger) => {
   const { applicationPaymentRequestQueue, paymentResponseSubscription } = config
   const applicationClaimAction = message => processApplicationPaymentRequest(logger, message, applicationClaimReceiver)
   applicationClaimReceiver = new MessageReceiver(applicationPaymentRequestQueue, applicationClaimAction)
@@ -19,9 +19,7 @@ const start = async (logger) => {
   logger.info('Ready to receive messages')
 }
 
-const stop = async () => {
+export const stop = async () => {
   await applicationClaimReceiver.closeConnection()
   await paymentActionReceiver.closeConnection()
 }
-
-module.exports = { start, stop }
