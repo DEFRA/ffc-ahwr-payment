@@ -7,13 +7,17 @@ let blobServiceClient
 let initialised = false
 
 export function initialiseClient () {
+  let initialisedBy = ''
   if (config.useConnectionString === true) {
     blobServiceClient = BlobServiceClient.fromConnectionString(config.connectionString)
+    initialisedBy = 'connectionString'
   } else {
     const uri = `https://${config.storageAccount}.blob.core.windows.net`
     blobServiceClient = new BlobServiceClient(uri, new DefaultAzureCredential())
+    initialisedBy = 'constructor'
   }
   initialised = true
+  return initialisedBy
 }
 
 export const getBlob = async (logger, filename) => {

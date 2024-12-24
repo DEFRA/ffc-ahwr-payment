@@ -13,7 +13,7 @@ module.exports = {
     '<rootDir>/node_modules/',
     '<rootDir>/test-output/',
     '<rootDir>/test/',
-    '<rootDir>/jest.config.cjs'
+    '<rootDir>/jest.config.js'
   ],
   modulePathIgnorePatterns: [
     'node_modules'
