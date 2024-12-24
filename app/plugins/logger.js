@@ -33,10 +33,6 @@ const err = (error) => ({
   }
 })
 
-const ignoreHealthEndpointsLogging = (options, request) => {
-  return !request.url.pathname.includes('health')
-}
-
 const plugin = pino
 const options = {
   name: 'ffc-ahwr-payment',
@@ -44,7 +40,7 @@ const options = {
   formatters: {
     level: (level) => ({ level })
   },
-  isLoggingIgnored: ignoreHealthEndpointsLogging,
+  ignorePaths: ['/healthy', '/healthz'],
   serializers: {
     req,
     res,
