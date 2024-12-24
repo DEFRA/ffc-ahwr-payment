@@ -63,5 +63,12 @@
     "ignore": [
       "**/test-output/**"
     ]
+  },
+  "babel": {
+    "env": {
+      "development": {
+        "plugins": ["@babel/plugin-transform-modules-commonjs"]
+      }
+    }
   }
 }
