@@ -1,24 +1,17 @@
-const fs = require('fs')
-const path = require('path')
-const { Sequelize, DataTypes } = require('sequelize')
-const config = require('../config/db')
-const dbConfig = config[process.env.NODE_ENV]
-const modelPath = path.join(__dirname, 'models')
+import { Sequelize, DataTypes } from 'sequelize'
+import { config } from '../config/db.js'
+import paymentFn from './models/payment'
 
-module.exports = (() => {
+const dbConfig = config[process.env.NODE_ENV]
+
+export default (() => {
   const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, dbConfig)
 
-  fs
-    .readdirSync(modelPath)
-    .filter(file => {
-      return (file.indexOf('.') !== 0) && (file !== 'index.js') && (file.slice(-3) === '.js')
-    })
-    .forEach(file => require(path.join(modelPath, file))(sequelize, DataTypes))
+  // If any new models are added then they will need to be added here
+  const payment = paymentFn(sequelize, DataTypes)
 
-  for (const model of Object.values(sequelize.models)) {
-    if (model.associate) {
-      model.associate(sequelize.models)
-    }
+  if (payment.associate) {
+    payment.associate(sequelize.models)
   }
 
   return {

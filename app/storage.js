@@ -1,30 +1,33 @@
-const { BlobServiceClient } = require('@azure/storage-blob')
-const { DefaultAzureCredential } = require('@azure/identity')
-const { connectionString, useConnectionString, endemicsSettingsContainer, storageAccount } = require('./config').storage
-const { streamToBuffer } = require('./lib/streamToBuffer')
+import { BlobServiceClient } from '@azure/storage-blob'
+import { DefaultAzureCredential } from '@azure/identity'
+import { config } from './config/storage'
+import { streamToBuffer } from './lib/streamToBuffer'
 
 let blobServiceClient
+let initialised = false
 
-if (useConnectionString === true) {
-  blobServiceClient = BlobServiceClient.fromConnectionString(connectionString)
-} else {
-  const uri = `https://${storageAccount}.blob.core.windows.net`
-  blobServiceClient = new BlobServiceClient(uri, new DefaultAzureCredential())
+export function initialiseClient () {
+  if (config.useConnectionString === true) {
+    blobServiceClient = BlobServiceClient.fromConnectionString(config.connectionString)
+  } else {
+    const uri = `https://${config.storageAccount}.blob.core.windows.net`
+    blobServiceClient = new BlobServiceClient(uri, new DefaultAzureCredential())
+  }
+  initialised = true
 }
 
-const getBlob = async (filename) => {
+export const getBlob = async (logger, filename) => {
   try {
-    const container = blobServiceClient.getContainerClient(endemicsSettingsContainer)
+    if (!initialised) {
+      initialiseClient()
+    }
+    const container = blobServiceClient.getContainerClient(config.endemicsSettingsContainer)
     const blobClient = container.getBlobClient(filename)
     const downloadResponse = await blobClient.download()
     const downloaded = await streamToBuffer(downloadResponse.readableStreamBody)
     return JSON.parse(downloaded.toString())
   } catch (error) {
-    console.log('Error:', error)
+    logger.error('Error when getting prices config from blob storage', error)
     throw error
   }
-}
-
-module.exports = {
-  getBlob
 }

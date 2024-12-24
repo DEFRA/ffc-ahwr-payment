@@ -1,5 +1,5 @@
-const { MessageReceiver } = require('ffc-messaging')
-const service = require('../../../../app/messaging')
+import { MessageReceiver } from 'ffc-messaging'
+import { start } from '../../../../app/messaging'
 
 jest.mock('ffc-messaging')
 
@@ -8,7 +8,7 @@ MessageReceiver.prototype.subscribe = mocksubscribe
 
 describe(('Fetch application tests'), () => {
   test('successfully fetched application', async () => {
-    await service.start()
+    await start({ info: jest.fn() })
     expect(mocksubscribe).toHaveBeenCalledTimes(2)
   })
 })

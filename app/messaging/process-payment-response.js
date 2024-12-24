@@ -1,15 +1,15 @@
-const { updateByReference } = require('../repositories/payment-repository')
-const util = require('util')
-const appInsights = require('applicationinsights')
+import { updateByReference } from '../repositories/payment-repository'
+import util from 'util'
+import appInsights from 'applicationinsights'
 
-const processPaymentResponse = async (message, receiver) => {
+export const processPaymentResponse = async (logger, message, receiver) => {
   try {
     const messageBody = message.body
     const paymentRequest = messageBody?.paymentRequest
     const agreementNumber = paymentRequest?.agreementNumber
-    const status = messageBody?.accepted ? 'success' : failedPaymentRequest(messageBody)
+    const status = messageBody?.accepted ? 'success' : failedPaymentRequest(logger, messageBody)
     if (paymentRequest && agreementNumber) {
-      console.log('received process payments response', agreementNumber, status)
+      logger.info('received process payments response', agreementNumber, status)
       if (paymentRequest?.value) {
         paymentRequest.value = paymentRequest.value / 100
       }
@@ -36,19 +36,17 @@ const processPaymentResponse = async (message, receiver) => {
           value: paymentRequest?.value
         }
       })
-      console.error('Received process payments response with no payment request and agreement number', util.inspect(message.body, false, null, true))
+      logger.error('Received process payments response with no payment request and agreement number', util.inspect(message.body, false, null, true))
       await receiver.deadLetterMessage(message)
     }
   } catch (err) {
     appInsights.defaultClient.trackException({ exception: err })
     await receiver.deadLetterMessage(message)
-    console.error('Unable to process payment request:', err)
+    logger.error('Unable to process payment request:', err)
   }
 }
 
-function failedPaymentRequest (messageBody) {
-  console.error('Failed payment request', util.inspect(messageBody, false, null, true))
+function failedPaymentRequest (logger, messageBody) {
+  logger.error('Failed payment request', util.inspect(messageBody, false, null, true))
   return 'failed'
 }
-
-module.exports = processPaymentResponse

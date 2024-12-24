@@ -1,5 +1,5 @@
-const joi = require('joi')
-const appInsights = require('applicationinsights')
+import joi from 'joi'
+import appInsights from 'applicationinsights'
 
 const applicationPaymentRequestSchema = joi.object({
   reference: joi.string().required(),
@@ -12,16 +12,14 @@ const applicationPaymentRequestSchema = joi.object({
   optionalPiHuntValue: joi.string().allow(null).optional()
 })
 
-const validateApplicationPaymentRequest = (applicationPaymentRequest) => {
+export const validateApplicationPaymentRequest = (logger, applicationPaymentRequest) => {
   const validate = applicationPaymentRequestSchema.validate(applicationPaymentRequest)
 
   if (validate.error) {
     appInsights.defaultClient.trackException({ exception: validate.error })
-    console.error('Application payment request validation error', validate.error)
+    logger.error('Application payment request validation error', validate.error)
     return false
   }
 
   return true
 }
-
-module.exports = validateApplicationPaymentRequest

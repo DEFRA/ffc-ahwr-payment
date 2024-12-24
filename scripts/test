@@ -23,6 +23,7 @@ show_help() {
     Options:
       -w, --watch   watch tests
       -d, --debug   debug tests
+      -f, --fix     fix lint issues before running tests
       -h, --help    display this help text
     "
 }
@@ -41,6 +42,10 @@ while :; do
       show_help
       exit
       ;;
+    -f|--fix)
+      fix_lint="true" # Fix linting issues rather than just fail and stop tests running
+      ;;
+
     *)
       break
   esac
@@ -60,6 +65,10 @@ compose() {
 
 (
   cd "${projectRoot}"
+
+  if [ "${fix_lint}" = "true" ]; then
+      npm run lint:fix
+    fi
 
   # Guarantee clean environment
   compose down -v

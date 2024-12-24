@@ -1,10 +1,10 @@
+import * as server from '../../../app/server'
+
 describe('Index test', () => {
   const mockMessaging = require('../../../app/messaging')
-  const mockCreateServer = require('../../../app/server')
   const mockStartServerFunction = jest.fn().mockImplementation(() => 'running')
   jest.mock('../../../app/messaging')
   jest.mock('../../../app/insights')
-  jest.mock('../../../app/server')
   jest.mock('../../../app/config', () => ({
     storage: {
       storageAccount: 'mockStorageAccount',
@@ -17,7 +17,12 @@ describe('Index test', () => {
     }
   }))
 
-  mockCreateServer.mockResolvedValue({
+  const serverCreateSpy = jest.spyOn(server, 'createServer')
+
+  serverCreateSpy.mockResolvedValue({
+    logger: {
+      info: jest.fn()
+    },
     info: {
       uri: 'http://localhost:3000'
     },

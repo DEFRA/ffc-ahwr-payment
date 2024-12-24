@@ -1,13 +1,10 @@
-const { beef, dairy } = require('../constants/species')
-const speciesData = require('../messaging/species')
-const { endemics } = require('../constants/claimTypes')
-const { review, followUp } = require('../constants/endemicsPaymentTypes')
-const getPaymentData = (typeOfLivestock, testResults, pricesConfig, isEndemics, claimType, yesOrNoPiHunt) => {
+import { species, speciesAmounts, claimTypes, endemicsPaymentTypes } from '../constants/constants'
+export const getPaymentData = (typeOfLivestock, testResults, pricesConfig, isEndemics, claimType, yesOrNoPiHunt) => {
   if (isEndemics) {
-    const isFollowUp = claimType === endemics
-    const endemicsPaymentType = isFollowUp ? followUp : review
+    const isFollowUp = claimType === claimTypes.endemics
+    const endemicsPaymentType = isFollowUp ? endemicsPaymentTypes.followUp : endemicsPaymentTypes.review
     const standardCode = pricesConfig[endemicsPaymentType][typeOfLivestock].code
-    if ((typeOfLivestock === beef || typeOfLivestock === dairy) && testResults && isFollowUp) {
+    if ((typeOfLivestock === species.beef || typeOfLivestock === species.dairy) && testResults && isFollowUp) {
       const isNegative = testResults === 'negative'
 
       if (isNegative) {
@@ -29,14 +26,10 @@ const getPaymentData = (typeOfLivestock, testResults, pricesConfig, isEndemics, 
       }
     }
   }
-  const standardCode = speciesData[typeOfLivestock]?.code
-  const value = speciesData[typeOfLivestock]?.value
+  const standardCode = speciesAmounts[typeOfLivestock]?.code
+  const value = speciesAmounts[typeOfLivestock]?.value
   return {
     standardCode,
     value
   }
-}
-
-module.exports = {
-  getPaymentData
 }

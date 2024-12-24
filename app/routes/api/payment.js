@@ -1,17 +1,17 @@
-const Joi = require('joi')
-const { v4: uuidv4 } = require('uuid')
-const { get } = require('../../repositories/payment-repository')
-const { savePaymentRequest } = require('../../messaging/save-payment-request')
-const species = require('../../constants/species')
-const sendPaymentRequest = require('../../messaging/send-payment-request')
+import joi from 'joi'
+import { v4 as uuidv4 } from 'uuid'
+import { get } from '../../repositories/payment-repository'
+import { savePaymentRequest } from '../../messaging/save-payment-request'
+import { species } from '../../constants/constants'
+import { sendPaymentRequest } from '../../messaging/send-payment-request'
 
-module.exports = [{
+export const paymentApiRoutes = [{
   method: 'GET',
   path: '/api/payment/{reference}',
   options: {
     validate: {
-      params: Joi.object({
-        reference: Joi.string().valid()
+      params: joi.object({
+        reference: joi.string().valid()
       })
     },
     handler: async (request, h) => {
@@ -28,15 +28,15 @@ module.exports = [{
   path: '/api/payment',
   options: {
     validate: {
-      payload: Joi.object({
-        reference: Joi.string().required(),
-        sbi: Joi.string().required(),
-        isEndemics: Joi.boolean().default(false),
-        reviewTestResults: Joi.string().allow(null).optional(),
-        whichReview: Joi.string().valid(species.beef, species.dairy, species.pigs, species.sheep),
-        frn: Joi.string().allow(null).optional(),
-        claimType: Joi.string().default(''),
-        optionalPiHuntValue: Joi.string().allow(null).optional()
+      payload: joi.object({
+        reference: joi.string().required(),
+        sbi: joi.string().required(),
+        isEndemics: joi.boolean().default(false),
+        reviewTestResults: joi.string().allow(null).optional(),
+        whichReview: joi.string().valid(species.beef, species.dairy, species.pigs, species.sheep),
+        frn: joi.string().allow(null).optional(),
+        claimType: joi.string().default(''),
+        optionalPiHuntValue: joi.string().allow(null).optional()
       }),
       failAction: async (_request, h, err) => {
         return h.response({ err }).code(400).takeover()
@@ -52,8 +52,8 @@ module.exports = [{
   path: '/api/payment/approve',
   options: {
     validate: {
-      payload: Joi.object({
-        reference: Joi.string().required()
+      payload: joi.object({
+        reference: joi.string().required()
       }),
       failAction: async (_request, h, err) => {
         return h.response({ err }).code(400).takeover()

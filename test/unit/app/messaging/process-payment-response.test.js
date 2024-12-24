@@ -1,12 +1,18 @@
-const util = require('util')
-const processPaymentResponse = require('../../../../app/messaging/process-payment-response')
-jest.mock('../../../../app/repositories/payment-repository')
-const paymentRepository = require('../../../../app/repositories/payment-repository')
-jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
-const appInsights = require('applicationinsights')
+import util from 'util'
+import { processPaymentResponse } from '../../../../app/messaging/process-payment-response'
+import * as paymentRepo from '../../../../app/repositories/payment-repository'
+import appInsights from 'applicationinsights'
 
+jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
+const updatePaymentSpy = jest.spyOn(paymentRepo, 'updateByReference')
+const mockErrorLogger = jest.fn()
+const mockInfoLogger = jest.fn()
+
+const mockedLogger = {
+  error: mockErrorLogger,
+  info: mockInfoLogger
+}
 describe(('Process payment response'), () => {
-  const consoleError = jest.spyOn(console, 'error')
   const agreementNumber = 'AA-1234-567'
   const receiver = {
     completeMessage: jest.fn(),
@@ -19,8 +25,8 @@ describe(('Process payment response'), () => {
   })
 
   test('Successfully update the payment with success status', async () => {
-    paymentRepository.updateByReference.mockResolvedValueOnce()
-    await processPaymentResponse({
+    updatePaymentSpy.mockResolvedValueOnce()
+    await processPaymentResponse(mockedLogger, {
       body: {
         paymentRequest: {
           agreementNumber,
@@ -34,8 +40,8 @@ describe(('Process payment response'), () => {
     }
     , receiver)
 
-    expect(paymentRepository.updateByReference).toHaveBeenCalledTimes(1)
-    expect(paymentRepository.updateByReference).toHaveBeenCalledWith(agreementNumber, 'success', {
+    expect(updatePaymentSpy).toHaveBeenCalledTimes(1)
+    expect(updatePaymentSpy).toHaveBeenCalledWith(agreementNumber, 'success', {
       agreementNumber,
       value: 436,
       invoiceLines: [{
@@ -47,8 +53,8 @@ describe(('Process payment response'), () => {
   })
 
   test('Update the payment with failed status', async () => {
-    paymentRepository.updateByReference.mockResolvedValueOnce()
-    await processPaymentResponse({
+    updatePaymentSpy.mockResolvedValueOnce()
+    await processPaymentResponse(mockedLogger, {
       body: {
         paymentRequest: {
           agreementNumber
@@ -58,9 +64,9 @@ describe(('Process payment response'), () => {
     }
     , receiver)
 
-    expect(paymentRepository.updateByReference).toHaveBeenCalledTimes(1)
+    expect(updatePaymentSpy).toHaveBeenCalledTimes(1)
     expect(receiver.completeMessage).toHaveBeenCalledTimes(1)
-    expect(consoleError).toHaveBeenCalledWith(
+    expect(mockErrorLogger).toHaveBeenCalledWith(
       'Failed payment request',
       util.inspect(
         {
@@ -74,15 +80,15 @@ describe(('Process payment response'), () => {
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
   })
 
-  test('console.error raised due to no agreement number within message', async () => {
-    paymentRepository.updateByReference.mockResolvedValueOnce()
-    await processPaymentResponse({
+  test('logger.error raised due to no agreement number within message', async () => {
+    updatePaymentSpy.mockResolvedValueOnce()
+    await processPaymentResponse(mockedLogger, {
       body: {
         paymentRequest: {},
         accepted: false
       }
     }, receiver)
-    expect(consoleError).toHaveBeenCalledWith(
+    expect(mockErrorLogger).toHaveBeenCalledWith(
       'Received process payments response with no payment request and agreement number',
       util.inspect(
         {
@@ -92,25 +98,25 @@ describe(('Process payment response'), () => {
         false, null, true)
     )
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
-    expect(paymentRepository.updateByReference).toHaveBeenCalledTimes(0)
+    expect(updatePaymentSpy).toHaveBeenCalledTimes(0)
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
   })
 
-  test('console.error raised due empty message', async () => {
-    await processPaymentResponse({}, receiver)
-    expect(consoleError).toHaveBeenCalledTimes(2)
+  test('logger.error raised due empty message', async () => {
+    await processPaymentResponse(mockedLogger, {}, receiver)
+    expect(mockErrorLogger).toHaveBeenCalledTimes(2)
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
-    expect(paymentRepository.updateByReference).toHaveBeenCalledTimes(0)
+    expect(updatePaymentSpy).toHaveBeenCalledTimes(0)
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
   })
 
   test('error raised due to error thrown in updateByReference', async () => {
     const paymentRequest = { value: 0, agreementNumber }
     const accepted = 'success'
-    await processPaymentResponse({ body: { paymentRequest, accepted } }, receiver)
-    paymentRepository.updateByReference.mockImplementation(async () => { throw new Error('Fake Error') })
-    expect(consoleError).toHaveBeenCalledTimes(0)
-    expect(paymentRepository.updateByReference).toHaveBeenCalledWith(agreementNumber, accepted, paymentRequest)
+    await processPaymentResponse(mockedLogger, { body: { paymentRequest, accepted } }, receiver)
+    updatePaymentSpy.mockImplementation(async () => { throw new Error('Fake Error') })
+    expect(mockErrorLogger).toHaveBeenCalledTimes(0)
+    expect(updatePaymentSpy).toHaveBeenCalledWith(agreementNumber, accepted, paymentRequest)
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(0)
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
   })

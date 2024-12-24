@@ -3,6 +3,7 @@ describe('Config Validation', () => {
 
   beforeEach(() => {
     process.env = {}
+    jest.resetModules()
   })
 
   afterAll(() => {
@@ -26,15 +27,18 @@ describe('Config Validation', () => {
     process.env.AZURE_STORAGE_ACCOUNT_NAME = 'storage-account'
     process.env.AZURE_STORAGE_USE_CONNECTION_STRING = 'true'
     process.env.AZURE_STORAGE_CREATE_CONTAINERS = 'false'
+    process.env.AZURE_STORAGE_ENDEMICS_SETTINGS_CONTAINER = 'endemics-settings'
 
     const storageConfig = jest.requireActual('../../../../app/config/storage.js')
 
     expect(storageConfig).toEqual({
-      connectionString: 'connection-string',
-      endemicsSettingsContainer: 'endemics-settings',
-      endemicsPricesFile: 'endemics-prices-config.json',
-      storageAccount: 'storage-account',
-      useConnectionString: true
+      config: {
+        connectionString: 'connection-string',
+        endemicsSettingsContainer: 'endemics-settings',
+        endemicsPricesFile: 'endemics-prices-config.json',
+        storageAccount: 'storage-account',
+        useConnectionString: true
+      }
     })
   })
 })

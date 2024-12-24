@@ -1,12 +1,10 @@
-const savePaymentRequest = require('../../../../app/messaging/save-payment-request')
-const { getBlob } = require('../../../../app/storage')
-const { getPaymentData } = require('../../../../app/lib/getPaymentData')
-const pricesConfig = require('../../../data/claim-prices-config.json')
+import { savePaymentRequest } from '../../../../app/messaging/save-payment-request'
+import * as getPayment from '../../../../app/lib/getPaymentData'
+import * as paymentRepo from '../../../../app/repositories/payment-repository'
 
 jest.mock('../../../../app/repositories/payment-repository')
 jest.mock('../../../../app/lib/getPaymentData')
 jest.mock('../../../../app/storage')
-const paymentRepository = require('../../../../app/repositories/payment-repository')
 jest.mock('../../../../app/messaging/send-message')
 jest.mock('../../../../app/config', () => ({
   storage: {
@@ -16,6 +14,17 @@ jest.mock('../../../../app/config', () => ({
     connectionString: 'connectionString'
   }
 }))
+
+const paymentRepoGetSpy = jest.spyOn(paymentRepo, 'get')
+const paymentRepoSetSpy = jest.spyOn(paymentRepo, 'set')
+const getPaymentDataSpy = jest.spyOn(getPayment, 'getPaymentData')
+
+const mockErrorLogger = jest.fn()
+
+const mockedLogger = {
+  error: mockErrorLogger
+}
+
 jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
 const reference = 'AA-123-456'
 const applicationPaymentRequestMissingFrn = {
@@ -32,44 +41,42 @@ const applicationPaymentRequest = {
 describe(('Save payment request'), () => {
   beforeEach(async () => {
     jest.clearAllMocks()
-    getBlob.mockReturnValue(JSON.stringify(pricesConfig))
-    getPaymentData.mockReturnValue({ standardCode: 'AHWR-Beef', value: 522 })
+    getPaymentDataSpy.mockReturnValue({ standardCode: 'AHWR-Beef', value: 522 })
   })
 
   test('Set creates record for payment', async () => {
-    paymentRepository.get.mockResolvedValueOnce()
-    await savePaymentRequest(applicationPaymentRequest)
-    expect(paymentRepository.set).toHaveBeenCalledTimes(1)
+    paymentRepoGetSpy.mockResolvedValueOnce()
+    await savePaymentRequest(mockedLogger, applicationPaymentRequest)
+    expect(paymentRepoSetSpy).toHaveBeenCalledTimes(1)
   })
 
   test('Set creates record for payment without frm', async () => {
-    paymentRepository.get.mockResolvedValueOnce()
-    await savePaymentRequest(applicationPaymentRequestMissingFrn)
-    expect(paymentRepository.set).toHaveBeenCalledTimes(1)
+    paymentRepoGetSpy.mockResolvedValueOnce()
+    await savePaymentRequest(mockedLogger, applicationPaymentRequestMissingFrn)
+    expect(paymentRepoSetSpy).toHaveBeenCalledTimes(1)
   })
 
   test('error thrown with payment request already existing', async () => {
-    paymentRepository.get.mockResolvedValueOnce({ applicationReference: reference })
-    await expect(savePaymentRequest(applicationPaymentRequest)).rejects.toEqual(new Error(`Payment request already exists for reference ${reference}`))
+    paymentRepoGetSpy.mockResolvedValueOnce({ applicationReference: reference })
+    await expect(savePaymentRequest(mockedLogger, applicationPaymentRequest)).rejects.toEqual(new Error(`Payment request already exists for reference ${reference}`))
   })
 
   test('error thrown due to incorrect payment request schema', async () => {
-    paymentRepository.get.mockResolvedValueOnce()
-    await expect(savePaymentRequest({ reference })).rejects.toEqual(new Error('Application payment request schema not valid'))
+    paymentRepoGetSpy.mockResolvedValueOnce()
+    await expect(savePaymentRequest(mockedLogger, { reference })).rejects.toEqual(new Error('Application payment request schema not valid'))
   })
 })
 describe('Save payment request part 2', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
-    getBlob.mockReturnValue(JSON.stringify(pricesConfig))
-    getPaymentData.mockReturnValue({ standardCode: 'AHWR-Beef', value: 522 })
+    getPaymentDataSpy.mockReturnValue({ standardCode: 'AHWR-Beef', value: 522 })
   })
   test('throws error if payment request is undefined', async () => {
-    await expect(savePaymentRequest(undefined)).rejects.toThrow()
+    await expect(savePaymentRequest(mockedLogger, undefined)).rejects.toThrow()
   })
 
   test('throws error if payment request is empty object', async () => {
-    await expect(savePaymentRequest({})).rejects.toThrow(
+    await expect(savePaymentRequest(mockedLogger, {})).rejects.toThrow(
       'Application payment request schema not valid'
     )
   })
@@ -78,7 +85,7 @@ describe('Save payment request part 2', () => {
     const paymentRequest = { ...applicationPaymentRequest }
     delete paymentRequest.reference
 
-    await expect(savePaymentRequest(paymentRequest)).rejects.toThrow(
+    await expect(savePaymentRequest(mockedLogger, paymentRequest)).rejects.toThrow(
       'Application payment request schema not valid'
     )
   })
@@ -87,7 +94,7 @@ describe('Save payment request part 2', () => {
     const paymentRequest = { ...applicationPaymentRequest }
     delete paymentRequest.sbi
 
-    await expect(savePaymentRequest(paymentRequest)).rejects.toThrow(
+    await expect(savePaymentRequest(mockedLogger, paymentRequest)).rejects.toThrow(
       'Application payment request schema not valid'
     )
   })
@@ -96,18 +103,18 @@ describe('Save payment request part 2', () => {
     const paymentRequest = { ...applicationPaymentRequest }
     delete paymentRequest.whichReview
 
-    await expect(savePaymentRequest(paymentRequest)).rejects.toThrow(
+    await expect(savePaymentRequest(mockedLogger, paymentRequest)).rejects.toThrow(
       'Application payment request schema not valid'
     )
   })
 
   test('saves payment request if valid', async () => {
-    paymentRepository.get.mockResolvedValueOnce()
+    paymentRepoGetSpy.mockResolvedValueOnce()
 
-    await savePaymentRequest(applicationPaymentRequest)
+    await savePaymentRequest(mockedLogger, applicationPaymentRequest)
 
-    expect(paymentRepository.set).toHaveBeenCalledTimes(1)
-    expect(paymentRepository.set).toHaveBeenCalledWith(
+    expect(paymentRepoSetSpy).toHaveBeenCalledTimes(1)
+    expect(paymentRepoSetSpy).toHaveBeenCalledWith(
       'AA-123-456', { agreementNumber: 'AA-123-456', invoiceLines: [{ description: 'G00 - Gross value of claim', standardCode: 'AHWR-Beef', value: 522 }], marketingYear: 2024, paymentRequestNumber: 1, sbi: '123456789', sourceSystem: 'AHWR', value: 522 }
     )
   })

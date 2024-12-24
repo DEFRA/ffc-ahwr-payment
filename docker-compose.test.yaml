@@ -8,11 +8,13 @@ services:
     image: ffc-ahwr-payment-development
     container_name: ffc-ahwr-payment-test
     command: npm run test
+    environment:
+      NODE_OPTIONS: "$NODE_OPTIONS --experimental-vm-modules"
     volumes:
       - ./app:/home/node/app
       - ./test:/home/node/test
       - ./test-output:/home/node/test-output
-      - ./jest.config.js:/home/node/jest.config.js
+      - ./jest.config.cjs:/home/node/jest.config.cjs
       - ./package.json:/home/node/package.json
 
   ffc-ahwr-payment-postgres:

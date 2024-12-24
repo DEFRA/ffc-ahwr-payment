@@ -1,4 +1,4 @@
-const createMessage = require('../../../../app/messaging/create-message')
+import { createMessage } from '../../../../app/messaging/create-message'
 describe('createMessage', () => {
   test('returns an object with body, type, and source', () => {
     const message = createMessage('Hello', 'text')
