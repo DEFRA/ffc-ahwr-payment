@@ -1,4 +1,4 @@
-const joi = require('joi')
+import joi from 'joi'
 
 const paymentRequestSchema = joi.object({
   sourceSystem: joi.string().required(),
@@ -14,15 +14,13 @@ const paymentRequestSchema = joi.object({
   })).required()
 })
 
-const validatePaymentRequest = (paymentRequest) => {
+export const validatePaymentRequest = (logger, paymentRequest) => {
   const validate = paymentRequestSchema.validate(paymentRequest)
 
   if (validate.error) {
-    console.error('payment request validation error', validate.error)
+    logger.error('payment request validation error', validate.error)
     return false
   }
 
   return true
 }
-
-module.exports = validatePaymentRequest

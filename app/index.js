@@ -1,25 +1,23 @@
-require('./insights').setup()
-require('log-timestamp')
-const messaging = require('./messaging')
-const createServer = require('./server')
+import { setup } from './insights.js'
+import { start, stop } from './messaging/index.js'
+import { createServer } from './server.js'
 
 const init = async () => {
   const server = await createServer()
+  await start(server.logger)
+  setup(server.logger)
   await server.start()
-  console.log('Server running on %s', server.info.uri)
+  server.logger.info('Server running on %s', server.info.uri)
 }
 
 process.on('SIGTERM', async () => {
-  await messaging.stop()
+  await stop()
   process.exit(0)
 })
 
 process.on('SIGINT', async () => {
-  await messaging.stop()
+  await stop()
   process.exit(0)
 })
 
-module.exports = (async function startService () {
-  await messaging.start()
-  await init()
-}())
+await init()

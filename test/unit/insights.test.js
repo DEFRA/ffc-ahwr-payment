@@ -1,59 +1,55 @@
-describe('Application Insights', () => {
-  const appInsights = require('applicationinsights')
-  jest.mock('applicationinsights')
+import { setup } from '../../app/insights'
 
-  const startMock = jest.fn()
-  const setupMock = jest.fn(() => {
-    return {
-      start: startMock
-    }
-  })
-  appInsights.setup = setupMock
-  const cloudRoleTag = 'cloudRoleTag'
-  const tags = {}
-  appInsights.defaultClient = {
-    context: {
-      keys: {
-        cloudRole: cloudRoleTag
-      },
-      tags
+const mockStart = jest.fn()
+const tags = {}
+const cloudRoleTag = 'cloudRoleTag'
+jest.mock('applicationinsights', () => {
+  return {
+    setup: jest.fn(() => {
+      return {
+        start: mockStart
+      }
+    }),
+    defaultClient: {
+      context: {
+        keys: {
+          cloudRole: cloudRoleTag
+        },
+        tags
+      }
     }
   }
+})
 
-  const consoleLogSpy = jest.spyOn(console, 'log')
+const mockInfoLogger = jest.fn()
 
-  const appInsightsConnectionString = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING
+const mockedLogger = {
+  info: mockInfoLogger
+}
 
+describe('Application Insights', () => {
   beforeEach(() => {
     delete process.env.APPLICATIONINSIGHTS_CONNECTION_STRING
     jest.clearAllMocks()
-  })
-
-  afterAll(() => {
-    process.env.APPLICATIONINSIGHTS_CONNECTION_STRING = appInsightsConnectionString
   })
 
   test('is started when env var exists', () => {
     const appName = 'test-app'
     process.env.APPINSIGHTS_CLOUDROLE = appName
     process.env.APPLICATIONINSIGHTS_CONNECTION_STRING = 'something'
-    const insights = require('../../app/insights')
 
-    insights.setup()
+    setup(mockedLogger)
 
-    expect(setupMock).toHaveBeenCalledTimes(1)
-    expect(startMock).toHaveBeenCalledTimes(1)
+    expect(mockStart).toHaveBeenCalledTimes(1)
     expect(tags[cloudRoleTag]).toEqual(appName)
-    expect(consoleLogSpy).toHaveBeenCalledTimes(1)
-    expect(consoleLogSpy).toHaveBeenCalledWith('App Insights Running')
+    expect(mockInfoLogger).toHaveBeenCalledTimes(1)
+    expect(mockInfoLogger).toHaveBeenCalledWith('App Insights Running')
   })
 
-  test('logs not running when env var does not exist', () => {
-    const insights = require('../../app/insights')
+  test('logs out not running message when env var does not exist', () => {
+    setup(mockedLogger)
 
-    insights.setup()
-
-    expect(consoleLogSpy).toHaveBeenCalledTimes(1)
-    expect(consoleLogSpy).toHaveBeenCalledWith('App Insights Not Running!')
+    expect(mockInfoLogger).toHaveBeenCalledTimes(1)
+    expect(mockInfoLogger).toHaveBeenCalledWith('App Insights Not Running!')
   })
 })

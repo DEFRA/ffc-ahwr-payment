@@ -1,11 +1,9 @@
-const config = require('../config')
-const sendMessage = require('./send-message')
-const { submitPaymentRequestMsgType, paymentRequestTopic } = require('../config').messageQueueConfig
+import { config } from '../config/index.js'
+import { sendMessage } from './send-message.js'
 
-const sendPaymentRequest = async (paymentRequest, sessionId) => {
-  if (config.sendPaymentRequest) {
+export const sendPaymentRequest = async (paymentRequest, sessionId) => {
+  const { sendPaymentRequest, messageQueueConfig: { submitPaymentRequestMsgType, paymentRequestTopic } } = config
+  if (sendPaymentRequest) {
     await sendMessage(paymentRequest, submitPaymentRequestMsgType, paymentRequestTopic, { sessionId })
   }
 }
-
-module.exports = sendPaymentRequest

@@ -1,4 +1,4 @@
-const { getPaymentData } = require('../../../../app/lib/getPaymentData')
+import { getPaymentData } from '../../../../app/lib/getPaymentData'
 const pricesConfig = require('../../../data/claim-prices-config.json')
 
 describe('getPaymentData', () => {

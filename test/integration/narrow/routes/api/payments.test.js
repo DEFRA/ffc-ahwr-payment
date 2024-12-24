@@ -1,21 +1,18 @@
-const paymentRepository = require('../../../../../app/repositories/payment-repository')
+import * as paymentRepository from '../../../../../app/repositories/payment-repository'
+import * as savePayment from '../../../../../app/messaging/save-payment-request'
+import { sendPaymentRequest } from '../../../../../app/messaging/send-payment-request'
+import { createServer } from '../../../../../app/server'
 jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
 
 const reference = 'ABC-1234'
-paymentRepository.get = jest.fn()
-  .mockResolvedValueOnce({ dataValues: { reference, createdBy: 'admin', createdAt: new Date(), data: {} } })
-  .mockResolvedValueOnce({ dataValues: null })
-  .mockResolvedValueOnce({ dataValues: { reference, createdBy: 'admin', createdAt: new Date(), data: {} } })
-  .mockResolvedValueOnce({ dataValues: null })
+
 jest.mock('../../../../../app/repositories/payment-repository')
-const savePaymentRequest = require('../../../../../app/messaging/save-payment-request')
-savePaymentRequest.savePaymentRequest = jest.fn().mockResolvedValueOnce().mockRejectedValueOnce(new Error('payment failed'))
 
 jest.mock('../../../../../app/messaging/send-payment-request')
-const sendPaymentRequest = require('../../../../../app/messaging/send-payment-request')
+const savePaymentSpy = jest.spyOn(savePayment, 'savePaymentRequest')
+const paymentRepoSpy = jest.spyOn(paymentRepository, 'get')
 
 describe('Payment API test', () => {
-  const createServer = require('../../../../../app/server')
   let server
 
   beforeEach(async () => {
@@ -31,16 +28,19 @@ describe('Payment API test', () => {
   describe('GET Payment route', () => {
     const url = `/api/payment/${reference}`
     const method = 'GET'
-    test('returns 200', async () => {
+    test('returns 200 when a record exists for reference', async () => {
+      paymentRepoSpy.mockResolvedValueOnce({ dataValues: { reference, createdBy: 'admin', createdAt: new Date(), data: {} } })
       const options = {
         method,
         url
       }
+
       const res = await server.inject(options)
       expect(res.statusCode).toBe(200)
       expect(paymentRepository.get).toHaveBeenCalledTimes(1)
     })
-    test('returns 404', async () => {
+    test('returns 404 when no record exists for reference', async () => {
+      paymentRepoSpy.mockResolvedValueOnce({ dataValues: null })
       const options = {
         method,
         url
@@ -56,6 +56,7 @@ describe('Payment API test', () => {
     const url = '/api/payment'
     const method = 'POST'
     test('returns 200', async () => {
+      savePaymentSpy.mockResolvedValueOnce()
       const options = {
         method: 'POST',
         url,
@@ -63,9 +64,10 @@ describe('Payment API test', () => {
       }
       const res = await server.inject(options)
       expect(res.statusCode).toBe(200)
-      expect(savePaymentRequest.savePaymentRequest).toHaveBeenCalledTimes(1)
+      expect(savePaymentSpy).toHaveBeenCalledTimes(1)
     })
     test('returns 500 for error', async () => {
+      savePaymentSpy.mockRejectedValueOnce(new Error('Something went wrong'))
       const options = {
         method,
         url,
@@ -73,7 +75,7 @@ describe('Payment API test', () => {
       }
       const res = await server.inject(options)
       expect(res.statusCode).toBe(500)
-      expect(savePaymentRequest.savePaymentRequest).toHaveBeenCalledTimes(1)
+      expect(savePaymentSpy).toHaveBeenCalledTimes(1)
     })
     test('returns 400 for wrong request payload', async () => {
       const options = {
@@ -83,7 +85,7 @@ describe('Payment API test', () => {
       }
       const res = await server.inject(options)
       expect(res.statusCode).toBe(400)
-      expect(savePaymentRequest.savePaymentRequest).toHaveBeenCalledTimes(0)
+      expect(savePaymentSpy).toHaveBeenCalledTimes(0)
     })
   })
 
@@ -91,7 +93,9 @@ describe('Payment API test', () => {
     const payment = { reference: 'ABC-1234' }
     const url = '/api/payment/approve'
     const method = 'POST'
-    test('returns 200', async () => {
+    test('returns 200 for success', async () => {
+      paymentRepoSpy.mockResolvedValueOnce({ dataValues: { reference, createdBy: 'admin', createdAt: new Date(), data: {} } })
+
       const options = {
         method: 'POST',
         url,
@@ -101,7 +105,9 @@ describe('Payment API test', () => {
       expect(res.statusCode).toBe(200)
       expect(sendPaymentRequest).toHaveBeenCalledTimes(1)
     })
-    test('returns 404 for error', async () => {
+    test('returns 404 for payment not found', async () => {
+      paymentRepoSpy.mockResolvedValueOnce({ dataValues: null })
+
       const options = {
         method,
         url,

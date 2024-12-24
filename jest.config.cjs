@@ -13,7 +13,8 @@ module.exports = {
     '<rootDir>/node_modules/',
     '<rootDir>/test-output/',
     '<rootDir>/test/',
-    '<rootDir>/jest.config.js'
+    '<rootDir>/jest.config.cjs',
+    '<rootDir>/app/index.js'
   ],
   modulePathIgnorePatterns: [
     'node_modules'
@@ -31,8 +32,8 @@ module.exports = {
   ],
   testEnvironment: 'node',
   testPathIgnorePatterns: [],
-  verbose: true,
-  setupFilesAfterEnv: [
-    '<rootDir>/test/setup.js'
-  ]
+  transform: {
+    '^.+\\.[t|j]sx?$': 'babel-jest'
+  },
+  verbose: true
 }

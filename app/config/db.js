@@ -1,4 +1,4 @@
-const { DefaultAzureCredential } = require('@azure/identity')
+import { DefaultAzureCredential } from '@azure/identity'
 
 function isProd () {
   return process.env.NODE_ENV === 'production'
@@ -43,7 +43,7 @@ const dbConfig = {
   username: process.env.POSTGRES_USERNAME
 }
 
-module.exports = {
+export const config = {
   development: dbConfig,
   production: dbConfig,
   test: dbConfig

@@ -1,13 +1,21 @@
-const processApplicationPaymentRequest = require('../../../../app/messaging/process-application-payment-request')
-const savePaymentRequest = require('../../../../app/messaging/save-payment-request')
-jest.mock('../../../../app/messaging/save-payment-request')
-const appInsights = require('applicationinsights')
+import { processApplicationPaymentRequest } from '../../../../app/messaging/process-application-payment-request'
+import * as savePayment from '../../../../app/messaging/save-payment-request'
+import * as sendPayment from '../../../../app/messaging/send-payment-request'
+import appInsights from 'applicationinsights'
 jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
-const sendPaymentRequest = require('../../../../app/messaging/send-payment-request')
-jest.mock('../../../../app/messaging/send-payment-request')
+
+const sendPaymentSpy = jest.spyOn(sendPayment, 'sendPaymentRequest')
+const savePaymentSpy = jest.spyOn(savePayment, 'savePaymentRequest')
+
+const mockInfoLogger = jest.fn()
+const mockErrorLogger = jest.fn()
+
+const mockedLogger = {
+  info: mockInfoLogger,
+  error: mockErrorLogger
+}
 
 describe(('Process application payment request'), () => {
-  const consoleError = jest.spyOn(console, 'error')
   const reference = 'AA-1234-567'
   const applicationPaymentRequestMissingFrn = {
     reference,
@@ -19,7 +27,6 @@ describe(('Process application payment request'), () => {
     frn: '123456789'
   }
 
-  sendPaymentRequest.mockResolvedValueOnce()
   const receiver = {
     completeMessage: jest.fn(),
     abandonMessage: jest.fn(),
@@ -31,22 +38,26 @@ describe(('Process application payment request'), () => {
   })
 
   test('Successfully update the payment with success status', async () => {
-    await processApplicationPaymentRequest({
+    savePaymentSpy.mockResolvedValueOnce()
+    sendPaymentSpy.mockResolvedValueOnce()
+    await processApplicationPaymentRequest(mockedLogger, {
       body: {
         applicationPaymentRequest
       }
     }
     , receiver)
 
-    expect(savePaymentRequest).toHaveBeenCalledTimes(1)
+    expect(savePaymentSpy).toHaveBeenCalledTimes(1)
+    expect(sendPaymentSpy).toHaveBeenCalledTimes(1)
+    expect(mockInfoLogger).toHaveBeenCalledTimes(1)
     expect(receiver.completeMessage).toHaveBeenCalledTimes(1)
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
   })
 
-  test('console.error raised due to error thrown in updateByReference', async () => {
-    savePaymentRequest.mockImplementation(() => { throw new Error() })
-    await processApplicationPaymentRequest({}, receiver)
-    expect(consoleError).toHaveBeenCalledTimes(1)
+  test('logger.error raised due to error thrown in updateByReference', async () => {
+    savePaymentSpy.mockImplementation(() => { throw new Error() })
+    await processApplicationPaymentRequest(mockedLogger, {}, receiver)
+    expect(mockErrorLogger).toHaveBeenCalledTimes(1)
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
     expect(appInsights.defaultClient.trackException).toHaveBeenCalledTimes(1)
   })

@@ -1,5 +1,3 @@
-const messageQueueConfig = require('../../../../app/config/message-queue')
-
 describe('Message queue Config Test', () => {
   const OLD_ENV = process.env
 
@@ -10,30 +8,17 @@ describe('Message queue Config Test', () => {
 
   afterAll(() => {
     process.env = OLD_ENV
-  })
-  test('Should pass validation for all fields populated', async () => {
-    expect(messageQueueConfig).toBeDefined()
   })
 
   test('Invalid env var throws error', () => {
+    let thrownErr
     try {
-      process.env.MESSAGE_QUEUE_HOST = null
-      require('../../../../app/config/message-queue')
+      delete process.env.MESSAGE_QUEUE_HOST
+      jest.requireActual('../../../../app/config/message-queue')
     } catch (err) {
-      expect(err.message).toBe('The message queue config is invalid. "applicationdDocCreationRequestQueue.host" must be a string. "applicationRequestQueue.host" must be a string. "applicationResponseQueue.host" must be a string. "submitRequestQueue.host" must be a string. "eventQueue.host" must be a string')
+      thrownErr = err
     }
-  })
-})
-describe('Message queue Config Test', () => {
-  const OLD_ENV = process.env
-
-  beforeEach(() => {
-    jest.resetModules()
-    process.env = { ...OLD_ENV }
-  })
-
-  afterAll(() => {
-    process.env = OLD_ENV
+    expect(thrownErr.message).toBe('The message queue config is invalid. "applicationPaymentRequestQueue.host" is required. "paymentRequestTopic.host" is required. "paymentResponseSubscription.host" is required')
   })
 
   test('Should pass validation for all fields populated', async () => {
@@ -47,9 +32,9 @@ describe('Message queue Config Test', () => {
 
     const messageQueueConfig = jest.requireActual('../../../../app/config/message-queue')
     expect(messageQueueConfig).toBeDefined()
-    expect(messageQueueConfig.applicationPaymentRequestQueue).toBeDefined()
-    expect(messageQueueConfig.paymentRequestTopic).toBeDefined()
-    expect(messageQueueConfig.paymentResponseSubscription).toBeDefined()
-    expect(messageQueueConfig.submitPaymentRequestMsgType).toBeDefined()
+    expect(messageQueueConfig.config.applicationPaymentRequestQueue).toBeDefined()
+    expect(messageQueueConfig.config.paymentRequestTopic).toBeDefined()
+    expect(messageQueueConfig.config.paymentResponseSubscription).toBeDefined()
+    expect(messageQueueConfig.config.submitPaymentRequestMsgType).toBeDefined()
   })
 })

@@ -1,4 +1,10 @@
-const validatePaymentRequest = require('../../../../app/messaging/payment-request-schema')
+import { validatePaymentRequest } from '../../../../app/messaging/payment-request-schema'
+
+const mockErrorLogger = jest.fn()
+
+const mockedLogger = {
+  error: mockErrorLogger
+}
 
 describe('validatePaymentRequest', () => {
   test('returns true for valid payment request', () => {
@@ -18,7 +24,7 @@ describe('validatePaymentRequest', () => {
       ]
     }
 
-    expect(validatePaymentRequest(validPaymentRequest)).toBe(true)
+    expect(validatePaymentRequest(mockedLogger, validPaymentRequest)).toBe(true)
   })
 
   test('returns false for invalid payment request', () => {
@@ -26,6 +32,7 @@ describe('validatePaymentRequest', () => {
       // missing required sourceSystem
     }
 
-    expect(validatePaymentRequest(invalidPaymentRequest)).toBe(false)
+    expect(validatePaymentRequest(mockedLogger, invalidPaymentRequest)).toBe(false)
+    expect(mockErrorLogger).toHaveBeenCalledTimes(1)
   })
 })

@@ -1,42 +1,44 @@
-const Joi = require('joi')
+import joi from 'joi'
+import appInsights from 'applicationinsights'
+
 const msgTypePrefix = 'uk.gov.ffc.ahwr'
 
 const sharedConfigSchema = {
-  appInsights: Joi.object(),
-  host: Joi.string(),
-  password: Joi.string(),
-  username: Joi.string(),
-  useCredentialChain: Joi.bool().default(false)
+  appInsights: joi.object(),
+  host: joi.string().required(),
+  password: joi.string(),
+  username: joi.string(),
+  useCredentialChain: joi.bool().default(false)
 }
 
-const schema = Joi.object({
+const schema = joi.object({
   applicationPaymentRequestQueue: {
-    address: Joi.string(),
-    type: Joi.string(),
+    address: joi.string(),
+    type: joi.string(),
     ...sharedConfigSchema
   },
   paymentRequestTopic: {
-    address: Joi.string(),
+    address: joi.string(),
     ...sharedConfigSchema
   },
   paymentResponseSubscription: {
-    topic: Joi.string().default('paymentResponseTopic'),
-    address: Joi.string(),
-    type: Joi.string().default('subscription'),
+    topic: joi.string().default('paymentResponseTopic'),
+    address: joi.string(),
+    type: joi.string().default('subscription'),
     ...sharedConfigSchema
   },
-  submitPaymentRequestMsgType: Joi.string()
+  submitPaymentRequestMsgType: joi.string()
 })
 
 const sharedConfig = {
-  appInsights: require('applicationinsights'),
+  appInsights,
   host: process.env.MESSAGE_QUEUE_HOST,
   password: process.env.MESSAGE_QUEUE_PASSWORD,
   username: process.env.MESSAGE_QUEUE_USER,
   useCredentialChain: process.env.NODE_ENV === 'production'
 }
 
-const config = {
+const combinedConfig = {
   applicationPaymentRequestQueue: {
     address: process.env.APPLICATIONPAYMENTREQUEST_QUEUE_ADDRESS,
     type: 'queue',
@@ -55,9 +57,10 @@ const config = {
   submitPaymentRequestMsgType: `${msgTypePrefix}.submit.payment.request`
 }
 
-const { error, value } = schema.validate(config, { abortEarly: false })
+const { error } = schema.validate(combinedConfig, { abortEarly: false })
 
 if (error) {
   throw new Error(`The message queue config is invalid. ${error.message}`)
 }
-module.exports = value
+
+export const config = combinedConfig
