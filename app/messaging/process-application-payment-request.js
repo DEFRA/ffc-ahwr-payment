@@ -27,6 +27,6 @@ export const processApplicationPaymentRequest = async (logger, message, receiver
         messageId: message.id ?? ''
       }
     })
-    logger.error('Unable to process application payment request:', err)
+    logger.error(`Unable to process application payment request: ${err}`)
   }
 }

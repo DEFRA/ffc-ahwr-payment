@@ -10,7 +10,6 @@ describe(('Submit payment request'), () => {
   // let config
 
   beforeEach(async () => {
-    // config = require('../../../../app/config')
     config.messageQueueConfig = {
       submitPaymentRequestMsgType: 'submit.payment.request',
       paymentRequestTopic: 'sometopic'

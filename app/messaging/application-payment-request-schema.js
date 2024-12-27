@@ -17,7 +17,7 @@ export const validateApplicationPaymentRequest = (logger, applicationPaymentRequ
 
   if (validate.error) {
     appInsights.defaultClient.trackException({ exception: validate.error })
-    logger.error('Application payment request validation error', validate.error)
+    logger.error(`Application payment request validation error: ${validate.error}`)
     return false
   }
 

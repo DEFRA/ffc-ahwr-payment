@@ -31,7 +31,7 @@ export const getBlob = async (logger, filename) => {
     const downloaded = await streamToBuffer(downloadResponse.readableStreamBody)
     return JSON.parse(downloaded.toString())
   } catch (error) {
-    logger.error('Error when getting prices config from blob storage', error)
+    logger.error(`Error when getting prices config from blob storage: ${error}`)
     throw error
   }
 }

@@ -67,15 +67,14 @@ describe(('Process payment response'), () => {
     expect(updatePaymentSpy).toHaveBeenCalledTimes(1)
     expect(receiver.completeMessage).toHaveBeenCalledTimes(1)
     expect(mockErrorLogger).toHaveBeenCalledWith(
-      'Failed payment request',
-      util.inspect(
+      `Failed payment request: ${util.inspect(
         {
           paymentRequest: {
             agreementNumber
           },
           accepted: false
         },
-        false, null, true)
+        false, null, true)}`
     )
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
   })
@@ -89,13 +88,12 @@ describe(('Process payment response'), () => {
       }
     }, receiver)
     expect(mockErrorLogger).toHaveBeenCalledWith(
-      'Received process payments response with no payment request and agreement number',
-      util.inspect(
+      `Received process payments response with no payment request and agreement number: ${util.inspect(
         {
           paymentRequest: {},
           accepted: false
         },
-        false, null, true)
+        false, null, true)}`
     )
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
     expect(updatePaymentSpy).toHaveBeenCalledTimes(0)

@@ -18,7 +18,7 @@ export const validatePaymentRequest = (logger, paymentRequest) => {
   const validate = paymentRequestSchema.validate(paymentRequest)
 
   if (validate.error) {
-    logger.error('payment request validation error', validate.error)
+    logger.error(`payment request validation error: ${validate.error}`)
     return false
   }
 
