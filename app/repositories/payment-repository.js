@@ -1,19 +1,20 @@
-const { models } = require('../data')
+import dataModels from '../data/index.js'
 
-async function get (reference) {
+export async function get (reference) {
+  const { models } = dataModels
   return models.payment.findOne(
     {
       where: { applicationReference: reference }
     })
 }
 
-async function set (reference, data) {
+export async function set (reference, data) {
+  const { models } = dataModels
   return models.payment.create({ applicationReference: reference, data })
 }
 
-async function updateByReference (reference, status, data) {
+export async function updateByReference (reference, status, data) {
+  const { models } = dataModels
   return models.payment.update({ status, data },
     { where: { applicationReference: reference } })
 }
-
-module.exports = { get, set, updateByReference }

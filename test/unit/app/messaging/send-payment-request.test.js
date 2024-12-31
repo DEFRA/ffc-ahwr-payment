@@ -1,14 +1,19 @@
-const sendPaymentRequest = require('../../../../app/messaging/send-payment-request')
+import { sendPaymentRequest } from '../../../../app/messaging/send-payment-request'
+import { sendMessage } from '../../../../app/messaging/send-message'
+import { config } from '../../../../app/config'
+
 jest.mock('../../../../app/messaging/send-message')
-const sendMessage = require('../../../../app/messaging/send-message')
 
 const reference = 'AA-123-456'
 
 describe(('Submit payment request'), () => {
-  let config
+  // let config
 
   beforeEach(async () => {
-    config = require('../../../../app/config')
+    config.messageQueueConfig = {
+      submitPaymentRequestMsgType: 'submit.payment.request',
+      paymentRequestTopic: 'sometopic'
+    }
     jest.clearAllMocks()
   })
 

@@ -1,5 +1,5 @@
-const { getPaymentData } = require('../../../../app/lib/getPaymentData')
-const pricesConfig = require('../../../data/claim-prices-config.json')
+import { getPaymentData } from '../../../../app/lib/getPaymentData'
+import pricesConfig from '../../../data/claim-prices-config.json'
 
 describe('getPaymentData', () => {
   test('returns correct payment data for beef review with test result', () => {

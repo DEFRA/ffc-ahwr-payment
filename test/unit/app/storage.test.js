@@ -1,3 +1,35 @@
+import { initialiseClient, getBlob } from '../../../app/storage'
+import { config } from '../../../app/config/storage'
+
+const mockErrorLogger = jest.fn()
+
+const mockedLogger = {
+  error: mockErrorLogger
+}
+
+jest.mock('@azure/storage-blob', () => {
+  const mockBsc = jest.fn().mockImplementation(() => ({
+    getContainerClient: jest.fn().mockReturnValueOnce({
+      getBlobClient: jest.fn().mockReturnValueOnce({
+        download: jest.fn().mockResolvedValue({
+          readableStreamBody: {
+            on: jest.fn(),
+            read: jest.fn(),
+            [Symbol.asyncIterator]: jest.fn()
+          }
+        })
+      })
+    })
+  }))
+  mockBsc.fromConnectionString = jest.fn()
+  return {
+    BlobServiceClient: mockBsc
+  }
+})
+jest.mock('../../../app/lib/streamToBuffer', () => ({
+  streamToBuffer: jest.fn().mockResolvedValue(Buffer.from(JSON.stringify({ key: 'value' })))
+}))
+
 describe('storage tests', () => {
   beforeEach(() => {
     jest.clearAllMocks()
@@ -5,76 +37,28 @@ describe('storage tests', () => {
   })
 
   describe('Download blob', () => {
-    test.each([
-      { mockConnectionStringEnabled: true },
-      { mockConnectionStringEnabled: false }
-    ])('create blob client with $connectionStringEnabled', async ({ mockConnectionStringEnabled }) => {
-      jest.mock('../../../app/config', () => ({
-        storage: {
-          storageAccount: 'mockStorageAccount',
-          useConnectionString: mockConnectionStringEnabled,
-          endemicsSettingsContainer: 'endemics-settings',
-          connectionString: 'connectionString'
-        }
-      }))
-      const { BlobServiceClient } = require('@azure/storage-blob')
-      const mockFromConnectionString = jest.fn()
-      jest.mock('@azure/storage-blob')
-      BlobServiceClient.fromConnectionString = mockFromConnectionString
+    test('create blob client with connectionStringEnabled = true', () => {
+      config.useConnectionString = true
 
-      const constructorSpy = jest.spyOn(require('@azure/storage-blob'), 'BlobServiceClient')
+      const initialisedBy = initialiseClient()
 
-      require('../../../app/storage')
-      if (mockConnectionStringEnabled) {
-        expect(mockFromConnectionString).toHaveBeenCalledTimes(1)
-      } else {
-        expect(constructorSpy).toHaveBeenCalledTimes(1)
-      }
+      expect(initialisedBy).toBe('connectionString')
     })
 
-    describe('getBlob', () => {
-      test('should return parsed JSON data from downloaded blob', async () => {
-        const mockDownloadResponse = {
-          readableStreamBody: {
-            on: jest.fn(),
-            read: jest.fn(),
-            once: jest.fn(),
-            pause: jest.fn(),
-            resume: jest.fn(),
-            isPaused: jest.fn(),
-            pipe: jest.fn(),
-            unpipe: jest.fn(),
-            unshift: jest.fn(),
-            wrap: jest.fn(),
-            [Symbol.asyncIterator]: jest.fn()
-          }
-        }
-        const mockJsonData = { key: 'value' }
-        const mockBuffer = Buffer.from(JSON.stringify(mockJsonData))
-        const mockStreamToBuffer = jest.fn().mockResolvedValue(mockBuffer)
-        const mockDownload = jest.fn()
-        const mockBlobClient = jest.fn()
-        jest.mock('../../../app/lib/streamToBuffer', () => ({
-          streamToBuffer: mockStreamToBuffer
-        }))
-        const mockGetContainerClient = jest.fn().mockReturnValueOnce({
-          getBlobClient: mockBlobClient.mockReturnValueOnce({
-            download: mockDownload.mockResolvedValue(mockDownloadResponse)
-          })
-        })
-        const { BlobServiceClient } = require('@azure/storage-blob')
-        jest.mock('@azure/storage-blob')
-        BlobServiceClient.mockImplementation(() => ({
-          getContainerClient: mockGetContainerClient
-        }))
-        const { getBlob } = require('../../../app/storage')
-        const result = await getBlob('filename.json')
-        expect(mockGetContainerClient).toHaveBeenCalledTimes(1)
-        expect(mockBlobClient).toHaveBeenCalledTimes(1)
-        expect(mockDownload).toHaveBeenCalledTimes(1)
-        expect(mockStreamToBuffer).toHaveBeenCalledTimes(1)
-        expect(result).toEqual(mockJsonData)
-      })
+    test('create blob client with connectionStringEnabled = false', () => {
+      config.useConnectionString = false
+
+      const initialisedBy = initialiseClient()
+
+      expect(initialisedBy).toBe('constructor')
+    })
+
+    test('getBlob should return parsed JSON data from downloaded blob', async () => {
+      config.useConnectionString = false
+
+      const result = await getBlob(mockedLogger, 'filename.json')
+
+      expect(result).toEqual({ key: 'value' })
     })
   })
 })

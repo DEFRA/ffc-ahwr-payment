@@ -1,27 +1,25 @@
-const Joi = require('joi')
-const messageQueueConfig = require('./message-queue')
-const storageConfig = require('./storage')
+import joi from 'joi'
+import { config as messageQueueConfig } from './message-queue.js'
+import { config as storageConfig } from './storage.js'
 
-const schema = Joi.object({
-  port: Joi.number().default(3005),
-  env: Joi.string().valid('development', 'test', 'production').default('development'),
-  isDev: Joi.boolean().default(false),
-  sendPaymentRequest: Joi.boolean().default(true)
+const schema = joi.object({
+  port: joi.number().default(3005),
+  env: joi.string().valid('development', 'test', 'production').default('development'),
+  isDev: joi.boolean().default(false),
+  sendPaymentRequest: joi.boolean().default(true)
 })
 
-const config = {
+const baseConfig = {
   port: process.env.PORT,
   env: process.env.NODE_ENV,
   isDev: process.env.NODE_ENV === 'development',
   sendPaymentRequest: process.env.SEND_PAYMENT_REQUEST
 }
 
-const { error, value } = schema.validate(config, { abortEarly: false })
+const { error } = schema.validate(baseConfig, { abortEarly: false })
 
 if (error) {
   throw new Error(`The server config is invalid. ${error.message}`)
 }
-value.messageQueueConfig = messageQueueConfig
-value.storage = storageConfig
 
-module.exports = value
+export const config = { ...baseConfig, messageQueueConfig, storageConfig }

@@ -1,26 +1,25 @@
-const { MessageReceiver } = require('ffc-messaging')
-const processApplicationPaymentRequest = require('./process-application-payment-request')
-const processPaymentResponse = require('./process-payment-response')
-const { applicationPaymentRequestQueue, paymentResponseSubscription } = require('../config').messageQueueConfig
+import { MessageReceiver } from 'ffc-messaging'
+import { processApplicationPaymentRequest } from './process-application-payment-request.js'
+import { processPaymentResponse } from './process-payment-response.js'
+import { config } from '../config/message-queue.js'
 
 let applicationClaimReceiver
 let paymentActionReceiver
 
-const start = async () => {
-  const applicationClaimAction = message => processApplicationPaymentRequest(message, applicationClaimReceiver)
+export const start = async (logger) => {
+  const { applicationPaymentRequestQueue, paymentResponseSubscription } = config
+  const applicationClaimAction = message => processApplicationPaymentRequest(logger, message, applicationClaimReceiver)
   applicationClaimReceiver = new MessageReceiver(applicationPaymentRequestQueue, applicationClaimAction)
   await applicationClaimReceiver.subscribe()
 
-  const paymentRequestAction = message => processPaymentResponse(message, paymentActionReceiver)
+  const paymentRequestAction = message => processPaymentResponse(logger, message, paymentActionReceiver)
   paymentActionReceiver = new MessageReceiver(paymentResponseSubscription, paymentRequestAction)
   await paymentActionReceiver.subscribe()
 
-  console.info('Ready to receive messages')
+  logger.info('Ready to receive messages')
 }
 
-const stop = async () => {
+export const stop = async () => {
   await applicationClaimReceiver.closeConnection()
   await paymentActionReceiver.closeConnection()
 }
-
-module.exports = { start, stop }

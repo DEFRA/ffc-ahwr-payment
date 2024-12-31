@@ -1,13 +1,13 @@
-const { v4: uuidv4 } = require('uuid')
-const savePaymentRequest = require('./save-payment-request')
-const sendPaymentRequest = require('../messaging/send-payment-request')
-const appInsights = require('applicationinsights')
+import { v4 as uuidv4 } from 'uuid'
+import { savePaymentRequest } from './save-payment-request.js'
+import { sendPaymentRequest } from './send-payment-request.js'
+import appInsights from 'applicationinsights'
 
-const processApplicationPaymentRequest = async (message, receiver) => {
+export const processApplicationPaymentRequest = async (logger, message, receiver) => {
   try {
     const messageBody = message.body
-    console.log('Received application payment request', messageBody)
-    const paymentRequest = await savePaymentRequest(messageBody)
+    logger.info('Received application payment request', messageBody)
+    const paymentRequest = await savePaymentRequest(logger, messageBody)
     await sendPaymentRequest(paymentRequest, uuidv4())
     await receiver.completeMessage(message)
     appInsights.defaultClient.trackEvent({
@@ -27,8 +27,6 @@ const processApplicationPaymentRequest = async (message, receiver) => {
         messageId: message.id ?? ''
       }
     })
-    console.error('Unable to process application payment request:', err)
+    logger.error(`Unable to process application payment request: ${err}`)
   }
 }
-
-module.exports = processApplicationPaymentRequest
