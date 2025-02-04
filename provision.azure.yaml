@@ -12,4 +12,4 @@ resources:
     - name: ffc-pay-request
       role: sender
     - name: ffc-pay-request-response
-      role: sender
+      role: receiver
