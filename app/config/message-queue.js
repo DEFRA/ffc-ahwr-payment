@@ -8,7 +8,8 @@ const sharedConfigSchema = {
   host: joi.string().required(),
   password: joi.string(),
   username: joi.string(),
-  useCredentialChain: joi.bool().default(false)
+  useCredentialChain: joi.bool().default(false),
+  managedIdentityClientId: joi.string().optional()
 }
 
 const schema = joi.object({
@@ -35,7 +36,8 @@ const sharedConfig = {
   host: process.env.MESSAGE_QUEUE_HOST,
   password: process.env.MESSAGE_QUEUE_PASSWORD,
   username: process.env.MESSAGE_QUEUE_USER,
-  useCredentialChain: process.env.NODE_ENV === 'production'
+  useCredentialChain: process.env.NODE_ENV === 'production',
+  managedIdentityClientId: process.env.AZURE_CLIENT_ID
 }
 
 const combinedConfig = {

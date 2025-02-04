@@ -1,6 +1,15 @@
 resources:
+  identity: ahwr-payment
+  postgreSql:
+    name: ffc-ahwr-payment
+    extensions:
+      - name: uuid-ossp
   queues:
-    - name: applicationPaymentRequest
+    - name: ffc-ahwr-payment-request
+      role: receiver
+      session: false
   topics:
-    - name: paymentRequest
-    - name: paymentResponse
+    - name: ffc-pay-request
+      role: sender
+    - name: ffc-pay-request-response
+      role: sender
