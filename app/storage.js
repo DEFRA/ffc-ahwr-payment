@@ -13,7 +13,7 @@ export function initialiseClient () {
     initialisedBy = 'connectionString'
   } else {
     const uri = `https://${config.storageAccount}.blob.core.windows.net`
-    blobServiceClient = new BlobServiceClient(uri, new DefaultAzureCredential())
+    blobServiceClient = new BlobServiceClient(uri, new DefaultAzureCredential({ managedIdentityClientId: process.env.AZURE_CLIENT_ID }))
     initialisedBy = 'constructor'
   }
   initialised = true

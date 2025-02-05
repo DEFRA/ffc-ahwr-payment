@@ -109,13 +109,15 @@ describe('Save payment request part 2', () => {
   })
 
   test('saves payment request if valid', async () => {
+    const currentYear = new Date().getFullYear()
+
     paymentRepoGetSpy.mockResolvedValueOnce()
 
     await savePaymentRequest(mockedLogger, applicationPaymentRequest)
 
     expect(paymentRepoSetSpy).toHaveBeenCalledTimes(1)
     expect(paymentRepoSetSpy).toHaveBeenCalledWith(
-      'AA-123-456', { agreementNumber: 'AA-123-456', invoiceLines: [{ description: 'G00 - Gross value of claim', standardCode: 'AHWR-Beef', value: 522 }], marketingYear: 2024, paymentRequestNumber: 1, sbi: '123456789', sourceSystem: 'AHWR', value: 522 }
+      'AA-123-456', { agreementNumber: 'AA-123-456', invoiceLines: [{ description: 'G00 - Gross value of claim', standardCode: 'AHWR-Beef', value: 522 }], marketingYear: currentYear, paymentRequestNumber: 1, sbi: '123456789', sourceSystem: 'AHWR', value: 522 }
     )
   })
 })

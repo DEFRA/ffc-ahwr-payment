@@ -6,7 +6,7 @@ workstream: ffc-ahwr
 
 labels: {}
 
-aadPodIdentity: true
+workloadIdentity: true
 
 azureIdentity:
   clientID:
@@ -52,7 +52,7 @@ container:
 
 postgresService:
   postgresDb: ffc_ahwr_payment
-  postgresExternalName: namespace.postgres.database.azure.com
+  postgresqlHost: namespace.postgres.database.azure.com
   postgresPort: 5432
   postgresSchema: public
   postgresUser: postgres
