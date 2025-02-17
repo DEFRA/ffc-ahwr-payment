@@ -1,4 +1,5 @@
 import { savePaymentRequest } from '../../../../app/messaging/save-payment-request'
+import { validatePaymentRequest } from '../../../../app/messaging/payment-request-schema.js'
 import * as getPayment from '../../../../app/lib/getPaymentData'
 import * as paymentRepo from '../../../../app/repositories/payment-repository'
 
@@ -6,6 +7,8 @@ jest.mock('../../../../app/repositories/payment-repository')
 jest.mock('../../../../app/lib/getPaymentData')
 jest.mock('../../../../app/storage')
 jest.mock('../../../../app/messaging/send-message')
+jest.mock('../../../../app/messaging/payment-request-schema')
+
 jest.mock('../../../../app/config', () => ({
   storage: {
     storageAccount: 'mockStorageAccount',
@@ -45,12 +48,14 @@ describe(('Save payment request'), () => {
   })
 
   test('Set creates record for payment', async () => {
+    validatePaymentRequest.mockReturnValueOnce(true)
     paymentRepoGetSpy.mockResolvedValueOnce()
     await savePaymentRequest(mockedLogger, applicationPaymentRequest)
     expect(paymentRepoSetSpy).toHaveBeenCalledTimes(1)
   })
 
   test('Set creates record for payment without frm', async () => {
+    validatePaymentRequest.mockReturnValueOnce(true)
     paymentRepoGetSpy.mockResolvedValueOnce()
     await savePaymentRequest(mockedLogger, applicationPaymentRequestMissingFrn)
     expect(paymentRepoSetSpy).toHaveBeenCalledTimes(1)
@@ -66,6 +71,7 @@ describe(('Save payment request'), () => {
     await expect(savePaymentRequest(mockedLogger, { reference })).rejects.toEqual(new Error('Application payment request schema not valid'))
   })
 })
+
 describe('Save payment request part 2', () => {
   beforeEach(async () => {
     jest.clearAllMocks()
@@ -108,14 +114,32 @@ describe('Save payment request part 2', () => {
     )
   })
 
+  test('throws error if built payment request is invalid', async () => {
+    validatePaymentRequest.mockReturnValueOnce(false)
+
+    await expect(savePaymentRequest(mockedLogger, applicationPaymentRequest)).rejects.toThrow(
+      'Payment request schema not valid'
+    )
+  })
+
   test('saves payment request if valid', async () => {
     paymentRepoGetSpy.mockResolvedValueOnce()
+    validatePaymentRequest.mockReturnValueOnce(true)
+    const expectedYear = new Date().getFullYear()
 
     await savePaymentRequest(mockedLogger, applicationPaymentRequest)
 
     expect(paymentRepoSetSpy).toHaveBeenCalledTimes(1)
     expect(paymentRepoSetSpy).toHaveBeenCalledWith(
-      'AA-123-456', { agreementNumber: 'AA-123-456', invoiceLines: [{ description: 'G00 - Gross value of claim', standardCode: 'AHWR-Beef', value: 522 }], marketingYear: 2024, paymentRequestNumber: 1, sbi: '123456789', sourceSystem: 'AHWR', value: 522 }
+      'AA-123-456', {
+        agreementNumber: 'AA-123-456',
+        invoiceLines: [{ description: 'G00 - Gross value of claim', standardCode: 'AHWR-Beef', value: 522 }],
+        marketingYear: expectedYear,
+        paymentRequestNumber: 1,
+        sbi: '123456789',
+        sourceSystem: 'AHWR',
+        value: 522
+      }
     )
   })
 })
