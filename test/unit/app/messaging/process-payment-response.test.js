@@ -112,7 +112,6 @@ describe(('Process payment response'), () => {
     const accepted = 'success'
     const error = new Error('Something wrong')
     updatePaymentSpy.mockRejectedValueOnce(error)
-    // updatePaymentSpy.mockImplementation(async () => { throw new Error('Fake Error') })
 
     await processPaymentResponse(mockedLogger, { body: { paymentRequest, accepted } }, receiver)
 
