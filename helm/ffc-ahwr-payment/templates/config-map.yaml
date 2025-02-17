@@ -10,7 +10,7 @@ data:
   PAYMENTRESPONSE_TOPIC_ADDRESS: {{ quote .Values.container.paymentResponseTopicAddress }}
   PAYMENTRESPONSE_SUBSCRIPTION_ADDRESS: {{ quote .Values.container.paymentResponseSubscriptionAddress }}
   POSTGRES_DB: {{ quote .Values.postgresService.postgresDb }}
-  POSTGRES_HOST: {{ quote .Values.postgresService.postgresExternalName }}
+  POSTGRES_HOST: {{ quote .Values.postgresService.postgresqlHost }}
   POSTGRES_PORT: {{ quote .Values.postgresService.postgresPort }}
   POSTGRES_SCHEMA_NAME: {{ quote .Values.postgresService.postgresSchema }}
   SEND_PAYMENT_REQUEST: {{ quote .Values.container.sendPaymentRequest }}
