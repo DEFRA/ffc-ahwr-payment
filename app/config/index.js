@@ -6,14 +6,14 @@ const schema = joi.object({
   port: joi.number().default(3005),
   env: joi.string().valid('development', 'test', 'production').default('development'),
   isDev: joi.boolean().default(false),
-  sendPaymentRequest: joi.boolean().default(true)
+  sendPaymentRequestOutbound: joi.boolean().required()
 })
 
 const baseConfig = {
   port: process.env.PORT,
   env: process.env.NODE_ENV,
   isDev: process.env.NODE_ENV === 'development',
-  sendPaymentRequest: process.env.SEND_PAYMENT_REQUEST
+  sendPaymentRequestOutbound: process.env.SEND_PAYMENT_REQUEST === 'true'
 }
 
 const { error } = schema.validate(baseConfig, { abortEarly: false })

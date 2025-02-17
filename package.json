@@ -1,6 +1,6 @@
 {
   "name": "ffc-ahwr-payment",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "FFC Vet Visits Payment Service",
   "homepage": "https://github.com/DEFRA/ffc-ahwr-payment",
   "main": "app/index.js",
@@ -39,13 +39,14 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "^7.26.0",
-    "@babel/plugin-transform-modules-commonjs": "^7.25.9",
+    "@babel/core": "^7.26.8",
+    "@babel/plugin-transform-modules-commonjs": "^7.26.3",
     "babel-jest": "^29.7.0",
     "jest": "^29.7.0",
     "jest-junit": "^16.0.0",
     "nodemon": "^3.1.9",
-    "standard": "^17.0.0"
+    "pino-pretty": "^7.5.1",
+    "standard": "^17.1.2"
   },
   "standard": {
     "globals": [

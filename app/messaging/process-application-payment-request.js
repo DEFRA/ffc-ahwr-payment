@@ -6,9 +6,10 @@ import appInsights from 'applicationinsights'
 export const processApplicationPaymentRequest = async (logger, message, receiver) => {
   try {
     const messageBody = message.body
-    logger.info('Received application payment request', messageBody)
+    logger.setBindings({ sbi: messageBody.sbi, reference: messageBody.reference })
+    logger.info(`Received application payment request ${JSON.stringify(messageBody)}`)
     const paymentRequest = await savePaymentRequest(logger, messageBody)
-    await sendPaymentRequest(paymentRequest, uuidv4())
+    await sendPaymentRequest(paymentRequest, uuidv4(), logger)
     await receiver.completeMessage(message)
     appInsights.defaultClient.trackEvent({
       name: 'process-payment',

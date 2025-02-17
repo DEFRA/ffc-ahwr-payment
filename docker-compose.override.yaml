@@ -7,6 +7,8 @@ services:
       target: development
     image: ffc-ahwr-payment-development
     container_name: ffc-ahwr-payment-development
+    environment:
+      USE_PRETTY_PRINT: ${USE_PRETTY_PRINT:-true}
     ports:
       - "3005:3000"
       - "9235:9229"

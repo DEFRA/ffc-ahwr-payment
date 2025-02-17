@@ -9,10 +9,12 @@ const savePaymentSpy = jest.spyOn(savePayment, 'savePaymentRequest')
 
 const mockInfoLogger = jest.fn()
 const mockErrorLogger = jest.fn()
+const mockSetBindings = jest.fn()
 
 const mockedLogger = {
   info: mockInfoLogger,
-  error: mockErrorLogger
+  error: mockErrorLogger,
+  setBindings: mockSetBindings
 }
 
 describe(('Process application payment request'), () => {
@@ -49,6 +51,7 @@ describe(('Process application payment request'), () => {
 
     expect(savePaymentSpy).toHaveBeenCalledTimes(1)
     expect(sendPaymentSpy).toHaveBeenCalledTimes(1)
+    expect(mockSetBindings).toHaveBeenCalledTimes(1)
     expect(mockInfoLogger).toHaveBeenCalledTimes(1)
     expect(receiver.completeMessage).toHaveBeenCalledTimes(1)
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)

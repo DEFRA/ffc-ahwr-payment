@@ -80,7 +80,6 @@ describe(('Process payment response'), () => {
   })
 
   test('logger.error raised due to no agreement number within message', async () => {
-    updatePaymentSpy.mockResolvedValueOnce()
     await processPaymentResponse(mockedLogger, {
       body: {
         paymentRequest: {},
@@ -100,7 +99,7 @@ describe(('Process payment response'), () => {
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
   })
 
-  test('logger.error raised due empty message', async () => {
+  test('logger.error raised due to empty message', async () => {
     await processPaymentResponse(mockedLogger, {}, receiver)
     expect(mockErrorLogger).toHaveBeenCalledTimes(2)
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
@@ -111,11 +110,14 @@ describe(('Process payment response'), () => {
   test('error raised due to error thrown in updateByReference', async () => {
     const paymentRequest = { value: 0, agreementNumber }
     const accepted = 'success'
+    const error = new Error('Something wrong')
+    updatePaymentSpy.mockRejectedValueOnce(error)
+
     await processPaymentResponse(mockedLogger, { body: { paymentRequest, accepted } }, receiver)
-    updatePaymentSpy.mockImplementation(async () => { throw new Error('Fake Error') })
-    expect(mockErrorLogger).toHaveBeenCalledTimes(0)
+
+    expect(mockErrorLogger).toHaveBeenCalledTimes(1)
     expect(updatePaymentSpy).toHaveBeenCalledWith(agreementNumber, accepted, paymentRequest)
-    expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(0)
-    expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
+    expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
+    expect(appInsights.defaultClient.trackException).toHaveBeenCalledTimes(1)
   })
 })
