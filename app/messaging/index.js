@@ -8,11 +8,17 @@ let paymentActionReceiver
 
 export const start = async (logger) => {
   const { applicationPaymentRequestQueue, paymentResponseSubscription } = config
-  const applicationClaimAction = message => processApplicationPaymentRequest(logger, message, applicationClaimReceiver)
+  const applicationClaimAction = message => {
+    const childLogger = logger.child({})
+    processApplicationPaymentRequest(childLogger, message, applicationClaimReceiver)
+  }
   applicationClaimReceiver = new MessageReceiver(applicationPaymentRequestQueue, applicationClaimAction)
   await applicationClaimReceiver.subscribe()
 
-  const paymentRequestAction = message => processPaymentResponse(logger, message, paymentActionReceiver)
+  const paymentRequestAction = message => {
+    const childLogger = logger.child({})
+    processPaymentResponse(childLogger, message, paymentActionReceiver)
+  }
   paymentActionReceiver = new MessageReceiver(paymentResponseSubscription, paymentRequestAction)
   await paymentActionReceiver.subscribe()
 

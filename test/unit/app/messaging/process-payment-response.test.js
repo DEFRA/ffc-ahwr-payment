@@ -10,7 +10,8 @@ const mockInfoLogger = jest.fn()
 
 const mockedLogger = {
   error: mockErrorLogger,
-  info: mockInfoLogger
+  info: mockInfoLogger,
+  setBindings: jest.fn()
 }
 describe(('Process payment response'), () => {
   const agreementNumber = 'AA-1234-567'
