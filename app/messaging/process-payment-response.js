@@ -7,6 +7,7 @@ export const processPaymentResponse = async (logger, message, receiver) => {
     const messageBody = message.body
     const paymentRequest = messageBody?.paymentRequest
     const agreementNumber = paymentRequest?.agreementNumber
+    logger.setBindings({ reference: agreementNumber })
     const status = messageBody?.accepted ? 'success' : failedPaymentRequest(logger, messageBody)
     if (paymentRequest && agreementNumber) {
       logger.info('received process payments response', agreementNumber, status)
