@@ -53,7 +53,7 @@ describe(('Process payment response'), () => {
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
   })
 
-  test('Update the payment with failed status', async () => {
+  test('Update the payment with failed status and raise exception', async () => {
     updatePaymentSpy.mockResolvedValueOnce()
     await processPaymentResponse(mockedLogger, {
       body: {
@@ -78,9 +78,10 @@ describe(('Process payment response'), () => {
         false, null, true)}`
     )
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
+    expect(appInsights.defaultClient.trackException).toHaveBeenCalledTimes(1)
   })
 
-  test('logger.error raised due to no agreement number within message', async () => {
+  test('response message deadLettered and error logged when no agreement number within message', async () => {
     await processPaymentResponse(mockedLogger, {
       body: {
         paymentRequest: {},
@@ -98,17 +99,19 @@ describe(('Process payment response'), () => {
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
     expect(updatePaymentSpy).toHaveBeenCalledTimes(0)
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
+    expect(appInsights.defaultClient.trackException).toHaveBeenCalledTimes(1)
   })
 
-  test('logger.error raised due to empty message', async () => {
+  test('Exception tracked and error log output when input is empty message', async () => {
     await processPaymentResponse(mockedLogger, {}, receiver)
     expect(mockErrorLogger).toHaveBeenCalledTimes(2)
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
     expect(updatePaymentSpy).toHaveBeenCalledTimes(0)
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
+    expect(appInsights.defaultClient.trackException).toHaveBeenCalledTimes(1)
   })
 
-  test('error raised due to error thrown in updateByReference', async () => {
+  test('Message deadlettered and TrackException called when error thrown in updateByReference', async () => {
     const paymentRequest = { value: 0, agreementNumber }
     const accepted = 'success'
     const error = new Error('Something wrong')

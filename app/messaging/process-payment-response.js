@@ -10,7 +10,7 @@ export const processPaymentResponse = async (logger, message, receiver) => {
     logger.setBindings({ reference: agreementNumber })
     const status = messageBody?.accepted ? 'success' : failedPaymentRequest(logger, messageBody)
     if (paymentRequest && agreementNumber) {
-      logger.info('received process payments response', agreementNumber, status)
+      logger.info(`received process payments response ${agreementNumber} ${status}`)
       if (paymentRequest?.value) {
         paymentRequest.value = paymentRequest.value / 100
       }
@@ -19,27 +19,19 @@ export const processPaymentResponse = async (logger, message, receiver) => {
       }
       await updateByReference(agreementNumber, status, paymentRequest)
 
-      appInsights.defaultClient.trackEvent({
-        name: 'payment-response',
-        properties: {
-          status,
-          agreementNumber,
-          value: paymentRequest.value
-        }
-      })
       await receiver.completeMessage(message)
     } else {
-      appInsights.defaultClient.trackEvent({
-        name: 'payment-response',
-        properties: {
-          status: 'failed',
-          agreementNumber,
-          value: paymentRequest?.value
-        }
-      })
       logger.error(`Received process payments response with no payment request and agreement number: ${util.inspect(message.body, false, null, true)}`)
       await receiver.deadLetterMessage(message)
     }
+    appInsights.defaultClient.trackEvent({
+      name: 'payment-response',
+      properties: {
+        status,
+        agreementNumber,
+        value: paymentRequest?.value
+      }
+    })
   } catch (err) {
     appInsights.defaultClient.trackException({ exception: err })
     await receiver.deadLetterMessage(message)
@@ -49,5 +41,6 @@ export const processPaymentResponse = async (logger, message, receiver) => {
 
 function failedPaymentRequest (logger, messageBody) {
   logger.error(`Failed payment request: ${util.inspect(messageBody, false, null, true)}`)
+  appInsights.defaultClient.trackException({ exception: new Error(messageBody?.error) })
   return 'failed'
 }
