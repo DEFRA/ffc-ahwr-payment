@@ -21,7 +21,7 @@ export const processPaymentResponse = async (logger, message, receiver) => {
 
       await receiver.completeMessage(message)
     } else {
-      logger.error(`Received process payments response with no payment request and agreement number: ${util.inspect(message.body, false, null, true)}`)
+      logger.error(`Received process payments response with no payment request and agreement number: ${util.inspect(message.body, false, null, false)}`)
       await receiver.deadLetterMessage(message)
     }
     appInsights.defaultClient.trackEvent({
@@ -40,7 +40,7 @@ export const processPaymentResponse = async (logger, message, receiver) => {
 }
 
 function failedPaymentRequest (logger, messageBody) {
-  logger.error(`Failed payment request: ${util.inspect(messageBody, false, null, true)}`)
+  logger.error(`Failed payment request: ${util.inspect(messageBody, false, null, false)}`)
   appInsights.defaultClient.trackException({ exception: new Error(messageBody?.error) })
   return 'failed'
 }

@@ -8,8 +8,8 @@ export default (sequelize, DataTypes) => {
     },
     applicationReference: DataTypes.STRING,
     data: DataTypes.JSONB,
-    createdAt: { type: DataTypes.DATE, defaultValue: Date.now() },
-    updatedAt: { type: DataTypes.DATE, defaultValue: null },
+    createdAt: { type: DataTypes.DATE },
+    updatedAt: { type: DataTypes.DATE },
     status: { type: DataTypes.STRING, defaultValue: 'on-hold' }
   }, {
     freezeTableName: true,
