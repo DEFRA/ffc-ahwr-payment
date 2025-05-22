@@ -75,7 +75,7 @@ describe(('Process payment response'), () => {
           },
           accepted: false
         },
-        false, null, true)}`
+        false, null, false)}`
     )
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
     expect(appInsights.defaultClient.trackException).toHaveBeenCalledTimes(1)
@@ -94,7 +94,7 @@ describe(('Process payment response'), () => {
           paymentRequest: {},
           accepted: false
         },
-        false, null, true)}`
+        false, null, false)}`
     )
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
     expect(updatePaymentSpy).toHaveBeenCalledTimes(0)
