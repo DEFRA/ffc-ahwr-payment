@@ -11,7 +11,7 @@ const buildPaymentRequest = async (logger, application) => {
   const sbi = application.sbi
   const marketingYear = new Date().getFullYear()
   const species = application.whichReview
-  const { isEndemics, reviewTestResults, claimType, optionalPiHuntValue } = application
+  const { isEndemics, reviewTestResults, claimType, optionalPiHuntValue, frn } = application
   const pricesConfig = await getBlob(logger, 'claim-prices-config.json')
   const { standardCode, value } = getPaymentData(species, reviewTestResults, pricesConfig, isEndemics, claimType, optionalPiHuntValue)
 
@@ -22,6 +22,7 @@ const buildPaymentRequest = async (logger, application) => {
     paymentRequestNumber,
     agreementNumber,
     value,
+    frn,
     invoiceLines: [{
       description,
       standardCode,
