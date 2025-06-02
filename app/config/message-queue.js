@@ -28,7 +28,15 @@ const schema = joi.object({
     type: joi.string().default('subscription'),
     ...sharedConfigSchema
   },
-  submitPaymentRequestMsgType: joi.string()
+  submitPaymentRequestMsgType: joi.string(),
+  paymentDataRequestTopic: {
+    address: joi.string().default('paymentDataRequestTopic'),
+    ...sharedConfigSchema
+  },
+  paymentDataRequestResponse: {
+    address: joi.string().default('paymentDataResponseQueue'),
+    ...sharedConfigSchema
+  },
 })
 
 const sharedConfig = {
@@ -56,7 +64,21 @@ const combinedConfig = {
     type: 'subscription',
     ...sharedConfig
   },
-  submitPaymentRequestMsgType: `${msgTypePrefix}.submit.payment.request`
+  submitPaymentRequestMsgType: `${msgTypePrefix}.submit.payment.request`,
+  paymentDataRequestTopic: {
+    address: process.env.PAYMENT_DATA_REQUEST_TOPIC_ADDRESS,
+    ...sharedConfig,
+    host: process.env.PAYMENT_MESSAGE_QUEUE_HOST,
+    password: process.env.PAYMENT_MESSAGE_QUEUE_PASSWORD,
+    username: process.env.PAYMENT_MESSAGE_QUEUE_USER,
+  },
+  paymentDataRequestResponse: {
+    address: process.env.PAYMENT_DATA_REQUEST_RESPONSE_ADDRESS,
+    ...sharedConfig,
+    host: process.env.PAYMENT_MESSAGE_QUEUE_HOST,
+    password: process.env.PAYMENT_MESSAGE_QUEUE_PASSWORD,
+    username: process.env.PAYMENT_MESSAGE_QUEUE_USER,
+  },
 }
 
 const { error } = schema.validate(combinedConfig, { abortEarly: false })

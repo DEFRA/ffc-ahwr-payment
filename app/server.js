@@ -4,6 +4,8 @@ import { errorPlugin } from './plugins/errors.js'
 import loggerPlugin from './plugins/logger.js'
 import { healthRoutes } from './routes/health.js'
 import { paymentApiRoutes } from './routes/api/payment.js'
+import processPaymentDataScheduler from './crons/process-payment-data.js'
+
 
 export async function createServer () {
   // Create the hapi server
@@ -24,6 +26,7 @@ export async function createServer () {
   // Register the plugins
   await server.register(errorPlugin)
   await server.register([loggerPlugin])
+   await server.register(processPaymentDataScheduler)
 
   server.route([...healthRoutes, ...paymentApiRoutes])
 

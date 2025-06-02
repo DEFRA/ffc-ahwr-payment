@@ -16,10 +16,15 @@ const baseConfig = {
   sendPaymentRequestOutbound: process.env.SEND_PAYMENT_REQUEST === 'true'
 }
 
+const processPaymentDataScheduler = {
+  enabled: process.env.PROCESS_PAYMENT_DATA_SCHEDULER_ENABLED === 'true',
+  schedule: process.env.PROCESS_PAYMENT_DATA_SCHEDULE || '0 0 * * *' // Default to daily at midnight
+}
+
 const { error } = schema.validate(baseConfig, { abortEarly: false })
 
 if (error) {
   throw new Error(`The server config is invalid. ${error.message}`)
 }
 
-export const config = { ...baseConfig, messageQueueConfig, storageConfig }
+export const config = { ...baseConfig, messageQueueConfig, storageConfig, processPaymentDataScheduler }

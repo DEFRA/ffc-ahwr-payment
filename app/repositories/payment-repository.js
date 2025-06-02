@@ -18,3 +18,11 @@ export async function updateByReference (reference, status, data) {
   return models.payment.update({ status, data },
     { where: { applicationReference: reference } })
 }
+
+export async function getAllSuccessfulPayments () {
+  const { models } = dataModels
+  return models.payment.findAll(
+    {
+      where: { status: 'success' }
+    })
+}

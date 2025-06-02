@@ -4,6 +4,7 @@ import { get } from '../../repositories/payment-repository.js'
 import { savePaymentRequest } from '../../messaging/save-payment-request.js'
 import { species } from '../../constants/constants.js'
 import { sendPaymentRequest } from '../../messaging/send-payment-request.js'
+import { getPaymentData } from '../../messaging/payment-data.js'
 
 export const paymentApiRoutes = [{
   method: 'GET',
@@ -66,6 +67,27 @@ export const paymentApiRoutes = [{
       }
       await sendPaymentRequest(payment.dataValues.data, uuidv4())
       return h.response().code(200)
+    }
+  }
+}, {
+  method: 'GET',
+  path: '/api/paymenttest/{reference}',
+  options: {
+    validate: {
+      params: joi.object({
+        reference: joi.string().valid()
+      })
+    },
+    handler: async (request, h) => {
+      const payment = (await get(request.params.reference))
+      if (payment.dataValues) {
+        console.log('has frn', payment.dataValues.data.frn)
+        const result = await getPaymentData(payment.dataValues.data.frn)
+
+        return h.response(result).code(200)
+      } else {
+        return h.response('Not Founds').code(404).takeover()
+      }
     }
   }
 }]
