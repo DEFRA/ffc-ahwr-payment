@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { config } from "../config/index.js";
 import { sendMessage } from './send-message.js';
 import { receiveMessage } from './receive-message.js';
+import { streamToString } from '../lib/streamToString.js';
 
 const messageType = "uk.gov.defra.ffc.pay.data.request";
 
@@ -43,17 +44,4 @@ async function getFile(url) {
     // Convert stream to string
     const downloaded = await streamToString(downloadBlockBlobResponse.readableStreamBody);
     return JSON.parse(downloaded);
-}
-
-async function streamToString(readableStream) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    readableStream.on('data', (data) => {
-      chunks.push(data.toString());
-    });
-    readableStream.on('end', () => {
-      resolve(chunks.join(''));
-    });
-    readableStream.on('error', reject);
-  });
 }

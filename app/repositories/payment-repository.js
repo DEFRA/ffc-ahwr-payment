@@ -1,4 +1,5 @@
 import dataModels from '../data/index.js'
+import { Op } from 'sequelize'
 
 export async function get (reference) {
   const { models } = dataModels
@@ -23,6 +24,6 @@ export async function getAllSuccessfulPayments () {
   const { models } = dataModels
   return models.payment.findAll(
     {
-      where: { status: 'success' }
+      where: { status: 'success', 'data.frn': { [Op.ne]: null } }
     })
 }
