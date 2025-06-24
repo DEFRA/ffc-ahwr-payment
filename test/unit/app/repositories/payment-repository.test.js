@@ -1,6 +1,5 @@
 import { get, set, updatePaymentResponse } from '../../../../app/repositories/payment-repository'
 import data from '../../../../app/data'
-import payment from '../../../../app/data/models/payment'
 
 jest.mock('../../../../app/data', () => {
   return {

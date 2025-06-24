@@ -12,7 +12,7 @@ const paymentRequestSchema = joi.object({
     description: joi.string().required(),
     value: joi.number().required()
   })).required(),
-  frn: joi.string().optional(),
+  frn: joi.string().optional()
 })
 
 export const validatePaymentRequest = (logger, paymentRequest) => {

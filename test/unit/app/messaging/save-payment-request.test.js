@@ -121,7 +121,7 @@ describe('Save payment request part 2', () => {
       'Payment request schema not valid'
     )
   })
-  
+
   test('saves payment request if valid', async () => {
     paymentRepoGetSpy.mockResolvedValueOnce()
     validatePaymentRequest.mockReturnValueOnce(true)

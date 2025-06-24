@@ -15,6 +15,8 @@ export async function set (reference, data) {
 
 export async function updatePaymentResponse (reference, status, paymentResponse) {
   const { models } = dataModels
-  return models.payment.update({ status, paymentResponse },
-    { where: { applicationReference: reference } })
+  return models.payment.update(
+    { status, paymentResponse },
+    { where: { applicationReference: reference } }
+  )
 }

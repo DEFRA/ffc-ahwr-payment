@@ -5,10 +5,19 @@ import { validatePaymentRequest } from './payment-request-schema.js'
 import { getPaymentData } from '../lib/getPaymentData.js'
 import { getBlob } from '../storage.js'
 
-const buildPaymentRequest = async (logger, application) => {
-  const { isEndemics, reviewTestResults, claimType, optionalPiHuntValue, reference: agreementNumber, sbi, whichReview: species, frn } = application
+const buildPaymentRequest = async (logger, applicationPaymentRequest) => {
+  const {
+    isEndemics,
+    reviewTestResults,
+    claimType,
+    optionalPiHuntValue,
+    reference: agreementNumber,
+    sbi,
+    whichReview: species,
+    frn
+  } = applicationPaymentRequest
   const { description, paymentRequestNumber, sourceSystem } = paymentRequest
-  const marketingYear = new Date().getFullYear()  
+  const marketingYear = new Date().getFullYear()
   const pricesConfig = await getBlob(logger, 'claim-prices-config.json')
   const { standardCode, value } = getPaymentData(species, reviewTestResults, pricesConfig, isEndemics, claimType, optionalPiHuntValue)
 
@@ -42,7 +51,7 @@ export const savePaymentRequest = async (logger, applicationPaymentRequest) => {
       const paymentRequest = await buildPaymentRequest(logger, applicationPaymentRequest)
       if (validatePaymentRequest(logger, paymentRequest)) {
         await set(reference, paymentRequest)
-        
+
         return paymentRequest
       } else {
         throw new Error(`Payment request schema not valid for reference ${reference}`)
