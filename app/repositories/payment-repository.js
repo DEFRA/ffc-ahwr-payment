@@ -8,9 +8,9 @@ export async function get (reference) {
     })
 }
 
-export async function set (reference, data) {
+export async function set (reference, data, frn) {
   const { models } = dataModels
-  return models.payment.create({ applicationReference: reference, data })
+  return models.payment.create({ applicationReference: reference, data, frn })
 }
 
 export async function updatePaymentResponse (reference, status, paymentResponse) {

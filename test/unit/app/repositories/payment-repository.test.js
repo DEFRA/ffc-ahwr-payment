@@ -21,9 +21,10 @@ const reference = 'AHWR-1234-567'
 
 describe('Payment Repository test', () => {
   test('Set creates record for data', async () => {
-    await set(reference, { agreementNumber: reference })
+    await set(reference, { agreementNumber: reference }, '111343946890')
+
     expect(data.models.payment.create).toHaveBeenCalledTimes(1)
-    expect(data.models.payment.create).toHaveBeenCalledWith({ applicationReference: reference, data: { agreementNumber: reference } })
+    expect(data.models.payment.create).toHaveBeenCalledWith({ applicationReference: reference, data: { agreementNumber: reference }, frn: '111343946890' })
   })
 
   test('Update record for data by reference', async () => {

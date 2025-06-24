@@ -13,8 +13,7 @@ const buildPaymentRequest = async (logger, applicationPaymentRequest) => {
     optionalPiHuntValue,
     reference: agreementNumber,
     sbi,
-    whichReview: species,
-    frn
+    whichReview: species
   } = applicationPaymentRequest
   const { description, paymentRequestNumber, sourceSystem } = paymentRequest
   const marketingYear = new Date().getFullYear()
@@ -32,8 +31,7 @@ const buildPaymentRequest = async (logger, applicationPaymentRequest) => {
       description,
       standardCode,
       value
-    }],
-    frn
+    }]
   }
 }
 
@@ -43,14 +41,14 @@ const checkIfPaymentExists = async (reference) => {
 
 export const savePaymentRequest = async (logger, applicationPaymentRequest) => {
   if (validateApplicationPaymentRequest(logger, applicationPaymentRequest)) {
-    const { reference } = applicationPaymentRequest
+    const { reference, frn } = applicationPaymentRequest
 
     const paymentExists = await checkIfPaymentExists(reference)
 
     if (!paymentExists) {
       const paymentRequest = await buildPaymentRequest(logger, applicationPaymentRequest)
       if (validatePaymentRequest(logger, paymentRequest)) {
-        await set(reference, paymentRequest)
+        await set(reference, paymentRequest, frn)
 
         return paymentRequest
       } else {

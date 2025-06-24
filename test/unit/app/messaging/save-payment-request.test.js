@@ -138,9 +138,9 @@ describe('Save payment request part 2', () => {
         paymentRequestNumber: 1,
         sbi: '123456789',
         sourceSystem: 'AHWR',
-        value: 522,
-        frn: '923456789'
-      }
+        value: 522
+      },
+      '923456789'
     )
   })
 })

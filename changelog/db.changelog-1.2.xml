@@ -8,7 +8,10 @@
       <column name="paymentCheckCount" type="NUMERIC" defaultValueNumeric="0">
         <constraints nullable="false"/>
       </column>
-    </addColumn>
+      <column name="frn" type="VARCHAR(12)">
+        <constraints nullable="true"/>
+      </column>
+    </addColumn>  
   </changeSet>
   <changeSet author="Ross Jarvis" id="1">
     <tagDatabase tag="v1.2.0" />
