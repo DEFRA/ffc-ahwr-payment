@@ -1,5 +1,6 @@
-import { get, set, updateByReference } from '../../../../app/repositories/payment-repository'
+import { get, set, updatePaymentResponse } from '../../../../app/repositories/payment-repository'
 import data from '../../../../app/data'
+import payment from '../../../../app/data/models/payment'
 
 jest.mock('../../../../app/data', () => {
   return {
@@ -27,10 +28,18 @@ describe('Payment Repository test', () => {
   })
 
   test('Update record for data by reference', async () => {
-    await updateByReference(reference, 'completed')
+    const paymentResponse = {
+      agreementNumber: reference,
+      value: 43600,
+      invoiceLines: [{
+        value: 43600
+      }]
+    }
+
+    await updatePaymentResponse(reference, 'completed', paymentResponse)
 
     expect(data.models.payment.update).toHaveBeenCalledTimes(1)
-    expect(data.models.payment.update).toHaveBeenCalledWith({ status: 'completed' }, { where: { applicationReference: reference } })
+    expect(data.models.payment.update).toHaveBeenCalledWith({ status: 'completed', paymentResponse }, { where: { applicationReference: reference } })
   })
 
   test('get returns single data by reference', async () => {

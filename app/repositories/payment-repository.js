@@ -13,8 +13,8 @@ export async function set (reference, data) {
   return models.payment.create({ applicationReference: reference, data })
 }
 
-export async function updateByReference (reference, status, data) {
+export async function updatePaymentResponse (reference, status, paymentResponse) {
   const { models } = dataModels
-  return models.payment.update({ status, data },
+  return models.payment.update({ status, paymentResponse },
     { where: { applicationReference: reference } })
 }

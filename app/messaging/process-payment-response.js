@@ -1,4 +1,4 @@
-import { updateByReference } from '../repositories/payment-repository.js'
+import { updatePaymentResponse } from '../repositories/payment-repository.js'
 import util from 'util'
 import appInsights from 'applicationinsights'
 
@@ -17,7 +17,7 @@ export const processPaymentResponse = async (logger, message, receiver) => {
       if (paymentRequest?.invoiceLines?.length > 0 && paymentRequest?.invoiceLines[0]?.value) {
         paymentRequest.invoiceLines[0].value = paymentRequest.invoiceLines[0].value / 100
       }
-      await updateByReference(agreementNumber, status, paymentRequest)
+      await updatePaymentResponse(agreementNumber, status, paymentRequest)
 
       await receiver.completeMessage(message)
     } else {
