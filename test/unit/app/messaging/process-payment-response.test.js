@@ -4,7 +4,7 @@ import * as paymentRepo from '../../../../app/repositories/payment-repository'
 import appInsights from 'applicationinsights'
 
 jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
-const updatePaymentSpy = jest.spyOn(paymentRepo, 'updateByReference')
+const updatePaymentResponseSpy = jest.spyOn(paymentRepo, 'updatePaymentResponse')
 const mockErrorLogger = jest.fn()
 const mockInfoLogger = jest.fn()
 
@@ -26,7 +26,7 @@ describe(('Process payment response'), () => {
   })
 
   test('Successfully update the payment with success status', async () => {
-    updatePaymentSpy.mockResolvedValueOnce()
+    updatePaymentResponseSpy.mockResolvedValueOnce()
     await processPaymentResponse(mockedLogger, {
       body: {
         paymentRequest: {
@@ -41,8 +41,8 @@ describe(('Process payment response'), () => {
     }
     , receiver)
 
-    expect(updatePaymentSpy).toHaveBeenCalledTimes(1)
-    expect(updatePaymentSpy).toHaveBeenCalledWith(agreementNumber, 'success', {
+    expect(updatePaymentResponseSpy).toHaveBeenCalledTimes(1)
+    expect(updatePaymentResponseSpy).toHaveBeenCalledWith(agreementNumber, 'success', {
       agreementNumber,
       value: 436,
       invoiceLines: [{
@@ -54,7 +54,7 @@ describe(('Process payment response'), () => {
   })
 
   test('Update the payment with failed status and raise exception', async () => {
-    updatePaymentSpy.mockResolvedValueOnce()
+    updatePaymentResponseSpy.mockResolvedValueOnce()
     await processPaymentResponse(mockedLogger, {
       body: {
         paymentRequest: {
@@ -65,7 +65,7 @@ describe(('Process payment response'), () => {
     }
     , receiver)
 
-    expect(updatePaymentSpy).toHaveBeenCalledTimes(1)
+    expect(updatePaymentResponseSpy).toHaveBeenCalledTimes(1)
     expect(receiver.completeMessage).toHaveBeenCalledTimes(1)
     expect(mockErrorLogger).toHaveBeenCalledWith(
       `Failed payment request: ${util.inspect(
@@ -97,7 +97,7 @@ describe(('Process payment response'), () => {
         false, null, false)}`
     )
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
-    expect(updatePaymentSpy).toHaveBeenCalledTimes(0)
+    expect(updatePaymentResponseSpy).toHaveBeenCalledTimes(0)
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
     expect(appInsights.defaultClient.trackException).toHaveBeenCalledTimes(1)
   })
@@ -106,21 +106,21 @@ describe(('Process payment response'), () => {
     await processPaymentResponse(mockedLogger, {}, receiver)
     expect(mockErrorLogger).toHaveBeenCalledTimes(2)
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
-    expect(updatePaymentSpy).toHaveBeenCalledTimes(0)
+    expect(updatePaymentResponseSpy).toHaveBeenCalledTimes(0)
     expect(appInsights.defaultClient.trackEvent).toHaveBeenCalledTimes(1)
     expect(appInsights.defaultClient.trackException).toHaveBeenCalledTimes(1)
   })
 
-  test('Message deadlettered and TrackException called when error thrown in updateByReference', async () => {
+  test('Message deadlettered and TrackException called when error thrown in updatePaymentResponse', async () => {
     const paymentRequest = { value: 0, agreementNumber }
     const accepted = 'success'
     const error = new Error('Something wrong')
-    updatePaymentSpy.mockRejectedValueOnce(error)
+    updatePaymentResponseSpy.mockRejectedValueOnce(error)
 
     await processPaymentResponse(mockedLogger, { body: { paymentRequest, accepted } }, receiver)
 
     expect(mockErrorLogger).toHaveBeenCalledTimes(1)
-    expect(updatePaymentSpy).toHaveBeenCalledWith(agreementNumber, accepted, paymentRequest)
+    expect(updatePaymentResponseSpy).toHaveBeenCalledWith(agreementNumber, accepted, paymentRequest)
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
     expect(appInsights.defaultClient.trackException).toHaveBeenCalledTimes(1)
   })

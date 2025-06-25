@@ -10,7 +10,9 @@ export default (sequelize, DataTypes) => {
     data: DataTypes.JSONB,
     createdAt: { type: DataTypes.DATE },
     updatedAt: { type: DataTypes.DATE },
-    status: { type: DataTypes.STRING, defaultValue: 'on-hold' }
+    status: { type: DataTypes.STRING, defaultValue: 'on-hold' },
+    paymentResponse: DataTypes.JSONB,
+    frn: DataTypes.STRING
   }, {
     freezeTableName: true,
     tableName: 'payment'

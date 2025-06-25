@@ -8,13 +8,15 @@ export async function get (reference) {
     })
 }
 
-export async function set (reference, data) {
+export async function set (reference, data, frn) {
   const { models } = dataModels
-  return models.payment.create({ applicationReference: reference, data })
+  return models.payment.create({ applicationReference: reference, data, frn })
 }
 
-export async function updateByReference (reference, status, data) {
+export async function updatePaymentResponse (reference, status, paymentResponse) {
   const { models } = dataModels
-  return models.payment.update({ status, data },
-    { where: { applicationReference: reference } })
+  return models.payment.update(
+    { status, paymentResponse },
+    { where: { applicationReference: reference } }
+  )
 }

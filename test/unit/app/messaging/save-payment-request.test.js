@@ -38,7 +38,7 @@ const applicationPaymentRequestMissingFrn = {
 }
 const applicationPaymentRequest = {
   ...applicationPaymentRequestMissingFrn,
-  frn: '123456789'
+  frn: '923456789'
 }
 
 describe(('Save payment request'), () => {
@@ -139,7 +139,8 @@ describe('Save payment request part 2', () => {
         sbi: '123456789',
         sourceSystem: 'AHWR',
         value: 522
-      }
+      },
+      '923456789'
     )
   })
 })
