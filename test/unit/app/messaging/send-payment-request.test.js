@@ -3,6 +3,14 @@ import { sendMessage } from '../../../../app/messaging/send-message'
 import { config } from '../../../../app/config'
 
 jest.mock('../../../../app/messaging/send-message')
+jest.mock('../../../../app/config', () => ({
+  config: {
+    messageQueueConfig: {
+      submitPaymentRequestMsgType: 'submit.payment.request'
+    }
+  }
+}))
+
 const mockInfoLogger = jest.fn()
 
 const mockedLogger = {
@@ -12,13 +20,7 @@ const mockedLogger = {
 const reference = 'AA-123-456'
 
 describe(('Submit payment request'), () => {
-  // let config
-
   beforeEach(async () => {
-    config.messageQueueConfig = {
-      submitPaymentRequestMsgType: 'submit.payment.request',
-      paymentRequestTopic: 'sometopic'
-    }
     jest.clearAllMocks()
   })
 

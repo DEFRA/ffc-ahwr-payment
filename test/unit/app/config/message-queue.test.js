@@ -18,7 +18,7 @@ describe('Message queue Config Test', () => {
     } catch (err) {
       thrownErr = err
     }
-    expect(thrownErr.message).toBe('The message queue config is invalid. "applicationPaymentRequestQueue.host" is required. "paymentRequestTopic.host" is required. "paymentResponseSubscription.host" is required')
+    expect(thrownErr.message).toBe('The message queue config is invalid. "applicationPaymentRequestQueue.host" is required. "paymentRequestTopic.host" is required. "paymentDataRequestTopic.host" is required. "paymentResponseSubscription.host" is required')
   })
 
   test('Should pass validation for all fields populated', async () => {
@@ -29,6 +29,9 @@ describe('Message queue Config Test', () => {
     process.env.PAYMENTREQUEST_TOPIC_ADDRESS = 'topic-address'
     process.env.PAYMENTRESPONSE_TOPIC_ADDRESS = 'topic-address'
     process.env.PAYMENTRESPONSE_SUBSCRIPTION_ADDRESS = 'subscription-address'
+    process.env.PAYMENT_DATA_REQUEST_RESPONSE_QUEUE_ADDRESS = 'payment-data-request-response-queue-address'
+    process.env.APPLICATION_REQUEST_QUEUE_ADDRESS = 'application-request-queue-address'
+    process.env.PAYMENTREQUEST_TOPIC_ADDRESS = 'payment-request-topic-address'
 
     const messageQueueConfig = jest.requireActual('../../../../app/config/message-queue')
     expect(messageQueueConfig).toBeDefined()
@@ -36,5 +39,8 @@ describe('Message queue Config Test', () => {
     expect(messageQueueConfig.config.paymentRequestTopic).toBeDefined()
     expect(messageQueueConfig.config.paymentResponseSubscription).toBeDefined()
     expect(messageQueueConfig.config.submitPaymentRequestMsgType).toBeDefined()
+    expect(messageQueueConfig.config.applicationRequestQueue).toBeDefined()
+    expect(messageQueueConfig.config.moveClaimToPaidMsgType).toBeDefined()
+    expect(messageQueueConfig.config.paymentDataRequestResponseQueue).toBeDefined()
   })
 })

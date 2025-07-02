@@ -2,18 +2,30 @@ import joi from 'joi'
 import { config as messageQueueConfig } from './message-queue.js'
 import { config as storageConfig } from './storage.js'
 
+const msgTypePrefix = 'uk.gov.ffc.ahwr'
+
 const schema = joi.object({
   port: joi.number().default(3005),
   env: joi.string().valid('development', 'test', 'production').default('development'),
   isDev: joi.boolean().default(false),
-  sendPaymentRequestOutbound: joi.boolean().required()
+  sendPaymentRequestOutbound: joi.boolean().required(),
+  moveClaimToPaidMsgType: joi.string(),
+  requestPaymentStatusScheduler: {
+    enabled: joi.bool().default(true),
+    schedule: joi.string().default('0 18 * * 1-5')
+  }
 })
 
 const baseConfig = {
   port: process.env.PORT,
   env: process.env.NODE_ENV,
   isDev: process.env.NODE_ENV === 'development',
-  sendPaymentRequestOutbound: process.env.SEND_PAYMENT_REQUEST === 'true'
+  sendPaymentRequestOutbound: process.env.SEND_PAYMENT_REQUEST === 'true',
+  moveClaimToPaidMsgType: `${msgTypePrefix}.set.paid.status`,
+  requestPaymentStatusScheduler: {
+    enabled: process.env.REQUEST_PAYMENT_STATUS_ENABLED === 'true',
+    schedule: process.env.REQUEST_PAYMENT_STATUS_SCHEDULE
+  }
 }
 
 const { error } = schema.validate(baseConfig, { abortEarly: false })

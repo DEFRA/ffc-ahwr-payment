@@ -1,4 +1,5 @@
 import dataModels from '../data/index.js'
+import { Op } from 'sequelize'
 
 export async function get (reference) {
   const { models } = dataModels
@@ -18,5 +19,42 @@ export async function updatePaymentResponse (reference, status, paymentResponse)
   return models.payment.update(
     { status, paymentResponse },
     { where: { applicationReference: reference } }
+  )
+}
+
+export async function getPendingPayments () {
+  const { models } = dataModels
+  return models.payment.findAll({
+    where: {
+      status: 'success',
+      paymentCheckCount: {
+        [Op.lt]: 3
+      },
+      frn: {
+        [Op.ne]: null
+      }
+    }
+  })
+}
+
+export async function incrementPaymentCheckCount (claimReference) {
+  const { models } = dataModels
+  return models.payment.increment(
+    { paymentCheckCount: 1 },
+    { where: { applicationReference: claimReference } } // applicationReference is actually claimReference
+  )
+}
+
+export async function updatePaymentStatusByClaimRef (status, claimReference) {
+  const { models } = dataModels
+
+  return models.payment.update(
+    { status },
+    {
+      where: {
+        applicationReference: claimReference // applicationReference is actually claimReferences
+      },
+      returning: true
+    }
   )
 }

@@ -5,10 +5,13 @@ import * as paymentRepo from '../../../../app/repositories/payment-repository'
 
 jest.mock('../../../../app/repositories/payment-repository')
 jest.mock('../../../../app/lib/getPaymentData')
-jest.mock('../../../../app/storage')
+jest.mock('../../../../app/storage', () => ({
+  createBlobServiceClient: jest.fn(() => ({
+    getBlob: jest.fn()
+  }))
+}))
 jest.mock('../../../../app/messaging/send-message')
 jest.mock('../../../../app/messaging/payment-request-schema')
-
 jest.mock('../../../../app/config', () => ({
   storage: {
     storageAccount: 'mockStorageAccount',
@@ -17,6 +20,7 @@ jest.mock('../../../../app/config', () => ({
     connectionString: 'connectionString'
   }
 }))
+jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
 
 const paymentRepoGetSpy = jest.spyOn(paymentRepo, 'get')
 const paymentRepoSetSpy = jest.spyOn(paymentRepo, 'set')
@@ -28,7 +32,6 @@ const mockedLogger = {
   error: mockErrorLogger
 }
 
-jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
 const reference = 'AA-123-456'
 const applicationPaymentRequestMissingFrn = {
   reference,
