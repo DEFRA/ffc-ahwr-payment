@@ -1,6 +1,7 @@
 import { updatePaymentResponse } from '../repositories/payment-repository.js'
 import util from 'util'
 import appInsights from 'applicationinsights'
+import { Status } from '../constants/constants.js'
 
 export const processPaymentResponse = async (logger, message, receiver) => {
   try {
@@ -8,7 +9,7 @@ export const processPaymentResponse = async (logger, message, receiver) => {
     const paymentRequest = messageBody?.paymentRequest
     const agreementNumber = paymentRequest?.agreementNumber
     logger.setBindings({ reference: agreementNumber })
-    const status = messageBody?.accepted ? 'success' : failedPaymentRequest(logger, messageBody)
+    const status = messageBody?.accepted ? Status.ACK : failedPaymentRequest(logger, messageBody)
     if (paymentRequest && agreementNumber) {
       logger.info(`received process payments response ${agreementNumber} ${status}`)
       if (paymentRequest?.value) {

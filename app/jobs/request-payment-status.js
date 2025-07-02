@@ -5,12 +5,9 @@ import { sendPaymentDataRequest } from '../messaging/send-payment-data-request.j
 import { getPendingPayments, incrementPaymentCheckCount, updatePaymentStatusByClaimRef } from '../repositories/payment-repository.js'
 import { createBlobServiceClient } from '../storage.js'
 import { v4 as uuid } from 'uuid'
+import { Status } from '../constants/constants.js'
 
 const { messageQueueConfig: { moveClaimToPaidMsgType, applicationRequestQueue, paymentDataRequestResponseQueue }, storageConfig: { paymentDataHubConnectionString } } = config
-
-const STATUS = {
-  PAID: 'paid'
-}
 
 const createPaymentDataRequest = (frn) => ({
   category: 'frn',
@@ -19,7 +16,7 @@ const createPaymentDataRequest = (frn) => ({
 
 const processPaidClaim = async (claimReference, logger) => {
   logger.info('Processing paid claim')
-  const [, updatedRows] = await updatePaymentStatusByClaimRef(claimReference, STATUS.PAID)
+  const [, updatedRows] = await updatePaymentStatusByClaimRef(claimReference, Status.PAID)
 
   if (updatedRows?.length === 1) {
     await sendMessage(
@@ -50,7 +47,7 @@ const processDataRequestResponse = async ({ logger, blobServiceClient, claimRefe
 
     const { agreementNumber: claimReference, status } = claimBlob
     logger.setBindings({ claimReference })
-    if (status.state === STATUS.PAID) {
+    if (status.state === Status.PAID) {
       await processPaidClaim(claimReference, logger)
     } else {
       await incrementPaymentCheckCount(claimReference)

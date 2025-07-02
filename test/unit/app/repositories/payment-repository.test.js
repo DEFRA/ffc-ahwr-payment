@@ -34,13 +34,14 @@ describe('Payment Repository test', () => {
       value: 43600,
       invoiceLines: [{
         value: 43600
-      }]
+      }],
+      frn: 1102354669
     }
 
     await updatePaymentResponse(reference, 'completed', paymentResponse)
 
     expect(data.models.payment.update).toHaveBeenCalledTimes(1)
-    expect(data.models.payment.update).toHaveBeenCalledWith({ status: 'completed', paymentResponse }, { where: { applicationReference: reference } })
+    expect(data.models.payment.update).toHaveBeenCalledWith({ status: 'completed', paymentResponse, frn: 1102354669 }, { where: { applicationReference: reference } })
   })
 
   test('get returns single data by reference', async () => {
@@ -60,7 +61,7 @@ describe('Payment Repository test', () => {
 
     expect(mockFindAll).toHaveBeenCalledWith({
       where: {
-        status: 'success',
+        status: 'ack',
         paymentCheckCount: { [Op.lt]: 3 },
         frn: { [Op.ne]: null }
       }

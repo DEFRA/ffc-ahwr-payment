@@ -42,7 +42,7 @@ describe(('Process payment response'), () => {
     , receiver)
 
     expect(updatePaymentResponseSpy).toHaveBeenCalledTimes(1)
-    expect(updatePaymentResponseSpy).toHaveBeenCalledWith(agreementNumber, 'success', {
+    expect(updatePaymentResponseSpy).toHaveBeenCalledWith(agreementNumber, 'ack', {
       agreementNumber,
       value: 436,
       invoiceLines: [{
@@ -113,7 +113,7 @@ describe(('Process payment response'), () => {
 
   test('Message deadlettered and TrackException called when error thrown in updatePaymentResponse', async () => {
     const paymentRequest = { value: 0, agreementNumber }
-    const accepted = 'success'
+    const accepted = 'ack'
     const error = new Error('Something wrong')
     updatePaymentResponseSpy.mockRejectedValueOnce(error)
 

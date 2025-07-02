@@ -17,7 +17,7 @@ export async function set (reference, data, frn) {
 export async function updatePaymentResponse (reference, status, paymentResponse) {
   const { models } = dataModels
   return models.payment.update(
-    { status, paymentResponse },
+    { status, paymentResponse, frn: paymentResponse.frn },
     { where: { applicationReference: reference } }
   )
 }
@@ -26,7 +26,7 @@ export async function getPendingPayments () {
   const { models } = dataModels
   return models.payment.findAll({
     where: {
-      status: 'success',
+      status: 'ack',
       paymentCheckCount: {
         [Op.lt]: 3
       },
