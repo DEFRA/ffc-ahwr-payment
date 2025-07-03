@@ -28,8 +28,7 @@ jest.mock('applicationinsights', () => ({
 }))
 
 describe('requestPaymentStatusScheduler', () => {
-  let logger
-  let server
+  let logger, server
 
   beforeEach(() => {
     logger = {

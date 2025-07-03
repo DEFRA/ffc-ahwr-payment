@@ -84,9 +84,7 @@ const processFrnRequest = async (frn, logger, claimReferences, blobServiceClient
 
   logger.setBindings({ frn, messageId: requestMessageId })
 
-  let receiver
-  let responseMessage
-  let blobUri
+  let receiver, responseMessage, blobUri
 
   try {
     await sendPaymentDataRequest(requestMessage, sessionId, logger, requestMessageId)
