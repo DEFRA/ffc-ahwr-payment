@@ -2,6 +2,8 @@ import joi from 'joi'
 import { config as messageQueueConfig } from './message-queue.js'
 import { config as storageConfig } from './storage.js'
 
+const DEFAULT_PORT = 3005
+
 const schema = joi.object({
   port: joi.number(),
   env: joi.string().valid('development', 'test', 'production'),
@@ -14,7 +16,7 @@ const schema = joi.object({
 })
 
 const baseConfig = {
-  port: process.env.PORT ?? 3005,
+  port: process.env.PORT ?? DEFAULT_PORT,
   env: process.env.NODE_ENV ?? 'development',
   isDev: process.env.NODE_ENV === 'development',
   sendPaymentRequestOutbound: process.env.SEND_PAYMENT_REQUEST === 'true',

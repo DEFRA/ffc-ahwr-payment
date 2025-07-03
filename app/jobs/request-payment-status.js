@@ -117,8 +117,8 @@ const processFrnRequest = async (frn, logger, claimReferences, blobServiceClient
   } catch (err) {
     logger.error('Error processing payment', { err })
     if (responseMessage) {
-      await receiver.deadLetterMessage(responseMessage).catch((err) =>
-        logger.error('Error placing response message on DLQ', { err, responseMessage })
+      await receiver.deadLetterMessage(responseMessage).catch((dlqError) =>
+        logger.error('Error placing response message on DLQ', { err: dlqError, responseMessage })
       )
     }
   } finally {
