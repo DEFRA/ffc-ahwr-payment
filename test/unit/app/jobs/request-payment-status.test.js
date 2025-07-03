@@ -18,23 +18,36 @@ jest.mock('../../../../app/config', () => ({
       paymentDataRequestResponseQueue: 'payment-data-request-response-queue'
     },
     storageConfig: {
-      paymentDataHubConnectionString: 'payment-data-hub-connection-string'
+      paymentDataHubConnectionString: 'payment-data-hub-connection-string',
+      paymentDataHubDataRequestsContainer: 'data-requests'
     }
   }
 }))
 
 describe('requestPaymentStatus', () => {
-  const mockLogger = {
+  const loggerMock = {
     info: jest.fn(),
     error: jest.fn(),
     setBindings: jest.fn()
   }
 
-  let completeMessageMock, closeConnectionMock
+  const completeMessageMock = jest.fn().mockResolvedValue()
+  const closeConnectionMock = jest.fn().mockResolvedValue()
+  const deleteBlobMock = jest.fn().mockResolvedValue()
+  const getBlobMock = jest.fn()
 
   beforeEach(() => {
     jest.clearAllMocks()
 
+    getBlobMock.mockResolvedValue({
+      data: [
+        {
+          agreementNumber: 'RESH-F99F-E09F',
+          status: { state: 'paid' },
+          sbi: '107021978'
+        }
+      ]
+    })
     getPendingPayments.mockResolvedValue([{
       dataValues: {
         frn: '1234567890',
@@ -42,42 +55,25 @@ describe('requestPaymentStatus', () => {
       }
     }])
     updatePaymentStatusByClaimRef.mockResolvedValue([1, [{ dataValues: { sbi: '107021978' } }]])
-    incrementPaymentCheckCount.mockResolvedValue()
-
-    sendPaymentDataRequest.mockResolvedValue()
-    sendMessage.mockResolvedValue()
-
-    completeMessageMock = jest.fn().mockResolvedValue()
-    closeConnectionMock = jest.fn().mockResolvedValue()
-
     MessageReceiver.mockImplementation(() => ({
       acceptSession: jest.fn().mockResolvedValue(),
       receiveMessages: jest.fn().mockResolvedValue([{ body: { uri: 'blob://test-uri' } }]),
       completeMessage: completeMessageMock,
       closeConnection: closeConnectionMock
     }))
-
     createBlobServiceClient.mockReturnValue({
-      getBlob: jest.fn().mockResolvedValue({
-        data: [
-          {
-            agreementNumber: 'RESH-F99F-E09F',
-            status: { state: 'paid' },
-            sbi: '107021978'
-          }
-        ]
-      }),
-      deleteBlob: jest.fn().mockResolvedValue()
+      getBlob: getBlobMock,
+      deleteBlob: deleteBlobMock
     })
   })
 
   test('should send request and process paid claim response', async () => {
-    await requestPaymentStatus(mockLogger)
+    await requestPaymentStatus(loggerMock)
 
     expect(sendPaymentDataRequest).toHaveBeenCalledWith(
       { category: 'frn', value: '1234567890' },
       expect.any(String),
-      mockLogger,
+      loggerMock,
       expect.any(String)
     )
     expect(sendMessage).toHaveBeenCalledWith(
@@ -91,7 +87,8 @@ describe('requestPaymentStatus', () => {
     )
     expect(completeMessageMock).toHaveBeenCalled()
     expect(closeConnectionMock).toHaveBeenCalled()
-    expect(mockLogger.error).not.toHaveBeenCalled()
+    expect(loggerMock.error).not.toHaveBeenCalled()
+    expect(deleteBlobMock).toHaveBeenCalledWith(loggerMock, 'blob://test-uri', 'data-requests')
   })
 
   test('logs error if blob URI is missing', async () => {
@@ -102,10 +99,10 @@ describe('requestPaymentStatus', () => {
       closeConnection: closeConnectionMock
     }))
 
-    await requestPaymentStatus(mockLogger)
+    await requestPaymentStatus(loggerMock)
 
-    expect(mockLogger.error).toHaveBeenCalledWith('No blob URI received in payment data response')
-    expect(createBlobServiceClient().deleteBlob).not.toHaveBeenCalled()
+    expect(loggerMock.error).toHaveBeenCalledWith('No blob URI received in payment data response')
+    expect(deleteBlobMock).not.toHaveBeenCalled()
   })
 
   test('logs error if receiveMessages returns empty array', async () => {
@@ -116,22 +113,20 @@ describe('requestPaymentStatus', () => {
       closeConnection: closeConnectionMock
     }))
 
-    await requestPaymentStatus(mockLogger)
+    await requestPaymentStatus(loggerMock)
 
-    expect(mockLogger.error).toHaveBeenCalledWith('No response messages received from payment data request')
+    expect(loggerMock.error).toHaveBeenCalledWith('No response messages received from payment data request')
   })
 
   test('handles non-paid status by incrementing paid check count', async () => {
-    createBlobServiceClient.mockReturnValue({
-      getBlob: jest.fn().mockResolvedValue({
-        data: [{ agreementNumber: 'RESH-F99F-E09F', status: { state: 'not_paid' } }]
-      }),
-      deleteBlob: jest.fn().mockResolvedValue()
+    getBlobMock.mockResolvedValue({
+      data: [{ agreementNumber: 'RESH-F99F-E09F', status: { state: 'not_paid' } }]
     })
 
-    await requestPaymentStatus(mockLogger)
+    await requestPaymentStatus(loggerMock)
 
     expect(incrementPaymentCheckCount).toHaveBeenCalledWith('RESH-F99F-E09F')
     expect(sendMessage).not.toHaveBeenCalled()
+    expect(deleteBlobMock).toHaveBeenCalledWith(loggerMock, 'blob://test-uri', 'data-requests')
   })
 })

@@ -15,22 +15,22 @@ export const createBlobServiceClient = (options = {}) => {
     blobServiceClient = new BlobServiceClient(uri, new DefaultAzureCredential({ managedIdentityClientId: process.env.AZURE_CLIENT_ID }))
   }
 
-  const getBlob = async (logger, filename) => {
+  const getBlob = async (logger, filename, containerName) => {
     try {
-      const container = blobServiceClient.getContainerClient(config.endemicsSettingsContainer)
+      const container = blobServiceClient.getContainerClient(containerName)
       const blobClient = container.getBlobClient(filename)
       const downloadResponse = await blobClient.download()
       const downloaded = await streamToBuffer(downloadResponse.readableStreamBody)
       return JSON.parse(downloaded.toString())
     } catch (error) {
-      logger.error(`Error when getting prices config from blob storage: ${error}`)
+      logger.error(`Error retrieving file from blob storage: ${error}`)
       throw error
     }
   }
 
-  const deleteBlob = async ({ logger, filename }) => {
+  const deleteBlob = async (logger, filename, containerName) => {
     try {
-      const container = blobServiceClient.getContainerClient(config.endemicsSettingsContainer)
+      const container = blobServiceClient.getContainerClient(containerName)
       const blobClient = container.getBlobClient(filename)
       const deleteResponse = await blobClient.deleteIfExists()
 

@@ -1,16 +1,13 @@
 import { sendPaymentDataRequest } from '../../../../app/messaging/send-payment-data-request'
 import { sendMessage } from '../../../../app/messaging/send-message'
-import { config } from '../../../../app/config'
 
 jest.mock('../../../../app/messaging/send-message', () => ({
   sendMessage: jest.fn()
 }))
-
 jest.mock('../../../../app/config', () => ({
   config: {
-    sendPaymentRequestOutbound: true,
     messageQueueConfig: {
-      submitPaymentRequestMsgType: 'SubmitPaymentRequest',
+      submitPaymentDataRequestMsgType: 'SubmitPaymentRequest',
       paymentDataRequestTopic: 'PaymentTopic'
     }
   }
@@ -29,7 +26,7 @@ describe('sendPaymentDataRequest', () => {
     jest.clearAllMocks()
   })
 
-  test('should send message when sendPaymentRequestOutbound is true', async () => {
+  test('should send message and log info', async () => {
     await sendPaymentDataRequest(paymentDataRequest, sessionId, mockLogger, messageId)
 
     expect(sendMessage).toHaveBeenCalledWith(
@@ -39,16 +36,5 @@ describe('sendPaymentDataRequest', () => {
       { sessionId, messageId }
     )
     expect(mockLogger.info).toHaveBeenCalledWith('Payment data request sent.')
-  })
-
-  test('should not send message when sendPaymentRequestOutbound is false', async () => {
-    config.sendPaymentRequestOutbound = false
-
-    await sendPaymentDataRequest(paymentDataRequest, sessionId, mockLogger, messageId)
-
-    expect(sendMessage).not.toHaveBeenCalled()
-    expect(mockLogger.info).toHaveBeenCalledWith(
-      'Payment integration is disabled, not sending payment request out.\n "PaymentTopic"'
-    )
   })
 })

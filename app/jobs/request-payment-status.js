@@ -7,7 +7,7 @@ import { createBlobServiceClient } from '../storage.js'
 import { v4 as uuid } from 'uuid'
 import { Status } from '../constants/constants.js'
 
-const { messageQueueConfig: { moveClaimToPaidMsgType, applicationRequestQueue, paymentDataRequestResponseQueue }, storageConfig: { paymentDataHubConnectionString } } = config
+const { messageQueueConfig: { moveClaimToPaidMsgType, applicationRequestQueue, paymentDataRequestResponseQueue }, storageConfig: { paymentDataHubConnectionString, paymentDataHubDataRequestsContainer } } = config
 
 const createPaymentDataRequest = (frn) => ({
   category: 'frn',
@@ -29,16 +29,14 @@ const processPaidClaim = async (claimReference, logger) => {
       { sessionId: uuid() }
     )
   } else {
-    logger.error(`Unable to update payment status to paid with claimReference: ${claimReference}`)
+    logger.error('Payment not found to update paid status')
   }
 }
 
 const processDataRequestResponse = async ({ logger, blobServiceClient, claimReferences, blobUri }) => {
-  // https://github.com/DEFRA/ffc-pay-data-hub/blob/main/app/messaging/process-data-message.js#L31C1-L32C1
-
-  const blob = await blobServiceClient.getBlob({
-    logger, filename: blobUri, blobServiceClient
-  })
+  const blob = await blobServiceClient.getBlob(
+    logger, blobUri, paymentDataHubDataRequestsContainer
+  )
 
   for (const claimBlob of blob.data) {
     if (!claimReferences.has(claimBlob.agreementNumber)) {
@@ -89,7 +87,6 @@ export const requestPaymentStatus = async (logger) => {
       await sendPaymentDataRequest(requestMessage, sessionId, logger, requestMessageId)
 
       receiver = await createReceiver(requestMessageId)
-
       const responseMessages = await receiver.receiveMessages(1, {
         maxWaitTimeInMs: 30000
       })
@@ -97,10 +94,8 @@ export const requestPaymentStatus = async (logger) => {
         logger.error('No response messages received from payment data request')
         continue
       }
-
-      responseMessage = responseMessages?.[0]
+      responseMessage = responseMessages[0]
       blobUri = responseMessage.body?.uri
-
       if (!blobUri) {
         logger.error('No blob URI received in payment data response')
         continue
@@ -126,18 +121,10 @@ export const requestPaymentStatus = async (logger) => {
         )
       }
       if (blobUri) {
-        await blobServiceClient.deleteBlob(blobUri).catch((err) =>
+        await blobServiceClient.deleteBlob(logger, blobUri, paymentDataHubDataRequestsContainer).catch((err) =>
           logger.error('Error deleting blob', { err, blobUri })
         )
       }
     }
   }
 }
-
-/*
-RESPONSE message:
-
-{ uri: blobUri }, TYPE, messageConfig.dataQueue, { sessionId: messageId }
- https://github.com/DEFRA/ffc-pay-data-hub/blob/main/app/messaging/process-data-message.js#L6
-
-*/

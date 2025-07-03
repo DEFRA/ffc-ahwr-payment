@@ -10,7 +10,7 @@ const scheduler = {
       const { schedule, enabled } = config.requestPaymentStatusScheduler
       const logger = server.logger.child({ plugin: 'requestPaymentStatusScheduler' })
 
-      logger.info({ schedule }, 'Registering payment status scheduler')
+      logger.info('Registering payment status scheduler', { schedule })
 
       if (!enabled) {
         logger.info('Payment status scheduler is disabled. Skipping cron job registration.')
@@ -29,7 +29,7 @@ const scheduler = {
             message: err.message,
             stack: err.stack
           }
-          taskLogger.error(errorDetails, 'Failed to request payment statuses')
+          taskLogger.error('Failed to request payment statuses', errorDetails)
           appInsights.defaultClient.trackException({ exception: err })
         }
       })

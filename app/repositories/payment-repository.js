@@ -47,7 +47,6 @@ export async function incrementPaymentCheckCount (claimReference) {
 
 export async function updatePaymentStatusByClaimRef (status, claimReference) {
   const { models } = dataModels
-
   return models.payment.update(
     { status },
     {

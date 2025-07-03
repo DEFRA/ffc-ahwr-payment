@@ -4,6 +4,7 @@ import { validateApplicationPaymentRequest } from './application-payment-request
 import { validatePaymentRequest } from './payment-request-schema.js'
 import { getPaymentData } from '../lib/getPaymentData.js'
 import { createBlobServiceClient } from '../storage.js'
+import { config } from '../config/storage.js'
 
 const buildPaymentRequest = async (logger, applicationPaymentRequest) => {
   const {
@@ -18,7 +19,7 @@ const buildPaymentRequest = async (logger, applicationPaymentRequest) => {
   const { description, paymentRequestNumber, sourceSystem } = paymentRequest
   const marketingYear = new Date().getFullYear()
   const blobServiceClient = createBlobServiceClient()
-  const pricesConfig = await blobServiceClient.getBlob(logger, 'claim-prices-config.json')
+  const pricesConfig = await blobServiceClient.getBlob(logger, 'claim-prices-config.json', config.endemicsSettingsContainer)
   const { standardCode, value } = getPaymentData(species, reviewTestResults, pricesConfig, isEndemics, claimType, optionalPiHuntValue)
 
   return {
