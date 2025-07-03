@@ -5,7 +5,7 @@ const schema = joi.object({
   endemicsSettingsContainer: joi.string().required(),
   endemicsPricesFile: joi.string().required(),
   storageAccount: joi.string().required(),
-  useConnectionString: joi.bool().default(false),
+  useConnectionString: joi.bool(),
   paymentDataHubConnectionString: joi.string(),
   paymentDataHubDataRequestsContainer: joi.string()
 

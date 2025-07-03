@@ -92,17 +92,20 @@ describe('requestPaymentStatus', () => {
   })
 
   test('logs error if blob URI is missing', async () => {
+    const deadLetterMessageMock = jest.fn().mockResolvedValue()
     MessageReceiver.mockImplementation(() => ({
       acceptSession: jest.fn().mockResolvedValue(),
       receiveMessages: jest.fn().mockResolvedValue([{ body: {} }]),
       completeMessage: completeMessageMock,
-      closeConnection: closeConnectionMock
+      closeConnection: closeConnectionMock,
+      deadLetterMessage: deadLetterMessageMock
     }))
 
     await requestPaymentStatus(loggerMock)
 
-    expect(loggerMock.error).toHaveBeenCalledWith('No blob URI received in payment data response')
+    expect(loggerMock.error).toHaveBeenCalledWith('Error processing payment', { err: new Error('No blob URI received in payment data response') })
     expect(deleteBlobMock).not.toHaveBeenCalled()
+    expect(deadLetterMessageMock).toHaveBeenCalledWith({ body: {} })
   })
 
   test('logs error if receiveMessages returns empty array', async () => {
@@ -115,7 +118,7 @@ describe('requestPaymentStatus', () => {
 
     await requestPaymentStatus(loggerMock)
 
-    expect(loggerMock.error).toHaveBeenCalledWith('No response messages received from payment data request')
+    expect(loggerMock.error).toHaveBeenCalledWith('Error processing payment', { err: new Error('No response messages received from payment data request') })
   })
 
   test('handles non-paid status by incrementing paid check count', async () => {

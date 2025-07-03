@@ -93,16 +93,14 @@ const processFrnRequest = async (frn, logger, claimReferences, blobServiceClient
     const responseMessages = await receiver.receiveMessages(1, { maxWaitTimeInMs: 30000 })
 
     if (!responseMessages.length) {
-      logger.error('No response messages received from payment data request')
-      return
+      throw Error('No response messages received from payment data request')
     }
 
     responseMessage = responseMessages[0]
     blobUri = responseMessage.body?.uri
 
     if (!blobUri) {
-      logger.error('No blob URI received in payment data response')
-      return
+      throw Error('No blob URI received in payment data response')
     }
 
     await processDataRequestResponse({
@@ -111,24 +109,23 @@ const processFrnRequest = async (frn, logger, claimReferences, blobServiceClient
       claimReferences,
       blobUri
     })
+
+    await receiver.completeMessage(responseMessage)
+
+    await blobServiceClient.deleteBlob(logger, blobUri, paymentDataHubDataRequestsContainer).catch((err) =>
+      logger.error('Error deleting blob', { err, blobUri })
+    )
   } catch (err) {
     logger.error('Error processing payment', { err })
-  } finally {
-    if (receiver) {
-      if (responseMessage) {
-        await receiver.completeMessage(responseMessage).catch((err) =>
-          logger.error('Error completing response message', { err })
-        )
-      }
-
-      await receiver.closeConnection().catch((err) =>
-        logger.error('Error closing receiver connection', { err })
+    if (responseMessage) {
+      await receiver.deadLetterMessage(responseMessage).catch((err) =>
+        logger.error('Error placing response message on DLQ', { err, responseMessage })
       )
     }
-
-    if (blobUri) {
-      await blobServiceClient.deleteBlob(logger, blobUri, paymentDataHubDataRequestsContainer).catch((err) =>
-        logger.error('Error deleting blob', { err, blobUri })
+  } finally {
+    if (receiver) {
+      await receiver.closeConnection().catch((err) =>
+        logger.error('Error closing receiver connection', { err })
       )
     }
   }
