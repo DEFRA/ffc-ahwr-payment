@@ -60,6 +60,7 @@ const processPaymentDataBlob = async (paymentDataBlob, claimReferences, logger) 
 }
 
 const processDataRequestResponse = async ({ logger, blobServiceClient, claimReferences, blobUri }) => {
+  logger.info('Processing blob: ', { blobUri })
   const blob = await blobServiceClient.getBlob(
     logger,
     blobUri,
@@ -78,12 +79,10 @@ const createReceiver = async (messageId) => {
 }
 
 const processFrnRequest = async (frn, logger, claimReferences, blobServiceClient) => {
+  logger.setBindings({ frn })
   const requestMessageId = uuid()
   const sessionId = uuid()
   const requestMessage = createPaymentDataRequest(frn)
-
-  logger.setBindings({ frn, messageId: requestMessageId })
-
   let receiver, responseMessage, blobUri
 
   try {
