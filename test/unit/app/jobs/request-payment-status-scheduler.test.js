@@ -51,8 +51,8 @@ describe('requestPaymentStatusScheduler', () => {
     await scheduler.plugin.register(server)
 
     expect(logger.info).toHaveBeenCalledWith(
-      { schedule: '* * * * *' },
-      'Registering payment status scheduler'
+      'Registering payment status scheduler',
+      { schedule: '* * * * *' }
     )
     expect(cron.schedule).toHaveBeenCalled()
   })
@@ -98,11 +98,11 @@ describe('requestPaymentStatusScheduler', () => {
     await cronCallback()
 
     expect(logger.error).toHaveBeenCalledWith(
+      'Failed to request payment statuses',
       {
         message: 'Failure',
         stack: error.stack
-      },
-      'Failed to request payment statuses'
+      }
     )
     expect(appInsights.defaultClient.trackException).toHaveBeenCalledWith({
       exception: error

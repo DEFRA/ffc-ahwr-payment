@@ -22,9 +22,9 @@ export const createBlobServiceClient = (options = {}) => {
       const downloadResponse = await blobClient.download()
       const downloaded = await streamToBuffer(downloadResponse.readableStreamBody)
       return JSON.parse(downloaded.toString())
-    } catch (error) {
-      logger.error(`Error retrieving file from blob storage: ${error}`)
-      throw error
+    } catch (err) {
+      logger.error(`Unable to retrieve blob: ${containerName}/${filename}`, { err })
+      throw err
     }
   }
 
@@ -41,9 +41,9 @@ export const createBlobServiceClient = (options = {}) => {
       }
 
       return deleteResponse.succeeded
-    } catch (error) {
-      logger.error(`Error deleting blob ${filename}: ${error.message}`)
-      throw error
+    } catch (err) {
+      logger.error(`Unable to delete blob: ${containerName}/${filename}`, { err })
+      throw err
     }
   }
 

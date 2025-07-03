@@ -86,7 +86,7 @@ describe('storage tests', () => {
       config.useConnectionString = false
 
       const client = createBlobServiceClient()
-      const result = await client.getBlob(mockedLogger, 'filename.json')
+      const result = await client.getBlob(mockedLogger, 'filename.json', 'data-requests')
 
       expect(result).toEqual({ key: 'value' })
       expect(streamToBuffer).toHaveBeenCalled()
@@ -95,18 +95,19 @@ describe('storage tests', () => {
     test('should log and throw error if blob download fails', async () => {
       config.useConnectionString = true
       config.endemicsSettingsContainer = 'my-container'
+      const error = new Error('Download failed')
       BlobServiceClient.fromConnectionString.mockReturnValue({
         getContainerClient: () => ({
           getBlobClient: () => ({
-            download: jest.fn().mockRejectedValue(new Error('Download failed'))
+            download: jest.fn().mockRejectedValue(error)
           })
         })
       })
 
       const client = createBlobServiceClient()
 
-      await expect(client.getBlob(mockedLogger, 'badfile.json')).rejects.toThrow('Download failed')
-      expect(mockErrorLogger).toHaveBeenCalledWith(expect.stringContaining('Error when getting prices config'))
+      await expect(client.getBlob(mockedLogger, 'badfile.json', 'data-requests')).rejects.toThrow('Download failed')
+      expect(mockErrorLogger).toHaveBeenCalledWith('Unable to retrieve blob: data-requests/badfile.json', { err: error })
     })
   })
 
@@ -123,7 +124,7 @@ describe('storage tests', () => {
       })
 
       const client = createBlobServiceClient()
-      const result = await client.deleteBlob({ logger: mockedLogger, filename: 'test.json' })
+      const result = await client.deleteBlob(mockedLogger, 'test.json', 'data-requests')
 
       expect(result).toBe(true)
       expect(mockInfoLogger).toHaveBeenCalledWith('Successfully deleted blob: test.json')
@@ -141,24 +142,25 @@ describe('storage tests', () => {
       })
 
       const client = createBlobServiceClient()
-      const result = await client.deleteBlob({ logger: mockedLogger, filename: 'missing.json' })
+      const result = await client.deleteBlob(mockedLogger, 'missing.json', 'data-requests')
 
       expect(result).toBe(false)
       expect(mockWarnLogger).toHaveBeenCalledWith('Blob not found or already deleted: missing.json')
     })
 
     test('should log and throw error if deletion fails', async () => {
+      const error = new Error('Deletion failed')
       BlobServiceClient.fromConnectionString.mockReturnValue({
         getContainerClient: () => ({
           getBlobClient: () => ({
-            deleteIfExists: jest.fn().mockRejectedValue(new Error('Deletion failed'))
+            deleteIfExists: jest.fn().mockRejectedValue(error)
           })
         })
       })
       const client = createBlobServiceClient()
 
-      await expect(client.deleteBlob({ logger: mockedLogger, filename: 'test.json' })).rejects.toThrow('Deletion failed')
-      expect(mockErrorLogger).toHaveBeenCalledWith(expect.stringContaining('Error deleting blob test.json'))
+      await expect(client.deleteBlob(mockedLogger, 'test.json', 'data-requests')).rejects.toThrow('Deletion failed')
+      expect(mockErrorLogger).toHaveBeenCalledWith('Unable to delete blob: data-requests/test.json', { err: error })
     })
   })
 })
