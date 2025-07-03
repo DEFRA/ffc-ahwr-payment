@@ -22,7 +22,7 @@ const scheduler = {
         taskLogger.info('Starting payment status requests')
 
         try {
-          await requestPaymentStatus()
+          await requestPaymentStatus(taskLogger)
           taskLogger.info('Successfully completed payment status requests')
         } catch (err) {
           const errorDetails = {

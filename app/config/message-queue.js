@@ -36,7 +36,8 @@ const schema = joi.object({
   },
   paymentDataRequestResponseQueue: {
     address: joi.string().required(),
-    type: joi.string().required().valid('queue')
+    type: joi.string().required().valid('queue'),
+    ...sharedConfigSchema
   },
   moveClaimToPaidMsgType: joi.string(),
   applicationRequestQueue: {
@@ -71,14 +72,15 @@ const combinedConfig = {
     ...sharedConfig
   },
   submitPaymentRequestMsgType: `${msgTypePrefix}.submit.payment.request`,
-  submitPaymentDataRequestMsgType: `${msgTypePrefix}.submit.payment.request`,
+  submitPaymentDataRequestMsgType: `${msgTypePrefix}.submit.payment.data.request`,
   paymentDataRequestTopic: {
     address: process.env.PAYMENT_DATA_REQUEST_TOPIC_ADDRESS,
     ...sharedConfig
   },
   paymentDataRequestResponseQueue: {
     address: process.env.PAYMENT_DATA_REQUEST_RESPONSE_QUEUE_ADDRESS,
-    type: 'queue'
+    type: 'queue',
+    ...sharedConfig
   },
   moveClaimToPaidMsgType: `${msgTypePrefix}.set.paid.status`,
   applicationRequestQueue: {

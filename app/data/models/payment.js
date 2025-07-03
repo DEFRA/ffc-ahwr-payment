@@ -1,4 +1,4 @@
-import { Status } from '../../constants/constants'
+import { Status } from '../../constants/constants.js'
 
 export default (sequelize, DataTypes) => {
   const payment = sequelize.define('payment', {
