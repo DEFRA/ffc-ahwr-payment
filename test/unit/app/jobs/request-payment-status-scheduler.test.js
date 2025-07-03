@@ -81,8 +81,9 @@ describe('requestPaymentStatusScheduler', () => {
     await cronCallback()
 
     expect(requestPaymentStatus).toHaveBeenCalled()
-    expect(logger.info).toHaveBeenCalledWith('Starting payment status request')
-    expect(logger.info).toHaveBeenCalledWith('Successfully completed payment status request')
+    expect(logger.info).toHaveBeenCalledWith('Registering payment status scheduler', { schedule: '* * * * *' })
+    expect(logger.info).toHaveBeenCalledWith('Starting payment status requests')
+    expect(logger.info).toHaveBeenCalledWith('Successfully completed payment status requests')
   })
 
   test('should handle error and track exception', async () => {

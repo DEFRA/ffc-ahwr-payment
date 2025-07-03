@@ -22,10 +22,6 @@ const schema = joi.object({
     address: joi.string(),
     ...sharedConfigSchema
   },
-  paymentDataRequestTopic: {
-    address: joi.string(),
-    ...sharedConfigSchema
-  },
   paymentResponseSubscription: {
     topic: joi.string().default('paymentResponseTopic'),
     address: joi.string(),
@@ -34,12 +30,16 @@ const schema = joi.object({
   },
   submitPaymentRequestMsgType: joi.string(),
   submitPaymentDataRequestMsgType: joi.string(),
-  applicationRequestQueue: {
+  paymentDataRequestTopic: {
+    address: joi.string(),
+    ...sharedConfigSchema
+  },
+  paymentDataRequestResponseQueue: {
     address: joi.string().required(),
     type: joi.string().required().valid('queue')
   },
   moveClaimToPaidMsgType: joi.string(),
-  paymentDataRequestResponseQueue: {
+  applicationRequestQueue: {
     address: joi.string().required(),
     type: joi.string().required().valid('queue')
   }
@@ -71,18 +71,18 @@ const combinedConfig = {
     ...sharedConfig
   },
   submitPaymentRequestMsgType: `${msgTypePrefix}.submit.payment.request`,
+  submitPaymentDataRequestMsgType: `${msgTypePrefix}.submit.payment.request`,
   paymentDataRequestTopic: {
     address: process.env.PAYMENT_DATA_REQUEST_TOPIC_ADDRESS,
     ...sharedConfig
   },
-  submitPaymentDataRequestMsgType: `${msgTypePrefix}.submit.payment.request`,
-  applicationRequestQueue: {
-    address: process.env.APPLICATION_REQUEST_QUEUE_ADDRESS,
+  paymentDataRequestResponseQueue: {
+    address: process.env.PAYMENT_DATA_REQUEST_RESPONSE_QUEUE_ADDRESS,
     type: 'queue'
   },
   moveClaimToPaidMsgType: `${msgTypePrefix}.set.paid.status`,
-  paymentDataRequestResponseQueue: {
-    address: process.env.PAYMENT_DATA_REQUEST_RESPONSE_QUEUE_ADDRESS,
+  applicationRequestQueue: {
+    address: process.env.APPLICATION_REQUEST_QUEUE_ADDRESS,
     type: 'queue'
   }
 }

@@ -29,7 +29,6 @@ const createPaymentDataRequest = (frn) => ({
 })
 
 const processPaidClaim = async (claimReference, logger) => {
-  logger.info('Processing paid claim')
   const [, updatedRows] = await updatePaymentStatusByClaimRef(claimReference, Status.PAID)
 
   if (updatedRows?.length === 1) {
@@ -47,11 +46,11 @@ const processPaidClaim = async (claimReference, logger) => {
   }
 }
 
-const handlePaymentDataBlob = async (paymentDataBlob, claimReferences, logger) => {
+const processPaymentDataBlob = async (paymentDataBlob, claimReferences, logger) => {
   if (!claimReferences.has(paymentDataBlob.agreementNumber)) { return }
 
   const { agreementNumber: claimReference, status } = paymentDataBlob
-  logger.setBindings({ claimReference })
+  logger.setBindings({ claimReference, status })
 
   if (status.state === Status.PAID) {
     await processPaidClaim(claimReference, logger)
@@ -68,7 +67,7 @@ const processDataRequestResponse = async ({ logger, blobServiceClient, claimRefe
   )
 
   for (const paymentDataBlob of blob.data) {
-    await handlePaymentDataBlob(paymentDataBlob, claimReferences, logger)
+    await processPaymentDataBlob(paymentDataBlob, claimReferences, logger)
   }
 }
 
@@ -78,7 +77,7 @@ const createReceiver = async (messageId) => {
   return receiver
 }
 
-const handleFrnRequest = async (frn, logger, claimReferences, blobServiceClient) => {
+const processFrnRequest = async (frn, logger, claimReferences, blobServiceClient) => {
   const requestMessageId = uuid()
   const sessionId = uuid()
   const requestMessage = createPaymentDataRequest(frn)
@@ -153,6 +152,6 @@ export const requestPaymentStatus = async (logger) => {
   })
 
   for (const frn of uniqueFrns) {
-    await handleFrnRequest(frn, logger, claimReferences, blobServiceClient)
+    await processFrnRequest(frn, logger, claimReferences, blobServiceClient)
   }
 }

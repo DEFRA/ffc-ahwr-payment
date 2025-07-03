@@ -1,3 +1,4 @@
+import { Status } from '../constants/constants.js'
 import dataModels from '../data/index.js'
 import { Op } from 'sequelize'
 
@@ -26,7 +27,7 @@ export async function getPendingPayments () {
   const { models } = dataModels
   return models.payment.findAll({
     where: {
-      status: 'ack',
+      status: Status.ACK,
       paymentCheckCount: {
         [Op.lt]: 3
       },

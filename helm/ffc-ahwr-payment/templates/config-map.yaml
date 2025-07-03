@@ -21,4 +21,6 @@ data:
   APPLICATION_REQUEST_QUEUE_ADDRESS: {{ quote .Values.container.applicationRequestQueueAddress }}
   PAYMENT_DATA_REQUEST_TOPIC_ADDRESS: {{ quote .Values.container.paymentDataRequestTopicAddress }}
   PAYMENT_DATA_REQUEST_RESPONSE_QUEUE_ADDRESS: {{ quote .Values.container.paymentDataRequestResponseQueueAddress }}
+  REQUEST_PAYMENT_STATUS_ENABLED: {{ quote .Values.container.requestPaymentStatusEnabled }}
+  REQUEST_PAYMENT_STATUS_SCHEDULE: {{ quote .Values.container.requestPaymentStatusSchedule }}
 {{- end -}}

@@ -48,6 +48,8 @@ container:
   applicationRequestQueueAddress:  ffc-ahwr-application-request
   paymentDataRequestTopicAddress: ffc-pay-data-request
   paymentDataRequestResponseQueueAddress: ffc-pay-data-request-response
+  requestPaymentStatusEnabled:
+  requestPaymentStatusSchedule:
   imagePullPolicy: IfNotPresent
   requestMemory: 10Mi
   requestCpu: 10m

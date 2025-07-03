@@ -10,20 +10,20 @@ const scheduler = {
       const { schedule, enabled } = config.requestPaymentStatusScheduler
       const logger = server.logger.child({ plugin: 'requestPaymentStatusScheduler' })
 
-      logger.info('Registering payment status scheduler', { schedule })
-
       if (!enabled) {
         logger.info('Payment status scheduler is disabled. Skipping cron job registration.')
         return
       }
 
+      logger.info('Registering payment status scheduler', { schedule })
+
       cron.schedule(schedule, async () => {
         const taskLogger = logger.child({ task: 'requestPaymentStatus' })
-        taskLogger.info('Starting payment status request')
+        taskLogger.info('Starting payment status requests')
 
         try {
           await requestPaymentStatus()
-          taskLogger.info('Successfully completed payment status request')
+          taskLogger.info('Successfully completed payment status requests')
         } catch (err) {
           const errorDetails = {
             message: err.message,
