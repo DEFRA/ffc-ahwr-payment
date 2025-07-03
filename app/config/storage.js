@@ -18,7 +18,7 @@ const storageConfig = {
   endemicsPricesFile: 'endemics-prices-config.json', // no current provision to override this
   storageAccount: process.env.AZURE_STORAGE_ACCOUNT_NAME,
   paymentDataHubConnectionString: process.env.AZURE_STORAGE_PAYMENT_DATA_HUB_CONNECTION_STRING,
-  paymentDataHubDataRequestsContainer: process.env.AZURE_STORAGE_PAYMENT_HUB_DATA_REQUESTS_CONTAINER ?? 'data-requests'
+  paymentDataHubDataRequestsContainer: process.env.AZURE_STORAGE_PAYMENT_DATA_HUB_DATA_REQUESTS_CONTAINER ?? 'data-requests'
 }
 
 const { error } = schema.validate(storageConfig, {

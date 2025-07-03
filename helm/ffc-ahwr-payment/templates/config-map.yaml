@@ -16,4 +16,9 @@ data:
   SEND_PAYMENT_REQUEST: {{ quote .Values.container.sendPaymentRequest }}
   AZURE_STORAGE_USE_CONNECTION_STRING: {{ quote .Values.container.azureStorageUseConnectionString }}
   AZURE_STORAGE_ACCOUNT_NAME: {{ quote .Values.container.azureStorageAccountName }}
+  AZURE_STORAGE_PAYMENT_DATA_HUB_CONNECTION_STRING: {{ quote .Values.container.azureStoragePaymentDataHubConnectionString }}
+  AZURE_STORAGE_PAYMENT_DATA_HUB_DATA_REQUESTS_CONTAINER: {{ quote .Values.container.azureStoragePaymentDataHubDataRequestsContainer }}
+  APPLICATION_REQUEST_QUEUE_ADDRESS: {{ quote .Values.container.applicationRequestQueueAddress }}
+  PAYMENT_DATA_REQUEST_TOPIC_ADDRESS: {{ quote .Values.container.paymentDataRequestTopicAddress }}
+  PAYMENT_DATA_REQUEST_RESPONSE_QUEUE_ADDRESS: {{ quote .Values.container.paymentDataRequestResponseQueueAddress }}
 {{- end -}}

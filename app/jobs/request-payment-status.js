@@ -48,7 +48,7 @@ const processPaidClaim = async (claimReference, logger) => {
 }
 
 const handlePaymentDataBlob = async (paymentDataBlob, claimReferences, logger) => {
-  if (!claimReferences.has(paymentDataBlob.agreementNumber)) return
+  if (!claimReferences.has(paymentDataBlob.agreementNumber)) { return }
 
   const { agreementNumber: claimReference, status } = paymentDataBlob
   logger.setBindings({ claimReference })
