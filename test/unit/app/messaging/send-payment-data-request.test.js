@@ -35,6 +35,7 @@ describe('sendPaymentDataRequest', () => {
       'PaymentTopic',
       { sessionId, messageId }
     )
-    expect(mockLogger.info).toHaveBeenCalledWith('Payment data request sent.')
+    expect(mockLogger.info).toHaveBeenCalledWith('Sending payment data request', { messageId, sessionId })
+    expect(mockLogger.info).toHaveBeenCalledWith('Sent payment data request', { messageId, sessionId })
   })
 })

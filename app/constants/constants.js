@@ -45,3 +45,7 @@ export const Status = {
   PAID: 'paid',
   REQUESTED: 'requested'
 }
+
+export const PaymentHubStatus = {
+  SETTLED: 'Settled'
+}

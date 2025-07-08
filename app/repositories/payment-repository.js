@@ -43,7 +43,7 @@ export async function incrementPaymentCheckCount (claimReference) {
   )
 }
 
-export async function updatePaymentStatusByClaimRef (status, claimReference) {
+export async function updatePaymentStatusByClaimRef (claimReference, status) {
   return models.payment.update(
     { status },
     {

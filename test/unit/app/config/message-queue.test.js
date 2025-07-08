@@ -18,7 +18,7 @@ describe('Message queue Config Test', () => {
     } catch (err) {
       thrownErr = err
     }
-    expect(thrownErr.message).toBe('The message queue config is invalid. "applicationPaymentRequestQueue.host" is required. "paymentRequestTopic.host" is required. "paymentResponseSubscription.host" is required. "paymentDataRequestTopic.host" is required')
+    expect(thrownErr.message).toBe('The message queue config is invalid. "applicationPaymentRequestQueue.host" is required. "paymentRequestTopic.host" is required. "paymentResponseSubscription.host" is required. "paymentDataRequestTopic.host" is required. "paymentDataRequestResponseQueue.host" is required. "applicationRequestQueue.host" is required')
   })
 
   test('Should pass validation for all fields populated', async () => {

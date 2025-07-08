@@ -86,7 +86,7 @@ describe('Payment Repository test', () => {
     const mockUpdate = jest.fn().mockResolvedValue([1, [{ status: 'failed' }]])
     data.models.payment.update = mockUpdate
 
-    const result = await updatePaymentStatusByClaimRef('failed', 'RESH-F99F-E09F')
+    const result = await updatePaymentStatusByClaimRef('RESH-F99F-E09F', 'failed')
 
     expect(mockUpdate).toHaveBeenCalledWith(
       { status: 'failed' },

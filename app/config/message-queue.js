@@ -42,7 +42,8 @@ const schema = joi.object({
   moveClaimToPaidMsgType: joi.string(),
   applicationRequestQueue: {
     address: joi.string().required(),
-    type: joi.string().required().valid('queue')
+    type: joi.string().required().valid('queue'),
+    ...sharedConfigSchema
   }
 })
 
@@ -85,7 +86,8 @@ const combinedConfig = {
   moveClaimToPaidMsgType: `${msgTypePrefix}.set.paid.status`,
   applicationRequestQueue: {
     address: process.env.APPLICATION_REQUEST_QUEUE_ADDRESS,
-    type: 'queue'
+    type: 'queue',
+    ...sharedConfig
   }
 }
 

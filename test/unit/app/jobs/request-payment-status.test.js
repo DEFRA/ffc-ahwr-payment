@@ -43,7 +43,7 @@ describe('requestPaymentStatus', () => {
       data: [
         {
           agreementNumber: 'RESH-F99F-E09F',
-          status: { state: 'paid' },
+          status: { name: 'Settled' },
           sbi: '107021978'
         }
       ]
@@ -51,7 +51,7 @@ describe('requestPaymentStatus', () => {
     getPendingPayments.mockResolvedValue([{
       dataValues: {
         frn: '1234567890',
-        agreementNumber: 'RESH-F99F-E09F'
+        applicationReference: 'RESH-F99F-E09F'
       }
     }])
     updatePaymentStatusByClaimRef.mockResolvedValue([1, [{ dataValues: { sbi: '107021978' } }]])
@@ -92,20 +92,18 @@ describe('requestPaymentStatus', () => {
   })
 
   test('logs error if blob URI is missing', async () => {
-    const deadLetterMessageMock = jest.fn().mockResolvedValue()
     MessageReceiver.mockImplementation(() => ({
       acceptSession: jest.fn().mockResolvedValue(),
       receiveMessages: jest.fn().mockResolvedValue([{ body: {} }]),
       completeMessage: completeMessageMock,
-      closeConnection: closeConnectionMock,
-      deadLetterMessage: deadLetterMessageMock
+      closeConnection: closeConnectionMock
     }))
 
     await requestPaymentStatus(loggerMock)
 
-    expect(loggerMock.error).toHaveBeenCalledWith('Error processing payment', { err: new Error('No blob URI received in payment data response') })
+    expect(loggerMock.error).toHaveBeenCalledWith('Error requesting payment status', { err: new Error('No blob URI received in payment data response') })
     expect(deleteBlobMock).not.toHaveBeenCalled()
-    expect(deadLetterMessageMock).toHaveBeenCalledWith({ body: {} })
+    expect(completeMessageMock).toHaveBeenCalled()
   })
 
   test('logs error if receiveMessages returns empty array', async () => {
@@ -118,12 +116,29 @@ describe('requestPaymentStatus', () => {
 
     await requestPaymentStatus(loggerMock)
 
-    expect(loggerMock.error).toHaveBeenCalledWith('Error processing payment', { err: new Error('No response messages received from payment data request') })
+    expect(loggerMock.error).toHaveBeenCalledWith('Error requesting payment status', { err: new Error('No response messages received from payment data request') })
+  })
+
+  test('logs error if blob does not contain requested payment data', async () => {
+    getBlobMock.mockResolvedValue({
+      data: [
+        {
+          agreementNumber: 'AAAA-F99F-E09F',
+          status: { name: 'Settled' },
+          sbi: '107021978'
+        }
+      ]
+    })
+    await requestPaymentStatus(loggerMock)
+
+    expect(loggerMock.error).toHaveBeenCalledWith('Error requesting payment status', { err: new Error('Blob does not contain requested payment data') })
+    expect(completeMessageMock).toHaveBeenCalled()
+    expect(deleteBlobMock).toHaveBeenCalled()
   })
 
   test('handles non-paid status by incrementing paid check count', async () => {
     getBlobMock.mockResolvedValue({
-      data: [{ agreementNumber: 'RESH-F99F-E09F', status: { state: 'not_paid' } }]
+      data: [{ agreementNumber: 'RESH-F99F-E09F', status: { name: 'not_paid' } }]
     })
 
     await requestPaymentStatus(loggerMock)
@@ -131,5 +146,6 @@ describe('requestPaymentStatus', () => {
     expect(incrementPaymentCheckCount).toHaveBeenCalledWith('RESH-F99F-E09F')
     expect(sendMessage).not.toHaveBeenCalled()
     expect(deleteBlobMock).toHaveBeenCalledWith(loggerMock, 'blob://test-uri', 'data-requests')
+    expect(completeMessageMock).toHaveBeenCalled()
   })
 })
