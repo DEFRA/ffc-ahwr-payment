@@ -8,6 +8,9 @@ export const createBlobServiceClient = (options = {}) => {
 
   if (options.connectionString) {
     blobServiceClient = BlobServiceClient.fromConnectionString(options.connectionString)
+  } else if (options.accountName) {
+    const uri = `https://${options.accountName}.blob.core.windows.net`
+    blobServiceClient = new BlobServiceClient(uri, new DefaultAzureCredential({ managedIdentityClientId: process.env.AZURE_CLIENT_ID }))
   } else if (config.useConnectionString === true) {
     blobServiceClient = BlobServiceClient.fromConnectionString(config.connectionString)
   } else {

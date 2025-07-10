@@ -18,7 +18,7 @@ const {
     paymentDataRequestResponseQueue
   },
   storageConfig: {
-    paymentDataHubConnectionString,
+    paymentDataHubAccountName,
     paymentDataHubDataRequestsContainer
   }
 } = config
@@ -145,7 +145,7 @@ export const requestPaymentStatus = async (logger) => {
   }
 
   const blobServiceClient = createBlobServiceClient({
-    connectionString: paymentDataHubConnectionString
+    accountName: paymentDataHubAccountName
   })
 
   for (const frn of uniqueFrns) {

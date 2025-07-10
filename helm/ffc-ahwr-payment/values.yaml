@@ -43,13 +43,13 @@ container:
   azureStorageAccountName:
   azureStorageEndemicsSettingsContainerName:
   sendPaymentRequest: "true"
-  azureStoragePaymentDataHubConnectionString: 
+  azureStoragePaymentDataHubAccountName: 
   azureStoragePaymentDataHubDataRequestsContainer: data-requests
   applicationRequestQueueAddress:  ffc-ahwr-application-request
   paymentDataRequestTopicAddress: ffc-pay-data-request
   paymentDataRequestResponseQueueAddress: ffc-pay-data-request-response
-  requestPaymentStatusEnabled:
-  requestPaymentStatusSchedule:
+  requestPaymentStatusEnabled: "false"
+  requestPaymentStatusSchedule: 0 20 * * 1-5
   imagePullPolicy: IfNotPresent
   requestMemory: 10Mi
   requestCpu: 10m
