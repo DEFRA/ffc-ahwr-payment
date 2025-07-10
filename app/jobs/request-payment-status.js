@@ -7,7 +7,7 @@ import {
   incrementPaymentCheckCount,
   updatePaymentStatusByClaimRef
 } from '../repositories/payment-repository.js'
-import { createBlobServiceClient } from '../storage.js'
+import { createBlobClient } from '../storage.js'
 import { v4 as uuid } from 'uuid'
 import { PaymentHubStatus, Status } from '../constants/constants.js'
 
@@ -16,10 +16,6 @@ const {
     moveClaimToPaidMsgType,
     applicationRequestQueue,
     paymentDataRequestResponseQueue
-  },
-  storageConfig: {
-    paymentDataHubAccountName,
-    paymentDataHubDataRequestsContainer
   }
 } = config
 
@@ -57,13 +53,8 @@ const processPaymentDataEntry = async (paymentDataEntry, logger) => {
   }
 }
 
-const processDataRequestResponse = async ({ logger, blobServiceClient, claimReferences, blobUri }) => {
-  logger.info(`Processing blob: ${blobUri}`)
-  const blob = await blobServiceClient.getBlob(
-    logger,
-    blobUri,
-    paymentDataHubDataRequestsContainer
-  )
+const processDataRequestResponse = async ({ logger, claimReferences, blobClient }) => {
+  const blob = await blobClient.getBlob()
 
   const requestedPaymentData = blob.data.filter((blobData) => claimReferences.has(blobData.agreementNumber))
   if (!requestedPaymentData.length) {
@@ -81,12 +72,12 @@ const createReceiver = async (messageId) => {
   return receiver
 }
 
-const processFrnRequest = async (frn, logger, claimReferences, blobServiceClient) => {
+const processFrnRequest = async (frn, logger, claimReferences) => {
   logger.setBindings({ frn })
   const requestMessageId = uuid()
   const sessionId = uuid()
   const requestMessage = createPaymentDataRequest(frn)
-  let receiver, responseMessage, blobUri
+  let receiver, responseMessage, blobUri, blobClient
 
   try {
     await sendPaymentDataRequest(requestMessage, sessionId, logger, requestMessageId)
@@ -105,11 +96,12 @@ const processFrnRequest = async (frn, logger, claimReferences, blobServiceClient
       throw Error('No blob URI received in payment data response')
     }
 
+    blobClient = createBlobClient(logger, blobUri)
+
     await processDataRequestResponse({
       logger,
-      blobServiceClient,
       claimReferences,
-      blobUri
+      blobClient
     })
   } catch (err) {
     logger.error('Error requesting payment status', { err })
@@ -124,8 +116,8 @@ const processFrnRequest = async (frn, logger, claimReferences, blobServiceClient
         .catch((err) => logger.error('Error closing receiver connection', { err }))
     }
 
-    if (blobUri) {
-      await blobServiceClient.deleteBlob(logger, blobUri, paymentDataHubDataRequestsContainer)
+    if (blobClient) {
+      await blobClient.deleteBlob()
         .catch((err) => logger.error('Error deleting blob', { err, blobUri }))
     }
   }
@@ -144,11 +136,7 @@ export const requestPaymentStatus = async (logger) => {
     claimReferences.add(pendingPayment.dataValues.applicationReference)
   }
 
-  const blobServiceClient = createBlobServiceClient({
-    accountName: paymentDataHubAccountName
-  })
-
   for (const frn of uniqueFrns) {
-    await processFrnRequest(frn, logger, claimReferences, blobServiceClient)
+    await processFrnRequest(frn, logger, claimReferences)
   }
 }
