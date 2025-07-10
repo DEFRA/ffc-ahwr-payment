@@ -8,8 +8,13 @@ resources:
     - name: ffc-ahwr-payment-request
       role: receiver
       session: false
+    - name: ffc-pay-data-request-response
+      role: receiver
+      session: true
   topics:
     - name: ffc-pay-request
       role: sender
     - name: ffc-pay-request-response
       role: receiver
+    - name: ffc-pay-data-request
+      role: sender
