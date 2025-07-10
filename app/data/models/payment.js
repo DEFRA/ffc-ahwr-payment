@@ -1,3 +1,5 @@
+import { Status } from '../../constants/constants.js'
+
 export default (sequelize, DataTypes) => {
   const payment = sequelize.define('payment', {
     id: {
@@ -10,9 +12,10 @@ export default (sequelize, DataTypes) => {
     data: DataTypes.JSONB,
     createdAt: { type: DataTypes.DATE },
     updatedAt: { type: DataTypes.DATE },
-    status: { type: DataTypes.STRING, defaultValue: 'on-hold' },
+    status: { type: DataTypes.STRING, defaultValue: Status.REQUESTED },
     paymentResponse: DataTypes.JSONB,
-    frn: DataTypes.STRING
+    frn: DataTypes.STRING,
+    paymentCheckCount: DataTypes.NUMBER
   }, {
     freezeTableName: true,
     tableName: 'payment'

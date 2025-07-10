@@ -39,3 +39,13 @@ export const speciesAmounts = {
     code: 'AHWR-Sheep'
   }
 }
+
+export const Status = {
+  ACK: 'ack',
+  PAID: 'paid',
+  REQUESTED: 'requested'
+}
+
+export const PaymentHubStatus = {
+  SETTLED: 'Settled'
+}

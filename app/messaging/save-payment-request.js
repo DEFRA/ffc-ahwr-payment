@@ -3,7 +3,8 @@ import { get, set } from '../repositories/payment-repository.js'
 import { validateApplicationPaymentRequest } from './application-payment-request-schema.js'
 import { validatePaymentRequest } from './payment-request-schema.js'
 import { getPaymentData } from '../lib/getPaymentData.js'
-import { getBlob } from '../storage.js'
+import { createBlobServiceClient } from '../storage.js'
+import { config } from '../config/storage.js'
 
 const buildPaymentRequest = async (logger, applicationPaymentRequest) => {
   const {
@@ -17,7 +18,8 @@ const buildPaymentRequest = async (logger, applicationPaymentRequest) => {
   } = applicationPaymentRequest
   const { description, paymentRequestNumber, sourceSystem } = paymentRequest
   const marketingYear = new Date().getFullYear()
-  const pricesConfig = await getBlob(logger, 'claim-prices-config.json')
+  const blobServiceClient = createBlobServiceClient()
+  const pricesConfig = await blobServiceClient.getBlob(logger, 'claim-prices-config.json', config.endemicsSettingsContainer)
   const { standardCode, value } = getPaymentData(species, reviewTestResults, pricesConfig, isEndemics, claimType, optionalPiHuntValue)
 
   return {

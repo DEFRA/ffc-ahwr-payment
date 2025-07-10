@@ -1,3 +1,5 @@
 container.applicationPaymentRequestQueueAddress: queue:ffc-ahwr-payment-request
 container.paymentRequestTopicAddress: topic:ffc-pay-request
 container.paymentResponseTopicAddress: topic:ffc-pay-request-response
+container.paymentDataRequestTopicAddress: topic:ffc-pay-data-request
+container.paymentDataRequestResponseQueueAddress: queue:ffc-pay-data-request-response
