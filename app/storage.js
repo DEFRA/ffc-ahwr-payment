@@ -1,4 +1,4 @@
-import { BlobServiceClient } from '@azure/storage-blob'
+import { BlobClient, BlobServiceClient } from '@azure/storage-blob'
 import { DefaultAzureCredential } from '@azure/identity'
 import { config } from './config/storage.js'
 import { streamToBuffer } from './lib/streamToBuffer.js'
@@ -46,6 +46,43 @@ export const createBlobServiceClient = (options = {}) => {
       return deleteResponse.succeeded
     } catch (err) {
       logger.error(`Unable to delete blob: ${containerName}/${filename}`, { err })
+      throw err
+    }
+  }
+
+  return {
+    getBlob,
+    deleteBlob
+  }
+}
+
+export const createBlobClient = (logger, blobUri) => {
+  const blobClient = new BlobClient(blobUri, new DefaultAzureCredential({ managedIdentityClientId: process.env.AZURE_CLIENT_ID }))
+
+  const getBlob = async () => {
+    try {
+      const downloadResponse = await blobClient.download()
+      const downloaded = await streamToBuffer(downloadResponse.readableStreamBody)
+      return JSON.parse(downloaded.toString())
+    } catch (err) {
+      logger.error(`Unable to retrieve blob: ${blobUri}`, { err })
+      throw err
+    }
+  }
+
+  const deleteBlob = async () => {
+    try {
+      const deleteResponse = await blobClient.deleteIfExists()
+
+      if (deleteResponse.succeeded) {
+        logger.info(`Successfully deleted blob: ${blobUri}`)
+      } else {
+        logger.warn(`Blob not found or already deleted: ${blobUri}`)
+      }
+
+      return deleteResponse.succeeded
+    } catch (err) {
+      logger.error(`Unable to delete blob: ${blobUri}`, { err })
       throw err
     }
   }

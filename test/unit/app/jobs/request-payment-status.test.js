@@ -1,7 +1,7 @@
 import { incrementPaymentCheckCount, updatePaymentStatusByClaimRef, getPendingPayments } from '../../../../app/repositories/payment-repository'
 import { sendPaymentDataRequest } from '../../../../app/messaging/send-payment-data-request'
 import { sendMessage } from '../../../../app/messaging/send-message'
-import { createBlobServiceClient } from '../../../../app/storage.js'
+import { createBlobClient } from '../../../../app/storage.js'
 import { requestPaymentStatus } from '../../../../app/jobs/request-payment-status'
 import { MessageReceiver } from 'ffc-messaging'
 
@@ -16,10 +16,6 @@ jest.mock('../../../../app/config', () => ({
       moveClaimToPaidMsgType: 'move-claim-to-paid-msg-type',
       applicationRequestQueue: 'application-request-queue',
       paymentDataRequestResponseQueue: 'payment-data-request-response-queue'
-    },
-    storageConfig: {
-      paymentDataHubAccountName: 'payment-data-hub-account-name',
-      paymentDataHubDataRequestsContainer: 'data-requests'
     }
   }
 }))
@@ -61,7 +57,7 @@ describe('requestPaymentStatus', () => {
       completeMessage: completeMessageMock,
       closeConnection: closeConnectionMock
     }))
-    createBlobServiceClient.mockReturnValue({
+    createBlobClient.mockReturnValue({
       getBlob: getBlobMock,
       deleteBlob: deleteBlobMock
     })
@@ -88,10 +84,9 @@ describe('requestPaymentStatus', () => {
     expect(completeMessageMock).toHaveBeenCalled()
     expect(closeConnectionMock).toHaveBeenCalled()
     expect(loggerMock.error).not.toHaveBeenCalled()
-    expect(deleteBlobMock).toHaveBeenCalledWith(loggerMock, 'blob://test-uri', 'data-requests')
-    expect(createBlobServiceClient).toHaveBeenCalledWith({
-      accountName: 'payment-data-hub-account-name'
-    })
+    expect(deleteBlobMock).toHaveBeenCalled()
+    expect(getBlobMock).toHaveBeenCalled()
+    expect(createBlobClient).toHaveBeenCalledWith(loggerMock, 'blob://test-uri')
   })
 
   test('logs error if blob URI is missing', async () => {
@@ -148,7 +143,7 @@ describe('requestPaymentStatus', () => {
 
     expect(incrementPaymentCheckCount).toHaveBeenCalledWith('RESH-F99F-E09F')
     expect(sendMessage).not.toHaveBeenCalled()
-    expect(deleteBlobMock).toHaveBeenCalledWith(loggerMock, 'blob://test-uri', 'data-requests')
+    expect(deleteBlobMock).toHaveBeenCalled()
     expect(completeMessageMock).toHaveBeenCalled()
   })
 })
