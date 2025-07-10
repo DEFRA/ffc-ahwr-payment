@@ -48,7 +48,7 @@ const processPaidClaim = async (claimReference, logger) => {
 
 const processPaymentDataEntry = async (paymentDataEntry, logger) => {
   const { agreementNumber: claimReference, status } = paymentDataEntry
-  logger.setBindings({ claimReference, status })
+  logger.info('Processing data entry', { claimReference, status })
 
   if (status.name === PaymentHubStatus.SETTLED) {
     await processPaidClaim(claimReference, logger)
