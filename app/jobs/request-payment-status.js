@@ -80,7 +80,6 @@ const processFrnRequest = async (frn, logger, claimReferences) => {
   let receiver, responseMessage, blobUri, blobClient
 
   try {
-    console.log({ requestMessageId })
     await sendPaymentDataRequest(requestMessage, sessionId, logger, requestMessageId)
 
     receiver = await createReceiver(requestMessageId)
@@ -105,9 +104,6 @@ const processFrnRequest = async (frn, logger, claimReferences) => {
       blobClient
     })
   } catch (err) {
-    console.log({
-      err
-    })
     logger.error('Error requesting payment status', { err })
   } finally {
     if (receiver) {
