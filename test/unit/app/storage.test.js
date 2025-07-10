@@ -79,6 +79,20 @@ describe('storage tests', () => {
 
       expect(BlobServiceClient.fromConnectionString).toHaveBeenCalledWith(customConnectionString)
     })
+
+    test('should create client using options.accountName if provided', () => {
+      const accountName = 'pay-data-hub'
+
+      const client = createBlobServiceClient({ accountName })
+
+      expect(client).toHaveProperty('getBlob')
+      expect(client).toHaveProperty('deleteBlob')
+
+      expect(BlobServiceClient).toHaveBeenCalledWith(
+        'https://pay-data-hub.blob.core.windows.net',
+        expect.any(Object)
+      )
+    })
   })
 
   describe('getBlob', () => {

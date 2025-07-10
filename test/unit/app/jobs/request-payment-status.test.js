@@ -18,7 +18,7 @@ jest.mock('../../../../app/config', () => ({
       paymentDataRequestResponseQueue: 'payment-data-request-response-queue'
     },
     storageConfig: {
-      paymentDataHubConnectionString: 'payment-data-hub-connection-string',
+      paymentDataHubAccountName: 'payment-data-hub-account-name',
       paymentDataHubDataRequestsContainer: 'data-requests'
     }
   }
@@ -89,6 +89,9 @@ describe('requestPaymentStatus', () => {
     expect(closeConnectionMock).toHaveBeenCalled()
     expect(loggerMock.error).not.toHaveBeenCalled()
     expect(deleteBlobMock).toHaveBeenCalledWith(loggerMock, 'blob://test-uri', 'data-requests')
+    expect(createBlobServiceClient).toHaveBeenCalledWith({
+      accountName: 'payment-data-hub-account-name'
+    })
   })
 
   test('logs error if blob URI is missing', async () => {
