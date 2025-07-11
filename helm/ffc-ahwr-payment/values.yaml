@@ -43,8 +43,6 @@ container:
   azureStorageAccountName:
   azureStorageEndemicsSettingsContainerName:
   sendPaymentRequest: "true"
-  azureStoragePaymentDataHubAccountName: ffcpayst1001
-  azureStoragePaymentDataHubDataRequestsContainer: data-requests
   applicationRequestQueueAddress:  ffc-ahwr-application-request
   paymentDataRequestTopicAddress: ffc-pay-data-request
   paymentDataRequestResponseQueueAddress: ffc-pay-data-request-response

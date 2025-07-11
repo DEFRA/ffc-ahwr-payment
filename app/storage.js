@@ -26,7 +26,7 @@ export const createBlobServiceClient = (options = {}) => {
       const downloaded = await streamToBuffer(downloadResponse.readableStreamBody)
       return JSON.parse(downloaded.toString())
     } catch (err) {
-      logger.error(`Unable to retrieve blob: ${containerName}/${filename}`, { err })
+      logger.error({ err }, `Unable to retrieve blob: ${containerName}/${filename}`)
       throw err
     }
   }
@@ -45,7 +45,7 @@ export const createBlobServiceClient = (options = {}) => {
 
       return deleteResponse.succeeded
     } catch (err) {
-      logger.error(`Unable to delete blob: ${containerName}/${filename}`, { err })
+      logger.error({ err }, `Unable to delete blob: ${containerName}/${filename}`)
       throw err
     }
   }
@@ -65,7 +65,7 @@ export const createBlobClient = (logger, blobUri) => {
       const downloaded = await streamToBuffer(downloadResponse.readableStreamBody)
       return JSON.parse(downloaded.toString())
     } catch (err) {
-      logger.error(`Unable to retrieve blob: ${blobUri}`, { err })
+      logger.error({ err }, `Unable to retrieve blob: ${blobUri}`)
       throw err
     }
   }
@@ -82,7 +82,7 @@ export const createBlobClient = (logger, blobUri) => {
 
       return deleteResponse.succeeded
     } catch (err) {
-      logger.error(`Unable to delete blob: ${blobUri}`, { err })
+      logger.error({ err }, `Unable to delete blob: ${blobUri}`)
       throw err
     }
   }

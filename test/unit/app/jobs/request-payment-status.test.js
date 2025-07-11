@@ -99,7 +99,7 @@ describe('requestPaymentStatus', () => {
 
     await requestPaymentStatus(loggerMock)
 
-    expect(loggerMock.error).toHaveBeenCalledWith('Error requesting payment status', { err: new Error('No blob URI received in payment data response') })
+    expect(loggerMock.error).toHaveBeenCalledWith({ err: new Error('No blob URI received in payment data response') }, 'Error requesting payment status')
     expect(deleteBlobMock).not.toHaveBeenCalled()
     expect(completeMessageMock).toHaveBeenCalled()
   })
@@ -114,7 +114,7 @@ describe('requestPaymentStatus', () => {
 
     await requestPaymentStatus(loggerMock)
 
-    expect(loggerMock.error).toHaveBeenCalledWith('Error requesting payment status', { err: new Error('No response messages received from payment data request') })
+    expect(loggerMock.error).toHaveBeenCalledWith({ err: new Error('No response messages received from payment data request') }, 'Error requesting payment status')
   })
 
   test('logs error if blob does not contain requested payment data', async () => {
@@ -129,7 +129,7 @@ describe('requestPaymentStatus', () => {
     })
     await requestPaymentStatus(loggerMock)
 
-    expect(loggerMock.error).toHaveBeenCalledWith('Error requesting payment status', { err: new Error('Blob does not contain requested payment data') })
+    expect(loggerMock.error).toHaveBeenCalledWith({ err: new Error('Blob does not contain requested payment data') }, 'Error requesting payment status')
     expect(completeMessageMock).toHaveBeenCalled()
     expect(deleteBlobMock).toHaveBeenCalled()
   })

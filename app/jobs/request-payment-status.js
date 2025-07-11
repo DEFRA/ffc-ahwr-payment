@@ -44,7 +44,7 @@ const processPaidClaim = async (claimReference, logger) => {
 
 const processPaymentDataEntry = async (paymentDataEntry, logger) => {
   const { agreementNumber: claimReference, status } = paymentDataEntry
-  logger.info('Processing data entry', { claimReference, status })
+  logger.info({ claimReference, status }, 'Processing data entry')
 
   if (status.name === PaymentHubStatus.SETTLED) {
     await processPaidClaim(claimReference, logger)
@@ -104,21 +104,21 @@ const processFrnRequest = async (frn, logger, claimReferences) => {
       blobClient
     })
   } catch (err) {
-    logger.error('Error requesting payment status', { err })
+    logger.error({ err }, 'Error requesting payment status')
   } finally {
     if (receiver) {
       if (responseMessage) {
         await receiver.completeMessage(responseMessage)
-          .catch((err) => logger.error('Error completing response message', { err, responseMessage }))
+          .catch((err) => logger.error({ err, responseMessage }, 'Error completing response message'))
       }
 
       await receiver.closeConnection()
-        .catch((err) => logger.error('Error closing receiver connection', { err }))
+        .catch((err) => logger.error({ err }, 'Error closing receiver connection'))
     }
 
     if (blobClient) {
       await blobClient.deleteBlob()
-        .catch((err) => logger.error('Error deleting blob', { err, blobUri }))
+        .catch((err) => logger.error({ err, blobUri }, 'Error deleting blob'))
     }
   }
 }

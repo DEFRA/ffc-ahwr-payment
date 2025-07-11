@@ -37,8 +37,7 @@ describe('Config Validation', () => {
         endemicsSettingsContainer: 'endemics-settings',
         endemicsPricesFile: 'endemics-prices-config.json',
         storageAccount: 'storage-account',
-        useConnectionString: true,
-        paymentDataHubDataRequestsContainer: 'data-requests'
+        useConnectionString: true
       }
     })
   })
