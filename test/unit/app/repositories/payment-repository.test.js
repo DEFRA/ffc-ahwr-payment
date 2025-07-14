@@ -77,7 +77,7 @@ describe('Payment Repository test', () => {
 
     expect(mockIncrement).toHaveBeenCalledWith(
       { paymentCheckCount: 1 },
-      { where: { applicationReference: 'RESH-F99F-E09F' } }
+      { where: { applicationReference: 'RESH-F99F-E09F' }, returning: true }
     )
     expect(result).toEqual([1])
   })

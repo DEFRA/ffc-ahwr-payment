@@ -4,6 +4,7 @@ import { sendMessage } from '../../../../app/messaging/send-message'
 import { createBlobClient } from '../../../../app/storage.js'
 import { requestPaymentStatus } from '../../../../app/jobs/request-payment-status'
 import { MessageReceiver } from 'ffc-messaging'
+import { defaultClient } from 'applicationinsights'
 
 jest.mock('../../../../app/repositories/payment-repository')
 jest.mock('../../../../app/messaging/send-payment-data-request')
@@ -19,6 +20,16 @@ jest.mock('../../../../app/config', () => ({
     }
   }
 }))
+jest.mock('applicationinsights', () => {
+  const trackExceptionMock = jest.fn()
+  return {
+    defaultClient: {
+      trackException: trackExceptionMock
+    },
+    setup: jest.fn().mockReturnThis(),
+    start: jest.fn()
+  }
+})
 
 describe('requestPaymentStatus', () => {
   const loggerMock = {
@@ -87,6 +98,7 @@ describe('requestPaymentStatus', () => {
     expect(deleteBlobMock).toHaveBeenCalled()
     expect(getBlobMock).toHaveBeenCalled()
     expect(createBlobClient).toHaveBeenCalledWith(loggerMock, 'blob://test-uri')
+    expect(defaultClient.trackException).not.toHaveBeenCalled()
   })
 
   test('logs error if blob URI is missing', async () => {
@@ -145,5 +157,41 @@ describe('requestPaymentStatus', () => {
     expect(sendMessage).not.toHaveBeenCalled()
     expect(deleteBlobMock).toHaveBeenCalled()
     expect(completeMessageMock).toHaveBeenCalled()
+  })
+
+  test('raises appInsights exception when the maximum number of attempts limit has been reached', async () => {
+    getBlobMock.mockResolvedValue({
+      data: [{ agreementNumber: 'RESH-F99F-E09F', status: { name: 'not_paid' } }]
+    })
+    incrementPaymentCheckCount.mockResolvedValue(
+      [
+        [
+          [{
+            id: '32742adb-f37d-4bc8-8927-7f7d7cfc685e',
+            applicationReference: 'RESH-F99F-E09F',
+            data: [{ Object }],
+            createdAt: '2025-06-25T08:24:56.309Z',
+            updatedAt: '2025-07-11T15:49:20.297Z',
+            status: 'ack',
+            paymentResponse: [{}],
+            paymentCheckCount: 3,
+            frn: '12345'
+          }],
+          1
+        ],
+        2
+      ]
+    )
+
+    await requestPaymentStatus(loggerMock)
+
+    expect(incrementPaymentCheckCount).toHaveBeenCalledWith('RESH-F99F-E09F')
+    expect(sendMessage).not.toHaveBeenCalled()
+    expect(deleteBlobMock).toHaveBeenCalled()
+    expect(completeMessageMock).toHaveBeenCalled()
+    expect(defaultClient.trackException).toHaveBeenCalledWith({
+      exception: expect.any(Error),
+      properties: { claimReference: 'RESH-F99F-E09F', payDataStatus: 'not_paid' }
+    })
   })
 })

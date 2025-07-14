@@ -10,6 +10,7 @@ import {
 import { createBlobClient } from '../storage.js'
 import { v4 as uuid } from 'uuid'
 import { PaymentHubStatus, Status } from '../constants/constants.js'
+import appInsights from 'applicationinsights'
 
 const {
   messageQueueConfig: {
@@ -49,7 +50,17 @@ const processPaymentDataEntry = async (paymentDataEntry, logger) => {
   if (status.name === PaymentHubStatus.SETTLED) {
     await processPaidClaim(claimReference, logger)
   } else {
-    await incrementPaymentCheckCount(claimReference)
+    const [affectedRows] = await incrementPaymentCheckCount(claimReference)
+
+    if (affectedRows?.[0]?.[0]?.paymentCheckCount === 3) {
+      appInsights.defaultClient.trackException({
+        exception: new Error('Exceeded attempts to retrieve paid payment status'),
+        properties: {
+          claimReference,
+          payDataStatus: status.name
+        }
+      })
+    }
   }
 }
 

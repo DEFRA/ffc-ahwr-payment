@@ -39,7 +39,10 @@ export async function getPendingPayments () {
 export async function incrementPaymentCheckCount (claimReference) {
   return models.payment.increment(
     { paymentCheckCount: 1 },
-    { where: { applicationReference: claimReference } }
+    {
+      where: { applicationReference: claimReference },
+      returning: true
+    }
   )
 }
 
