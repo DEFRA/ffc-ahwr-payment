@@ -196,6 +196,25 @@ describe('requestPaymentStatus', () => {
     })
   })
 
+  test('does not raise appInsights exception when no payments were found to increment paymentCheckCount', async () => {
+    getBlobMock.mockResolvedValue({
+      data: [{ agreementNumber: 'RESH-F99F-E09F', status: { name: 'not_paid' } }]
+    })
+    incrementPaymentCheckCount.mockResolvedValue(
+      [
+        [], 0
+      ]
+    )
+
+    await requestPaymentStatus(loggerMock)
+
+    expect(incrementPaymentCheckCount).toHaveBeenCalledWith('RESH-F99F-E09F')
+    expect(sendMessage).not.toHaveBeenCalled()
+    expect(deleteBlobMock).toHaveBeenCalled()
+    expect(completeMessageMock).toHaveBeenCalled()
+    expect(defaultClient.trackException).not.toHaveBeenCalled()
+  })
+
   test('logs error when updating status to paid for claim fails', async () => {
     updatePaymentStatusByClaimRef.mockResolvedValue([0, []])
 
@@ -232,5 +251,15 @@ describe('requestPaymentStatus', () => {
 
     expect(deleteBlobMock).toHaveBeenCalled()
     expect(loggerMock.error).toHaveBeenCalledWith({ err: new Error('Unexpected error'), blobUri: 'blob://test-uri' }, 'Error deleting blob')
+  })
+
+  test('logs error when failing to create receiver', async () => {
+    MessageReceiver.mockImplementation(() => ({
+      acceptSession: jest.fn().mockRejectedValue(new Error('Unexpected error'))
+    }))
+
+    await requestPaymentStatus(loggerMock)
+
+    expect(loggerMock.error).toHaveBeenCalledWith({ err: new Error('Unexpected error') }, 'Error requesting payment status')
   })
 })
