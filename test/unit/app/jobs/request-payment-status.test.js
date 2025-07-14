@@ -199,7 +199,6 @@ describe('requestPaymentStatus', () => {
   test('logs error when updating status to paid for claim fails', async () => {
     updatePaymentStatusByClaimRef.mockResolvedValue([0, []])
 
-  
     await requestPaymentStatus(loggerMock)
 
     expect(sendMessage).not.toHaveBeenCalled()
@@ -208,7 +207,7 @@ describe('requestPaymentStatus', () => {
     expect(loggerMock.error).toHaveBeenCalledWith('Payment not found to update paid status')
   })
 
-  test('logs error when receiver fails to complete message', async () => { 
+  test('logs error when receiver fails to complete message', async () => {
     completeMessageMock.mockRejectedValue(new Error('Unexpected error'))
 
     await requestPaymentStatus(loggerMock)
@@ -217,7 +216,7 @@ describe('requestPaymentStatus', () => {
     expect(loggerMock.error).toHaveBeenCalledWith({ err: new Error('Unexpected error'), responseMessage: { body: { uri: 'blob://test-uri' } } }, 'Error completing response message')
   })
 
-  test('logs error when receiver fails to close connection', async () => { 
+  test('logs error when receiver fails to close connection', async () => {
     closeConnectionMock.mockRejectedValue(new Error('Unexpected error'))
 
     await requestPaymentStatus(loggerMock)
@@ -226,12 +225,12 @@ describe('requestPaymentStatus', () => {
     expect(loggerMock.error).toHaveBeenCalledWith({ err: new Error('Unexpected error') }, 'Error closing receiver connection')
   })
 
-  test('logs error when failing to delete blob', async () => { 
+  test('logs error when failing to delete blob', async () => {
     deleteBlobMock.mockRejectedValue(new Error('Unexpected error'))
 
     await requestPaymentStatus(loggerMock)
 
     expect(deleteBlobMock).toHaveBeenCalled()
-    expect(loggerMock.error).toHaveBeenCalledWith({ err: new Error('Unexpected error'), blobUri: "blob://test-uri" }, 'Error deleting blob')
+    expect(loggerMock.error).toHaveBeenCalledWith({ err: new Error('Unexpected error'), blobUri: 'blob://test-uri' }, 'Error deleting blob')
   })
 })
