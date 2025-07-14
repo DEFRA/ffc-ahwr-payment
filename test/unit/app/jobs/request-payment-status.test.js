@@ -157,6 +157,7 @@ describe('requestPaymentStatus', () => {
     expect(sendMessage).not.toHaveBeenCalled()
     expect(deleteBlobMock).toHaveBeenCalled()
     expect(completeMessageMock).toHaveBeenCalled()
+    expect(defaultClient.trackException).not.toHaveBeenCalled()
   })
 
   test('raises appInsights exception when the maximum number of attempts limit has been reached', async () => {
