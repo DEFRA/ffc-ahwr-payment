@@ -123,7 +123,7 @@ describe('storage tests', () => {
       const client = createBlobServiceClient()
 
       await expect(client.getBlob(mockedLogger, 'badfile.json', 'data-requests')).rejects.toThrow('Download failed')
-      expect(mockErrorLogger).toHaveBeenCalledWith('Unable to retrieve blob: data-requests/badfile.json', { err: error })
+      expect(mockErrorLogger).toHaveBeenCalledWith({ err: error }, 'Unable to retrieve blob: data-requests/badfile.json')
     })
   })
 
@@ -176,7 +176,7 @@ describe('storage tests', () => {
       const client = createBlobServiceClient()
 
       await expect(client.deleteBlob(mockedLogger, 'test.json', 'data-requests')).rejects.toThrow('Deletion failed')
-      expect(mockErrorLogger).toHaveBeenCalledWith('Unable to delete blob: data-requests/test.json', { err: error })
+      expect(mockErrorLogger).toHaveBeenCalledWith({ err: error }, 'Unable to delete blob: data-requests/test.json')
     })
   })
 })
@@ -219,8 +219,8 @@ describe('createBlobClient', () => {
 
     await expect(client.getBlob()).rejects.toThrow('Download error')
     expect(mockErrorLogger).toHaveBeenCalledWith(
-      `Unable to retrieve blob: ${blobUri}`,
-      { err: error }
+      { err: error },
+      `Unable to retrieve blob: ${blobUri}`
     )
   })
 
@@ -262,8 +262,8 @@ describe('createBlobClient', () => {
 
     await expect(client.deleteBlob()).rejects.toThrow('Delete error')
     expect(mockErrorLogger).toHaveBeenCalledWith(
-      `Unable to delete blob: ${blobUri}`,
-      { err: error }
+      { err: error },
+      `Unable to delete blob: ${blobUri}`
     )
   })
 })

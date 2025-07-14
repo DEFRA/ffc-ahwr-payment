@@ -15,7 +15,7 @@ const scheduler = {
         return
       }
 
-      logger.info('Registering payment status scheduler', { schedule })
+      logger.info({ schedule }, 'Registering payment status scheduler')
 
       cron.schedule(schedule, async () => {
         const taskLogger = logger.child({ task: 'requestPaymentStatus' })
@@ -29,7 +29,7 @@ const scheduler = {
             message: err.message,
             stack: err.stack
           }
-          taskLogger.error('Failed to request payment statuses', errorDetails)
+          taskLogger.error(errorDetails, 'Failed to request payment statuses')
           appInsights.defaultClient.trackException({ exception: err })
         }
       })

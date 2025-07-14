@@ -5,9 +5,7 @@ const schema = joi.object({
   endemicsSettingsContainer: joi.string().required(),
   endemicsPricesFile: joi.string().required(),
   storageAccount: joi.string().required(),
-  useConnectionString: joi.bool(),
-  paymentDataHubAccountName: joi.string(),
-  paymentDataHubDataRequestsContainer: joi.string()
+  useConnectionString: joi.bool()
 })
 
 const storageConfig = {
@@ -15,9 +13,7 @@ const storageConfig = {
   useConnectionString: process.env.AZURE_STORAGE_USE_CONNECTION_STRING === 'true',
   endemicsSettingsContainer: process.env.AZURE_STORAGE_ENDEMICS_SETTINGS_CONTAINER ?? 'endemics-settings',
   endemicsPricesFile: 'endemics-prices-config.json', // no current provision to override this
-  storageAccount: process.env.AZURE_STORAGE_ACCOUNT_NAME,
-  paymentDataHubAccountName: process.env.AZURE_STORAGE_PAYMENT_DATA_HUB_ACCOUNT_NAME,
-  paymentDataHubDataRequestsContainer: process.env.AZURE_STORAGE_PAYMENT_DATA_HUB_DATA_REQUESTS_CONTAINER ?? 'data-requests'
+  storageAccount: process.env.AZURE_STORAGE_ACCOUNT_NAME
 }
 
 const { error } = schema.validate(storageConfig, {

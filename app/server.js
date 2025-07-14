@@ -5,7 +5,6 @@ import loggerPlugin from './plugins/logger.js'
 import { healthRoutes } from './routes/health.js'
 import { paymentApiRoutes } from './routes/api/payment.js'
 import requestPaymentStatusScheduler from './jobs/request-payment-status-scheduler.js'
-import { requestPaymentStatus } from './jobs/request-payment-status.js'
 
 export async function createServer () {
   // Create the hapi server
@@ -30,23 +29,6 @@ export async function createServer () {
   server.route([...healthRoutes, ...paymentApiRoutes])
 
   await server.register(requestPaymentStatusScheduler)
-
-  server.route({
-    method: 'POST',
-    path: '/test/run-scheduler',
-    handler: async (request, h) => {
-      const logger = server.logger.child({ route: 'test/run-scheduler' })
-
-      try {
-        await requestPaymentStatus(logger)
-        logger.info('Manually triggered scheduler task succeeded')
-        return h.response({ status: 'ok' }).code(200)
-      } catch (err) {
-        logger.error('Manual trigger failed', err)
-        return h.response({ error: err.message }).code(500)
-      }
-    }
-  })
 
   return server
 }
