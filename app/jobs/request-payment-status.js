@@ -60,7 +60,7 @@ const processPaymentDataEntry = async (paymentDataEntry, logger) => {
         properties: {
           claimReference,
           payDataStatus: status.name,
-          sbi: affectedRows?.[0][0].data.sbi
+          sbi: affectedRows[0][0].data.sbi
         }
       })
     }
