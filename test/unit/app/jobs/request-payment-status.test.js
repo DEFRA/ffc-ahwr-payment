@@ -200,11 +200,7 @@ describe('requestPaymentStatus', () => {
     getBlobMock.mockResolvedValue({
       data: [{ agreementNumber: 'RESH-F99F-E09F', status: { name: 'not_paid' } }]
     })
-    incrementPaymentCheckCount.mockResolvedValue(
-      [
-        [], 0
-      ]
-    )
+    incrementPaymentCheckCount.mockResolvedValue([[], 0])
 
     await requestPaymentStatus(loggerMock)
 

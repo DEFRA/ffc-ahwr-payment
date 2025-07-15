@@ -54,7 +54,7 @@ const processPaymentDataEntry = async (paymentDataEntry, logger) => {
   } else {
     const [affectedRows] = await incrementPaymentCheckCount(claimReference)
 
-    if (affectedRows?.[0][0].paymentCheckCount === PAYMENT_CHECK_COUNT_LIMIT) {
+    if (affectedRows.length && affectedRows[0][0].paymentCheckCount === PAYMENT_CHECK_COUNT_LIMIT) {
       appInsights.defaultClient.trackException({
         exception: new Error('Exceeded attempts to retrieve paid payment status'),
         properties: {
