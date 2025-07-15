@@ -170,7 +170,7 @@ describe('requestPaymentStatus', () => {
           [{
             id: '32742adb-f37d-4bc8-8927-7f7d7cfc685e',
             applicationReference: 'RESH-F99F-E09F',
-            data: [{ Object }],
+            data: { sbi: "234234", value: 436, invoiceLines: [{ value: 436, description: "G00 - Gross value of claim", standardCode: "AHWR-Sheep" }], sourceSystem: "AHWR", marketingYear: 2025, agreementNumber: "ABC-1234", paymentRequestNumber: 1 },
             createdAt: '2025-06-25T08:24:56.309Z',
             updatedAt: '2025-07-11T15:49:20.297Z',
             status: 'ack',
@@ -192,7 +192,7 @@ describe('requestPaymentStatus', () => {
     expect(completeMessageMock).toHaveBeenCalled()
     expect(defaultClient.trackException).toHaveBeenCalledWith({
       exception: expect.any(Error),
-      properties: { claimReference: 'RESH-F99F-E09F', payDataStatus: 'not_paid' }
+      properties: { claimReference: 'RESH-F99F-E09F', payDataStatus: 'not_paid', sbi: '234234' }
     })
   })
 
