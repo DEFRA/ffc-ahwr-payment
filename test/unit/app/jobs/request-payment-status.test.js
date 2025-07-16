@@ -188,7 +188,7 @@ describe('requestPaymentStatus', () => {
     })
   })
 
-  test.only('raises appInsights exception when the delayed retry limit has been reached', async () => {
+  test('raises appInsights exception when the delayed retry limit has been reached', async () => {
     getBlobMock.mockResolvedValue({
       data: [{ agreementNumber: 'RESH-F99F-E09F', status: { name: 'not_paid' } }]
     })
