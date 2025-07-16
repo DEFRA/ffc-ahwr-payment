@@ -9,7 +9,7 @@ import {
 } from '../repositories/payment-repository.js'
 import { createBlobClient } from '../storage.js'
 import { v4 as uuid } from 'uuid'
-import { PaymentHubStatus, Status } from '../constants/constants.js'
+import { DAILY_RETRY_DAYS, DAILY_RETRY_LIMIT, DELAYED_RETRY_DAYS, DELAYED_RETRY_LIMIT, PaymentHubStatus, Status } from '../constants/constants.js'
 import appInsights from 'applicationinsights'
 
 const {
@@ -19,11 +19,6 @@ const {
     paymentDataRequestResponseQueue
   }
 } = config
-
-const DAILY_RETRY_LIMIT = 3
-const DELAYED_RETRY_LIMIT = 4
-const THREE_DAYS = 3
-const TEN_DAYS = 10
 
 const createPaymentDataRequest = (frn) => ({
   category: 'frn',
@@ -75,10 +70,12 @@ const processPaymentDataEntry = async (paymentDataEntry, logger) => {
 
   if (paymentCheckCount === DAILY_RETRY_LIMIT) {
     logger.info({ claimReference, paymentCheckCount, sbi }, 'Daily retry limit reached')
-    trackPaymentStatusError(THREE_DAYS, claimReference, status.name, sbi)
-  } else if (paymentCheckCount === DELAYED_RETRY_LIMIT) {
+    trackPaymentStatusError(DAILY_RETRY_DAYS, claimReference, status.name, sbi)
+  }
+
+  if (paymentCheckCount === DELAYED_RETRY_LIMIT) {
     logger.info({ claimReference, paymentCheckCount, sbi }, 'Delayed retry limit reached')
-    trackPaymentStatusError(TEN_DAYS, claimReference, status.name, sbi)
+    trackPaymentStatusError(DELAYED_RETRY_DAYS, claimReference, status.name, sbi)
   }
 }
 

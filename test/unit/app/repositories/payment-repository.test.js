@@ -72,7 +72,7 @@ describe('Payment Repository test', () => {
             status: 'ack',
             paymentCheckCount: 3,
             updatedAt: {
-              [Op.lt]: new Date('2025-04-06T00:00:00Z')
+              [Op.lte]: new Date('2025-04-05T00:00:00Z')
             }
           }
         ]
