@@ -5,7 +5,6 @@ import loggerPlugin from './plugins/logger.js'
 import { healthRoutes } from './routes/health.js'
 import { paymentApiRoutes } from './routes/api/payment.js'
 import requestPaymentStatusScheduler from './jobs/request-payment-status-scheduler.js'
-import { requestPaymentStatus } from './jobs/request-payment-status.js'
 
 export async function createServer () {
   // Create the hapi server
