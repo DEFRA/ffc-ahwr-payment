@@ -20,7 +20,10 @@ const {
   }
 } = config
 
-const PAYMENT_CHECK_COUNT_LIMIT = 3
+const DAILY_RETRY_LIMIT = 3
+const DELAYED_RETRY_LIMIT = 4
+const THREE_DAYS = 3
+const TEN_DAYS = 10
 
 const createPaymentDataRequest = (frn) => ({
   category: 'frn',
@@ -45,25 +48,37 @@ const processPaidClaim = async (claimReference, logger) => {
   }
 }
 
+const trackPaymentStatusError = (days, claimReference, statusName, sbi) => {
+  appInsights.defaultClient.trackException({
+    exception: new Error(`Unable to retrieve paid payment status after ${days} days`),
+    properties: { claimReference, payDataStatus: statusName, sbi }
+  })
+}
+
 const processPaymentDataEntry = async (paymentDataEntry, logger) => {
   const { agreementNumber: claimReference, status } = paymentDataEntry
   logger.info({ claimReference, status }, 'Processing data entry')
 
   if (status.name === PaymentHubStatus.SETTLED) {
     await processPaidClaim(claimReference, logger)
-  } else {
-    const [affectedRows] = await incrementPaymentCheckCount(claimReference)
+    return
+  }
 
-    if (affectedRows.length && affectedRows[0][0].paymentCheckCount === PAYMENT_CHECK_COUNT_LIMIT) {
-      appInsights.defaultClient.trackException({
-        exception: new Error('Exceeded attempts to retrieve paid payment status'),
-        properties: {
-          claimReference,
-          payDataStatus: status.name,
-          sbi: affectedRows[0][0].data.sbi
-        }
-      })
-    }
+  const updatedPayment = await incrementPaymentCheckCount(claimReference)
+  if (!updatedPayment) {
+    logger.error({ claimReference }, 'No rows returned from incrementing paymentCheckCount')
+    return
+  }
+
+  const { paymentCheckCount: paymentCheckCountStr, data: { sbi } = {} } = updatedPayment
+  const paymentCheckCount = Number(paymentCheckCountStr)
+
+  if (paymentCheckCount === DAILY_RETRY_LIMIT) {
+    logger.info({ claimReference, paymentCheckCount, sbi }, 'Daily retry limit reached')
+    trackPaymentStatusError(THREE_DAYS, claimReference, status.name, sbi)
+  } else if (paymentCheckCount === DELAYED_RETRY_LIMIT) {
+    logger.info({ claimReference, paymentCheckCount, sbi }, 'Delayed retry limit reached')
+    trackPaymentStatusError(TEN_DAYS, claimReference, status.name, sbi)
   }
 }
 

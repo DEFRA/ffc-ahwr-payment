@@ -1,6 +1,7 @@
 import { Status } from '../constants/constants.js'
 import dataModels from '../data/index.js'
 import { Op } from 'sequelize'
+import { subDays } from 'date-fns'
 
 const { models } = dataModels
 
@@ -25,25 +26,37 @@ export async function updatePaymentResponse (reference, status, paymentResponse)
 export async function getPendingPayments () {
   return models.payment.findAll({
     where: {
-      status: Status.ACK,
-      paymentCheckCount: {
-        [Op.lt]: 3
-      },
-      frn: {
-        [Op.ne]: null
-      }
+      [Op.or]: [
+        {
+          status: Status.ACK,
+          paymentCheckCount: {
+            [Op.lt]: 3
+          },
+          frn: {
+            [Op.ne]: null
+          }
+        },
+        {
+          status: Status.ACK,
+          paymentCheckCount: 3,
+          updatedAt: {
+            [Op.lt]: subDays(new Date(), 9)
+          }
+        }
+      ]
     }
   })
 }
 
 export async function incrementPaymentCheckCount (claimReference) {
-  return models.payment.increment(
+  const [[affectedRows]] = await models.payment.increment(
     { paymentCheckCount: 1 },
     {
       where: { applicationReference: claimReference },
       returning: true
     }
   )
+  return affectedRows[0]
 }
 
 export async function updatePaymentStatusByClaimRef (claimReference, status) {

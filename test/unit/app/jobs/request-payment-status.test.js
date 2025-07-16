@@ -160,29 +160,21 @@ describe('requestPaymentStatus', () => {
     expect(defaultClient.trackException).not.toHaveBeenCalled()
   })
 
-  test('raises appInsights exception when the maximum number of attempts limit has been reached', async () => {
+  test('raises appInsights exception when the daily retry limit has been reached', async () => {
     getBlobMock.mockResolvedValue({
       data: [{ agreementNumber: 'RESH-F99F-E09F', status: { name: 'not_paid' } }]
     })
-    incrementPaymentCheckCount.mockResolvedValue(
-      [
-        [
-          [{
-            id: '32742adb-f37d-4bc8-8927-7f7d7cfc685e',
-            applicationReference: 'RESH-F99F-E09F',
-            data: { sbi: '234234', value: 436, invoiceLines: [{ value: 436, description: 'G00 - Gross value of claim', standardCode: 'AHWR-Sheep' }], sourceSystem: 'AHWR', marketingYear: 2025, agreementNumber: 'ABC-1234', paymentRequestNumber: 1 },
-            createdAt: '2025-06-25T08:24:56.309Z',
-            updatedAt: '2025-07-11T15:49:20.297Z',
-            status: 'ack',
-            paymentResponse: [{}],
-            paymentCheckCount: 3,
-            frn: '12345'
-          }],
-          1
-        ],
-        2
-      ]
-    )
+    incrementPaymentCheckCount.mockResolvedValue({
+      id: '32742adb-f37d-4bc8-8927-7f7d7cfc685e',
+      applicationReference: 'RESH-F99F-E09F',
+      data: { sbi: '234234', value: 436, invoiceLines: [{ value: 436, description: 'G00 - Gross value of claim', standardCode: 'AHWR-Sheep' }], sourceSystem: 'AHWR', marketingYear: 2025, agreementNumber: 'ABC-1234', paymentRequestNumber: 1 },
+      createdAt: '2025-06-25T08:24:56.309Z',
+      updatedAt: '2025-07-11T15:49:20.297Z',
+      status: 'ack',
+      paymentResponse: [{}],
+      paymentCheckCount: '3',
+      frn: '12345'
+    })
 
     await requestPaymentStatus(loggerMock)
 
@@ -191,7 +183,35 @@ describe('requestPaymentStatus', () => {
     expect(deleteBlobMock).toHaveBeenCalled()
     expect(completeMessageMock).toHaveBeenCalled()
     expect(defaultClient.trackException).toHaveBeenCalledWith({
-      exception: expect.any(Error),
+      exception: new Error('Unable to retrieve paid payment status after 3 days'),
+      properties: { claimReference: 'RESH-F99F-E09F', payDataStatus: 'not_paid', sbi: '234234' }
+    })
+  })
+
+  test.only('raises appInsights exception when the delayed retry limit has been reached', async () => {
+    getBlobMock.mockResolvedValue({
+      data: [{ agreementNumber: 'RESH-F99F-E09F', status: { name: 'not_paid' } }]
+    })
+    incrementPaymentCheckCount.mockResolvedValue({
+      id: '32742adb-f37d-4bc8-8927-7f7d7cfc685e',
+      applicationReference: 'RESH-F99F-E09F',
+      data: { sbi: '234234', value: 436, invoiceLines: [{ value: 436, description: 'G00 - Gross value of claim', standardCode: 'AHWR-Sheep' }], sourceSystem: 'AHWR', marketingYear: 2025, agreementNumber: 'ABC-1234', paymentRequestNumber: 1 },
+      createdAt: '2025-06-25T08:24:56.309Z',
+      updatedAt: '2025-07-11T15:49:20.297Z',
+      status: 'ack',
+      paymentResponse: [{}],
+      paymentCheckCount: '4',
+      frn: '12345'
+    })
+
+    await requestPaymentStatus(loggerMock)
+
+    expect(incrementPaymentCheckCount).toHaveBeenCalledWith('RESH-F99F-E09F')
+    expect(sendMessage).not.toHaveBeenCalled()
+    expect(deleteBlobMock).toHaveBeenCalled()
+    expect(completeMessageMock).toHaveBeenCalled()
+    expect(defaultClient.trackException).toHaveBeenCalledWith({
+      exception: new Error('Unable to retrieve paid payment status after 10 days'),
       properties: { claimReference: 'RESH-F99F-E09F', payDataStatus: 'not_paid', sbi: '234234' }
     })
   })
