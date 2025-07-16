@@ -1,4 +1,4 @@
-import { DAILY_RETRY_DAYS, DAILY_RETRY_LIMIT, DELAYED_RETRY_DAYS, Status } from '../constants/constants.js'
+import { DAILY_RETRY_FROM_DAYS, DAILY_RETRY_LIMIT, DELAYED_RETRY_DAYS, Status } from '../constants/constants.js'
 import dataModels from '../data/index.js'
 import { Op } from 'sequelize'
 import { subDays } from 'date-fns'
@@ -30,10 +30,13 @@ export async function getPendingPayments () {
         {
           status: Status.ACK,
           paymentCheckCount: {
-            [Op.lt]: DAILY_RETRY_DAYS
+            [Op.lt]: DAILY_RETRY_LIMIT
           },
           frn: {
             [Op.ne]: null
+          },
+          createdAt: {
+            [Op.lte]: subDays(new Date(), DAILY_RETRY_FROM_DAYS)
           }
         },
         {

@@ -13,7 +13,6 @@ jest.mock('../../../../app/data', () => {
     }
   }
 })
-jest.useFakeTimers().setSystemTime(new Date('2025-04-15T00:00:00Z'))
 
 beforeEach(() => {
   jest.clearAllMocks()
@@ -55,6 +54,8 @@ describe('Payment Repository test', () => {
   })
 
   test('getPendingPayments calls findAll with correct params', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2025-04-15T00:00:00Z'))
+
     const mockFindAll = jest.fn().mockResolvedValue(['payment1', 'payment2'])
     data.models.payment.findAll = mockFindAll
 
@@ -66,7 +67,8 @@ describe('Payment Repository test', () => {
           {
             status: 'ack',
             paymentCheckCount: { [Op.lt]: 3 },
-            frn: { [Op.ne]: null }
+            frn: { [Op.ne]: null },
+            createdAt: { [Op.lte]: new Date('2025-04-14T00:00:00Z') }
           },
           {
             status: 'ack',

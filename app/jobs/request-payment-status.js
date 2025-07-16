@@ -9,7 +9,7 @@ import {
 } from '../repositories/payment-repository.js'
 import { createBlobClient } from '../storage.js'
 import { v4 as uuid } from 'uuid'
-import { DAILY_RETRY_DAYS, DAILY_RETRY_LIMIT, DELAYED_RETRY_DAYS, DELAYED_RETRY_LIMIT, PaymentHubStatus, Status } from '../constants/constants.js'
+import { DAILY_RETRY_LIMIT, PaymentHubStatus, Status } from '../constants/constants.js'
 import appInsights from 'applicationinsights'
 
 const {
@@ -43,15 +43,21 @@ const processPaidClaim = async (claimReference, logger) => {
   }
 }
 
-const trackPaymentStatusError = (days, claimReference, statusName, sbi) => {
+const trackPaymentStatusError = ({ claimReference, statuses, sbi, type, logger, paymentCheckCount }) => {
+  logger.info({ claimReference, sbi, type }, `Payment has not been paid after ${paymentCheckCount} status requests`)
   appInsights.defaultClient.trackException({
-    exception: new Error(`Unable to retrieve paid payment status after ${days} days`),
-    properties: { claimReference, payDataStatus: statusName, sbi }
+    exception: new Error('Payment has not been updated to paid status'),
+    properties: {
+      claimReference,
+      statuses,
+      sbi,
+      type
+    }
   })
 }
 
 const processPaymentDataEntry = async (paymentDataEntry, logger) => {
-  const { agreementNumber: claimReference, status } = paymentDataEntry
+  const { agreementNumber: claimReference, status, events } = paymentDataEntry
   logger.info({ claimReference, status }, 'Processing data entry')
 
   if (status.name === PaymentHubStatus.SETTLED) {
@@ -67,15 +73,17 @@ const processPaymentDataEntry = async (paymentDataEntry, logger) => {
 
   const { paymentCheckCount: paymentCheckCountStr, data: { sbi } = {} } = updatedPayment
   const paymentCheckCount = Number(paymentCheckCountStr)
+  const statuses = events.map((event) => ({
+    status: event.status.name,
+    date: event.timestamp
+  }))
 
   if (paymentCheckCount === DAILY_RETRY_LIMIT) {
-    logger.info({ claimReference, paymentCheckCount, sbi }, 'Daily retry limit reached')
-    trackPaymentStatusError(DAILY_RETRY_DAYS, claimReference, status.name, sbi)
+    trackPaymentStatusError({ claimReference, statuses, sbi, type: 'INITIAL', logger, paymentCheckCount })
   }
 
-  if (paymentCheckCount === DELAYED_RETRY_LIMIT) {
-    logger.info({ claimReference, paymentCheckCount, sbi }, 'Delayed retry limit reached')
-    trackPaymentStatusError(DELAYED_RETRY_DAYS, claimReference, status.name, sbi)
+  if (paymentCheckCount > DAILY_RETRY_LIMIT) {
+    trackPaymentStatusError({ claimReference, statuses, sbi, type: 'FINAL', logger, paymentCheckCount })
   }
 }
 
@@ -99,7 +107,6 @@ const createReceiver = async (messageId) => {
 }
 
 const processFrnRequest = async (frn, logger, claimReferences) => {
-  logger.setBindings({ frn })
   const requestMessageId = uuid()
   const sessionId = uuid()
   const requestMessage = createPaymentDataRequest(frn)
@@ -163,6 +170,6 @@ export const requestPaymentStatus = async (logger) => {
   }
 
   for (const frn of uniqueFrns) {
-    await processFrnRequest(frn, logger, claimReferences)
+    await processFrnRequest(frn, logger.child({ frn }), claimReferences)
   }
 }
