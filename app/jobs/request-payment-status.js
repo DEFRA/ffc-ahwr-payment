@@ -9,7 +9,7 @@ import {
 } from '../repositories/payment-repository.js'
 import { createBlobClient } from '../storage.js'
 import { v4 as uuid } from 'uuid'
-import { PaymentHubStatus, Status } from '../constants/constants.js'
+import { DAILY_RETRY_LIMIT, PaymentHubStatus, Status } from '../constants/constants.js'
 import appInsights from 'applicationinsights'
 
 const {
@@ -19,8 +19,6 @@ const {
     paymentDataRequestResponseQueue
   }
 } = config
-
-const PAYMENT_CHECK_COUNT_LIMIT = 3
 
 const createPaymentDataRequest = (frn) => ({
   category: 'frn',
@@ -45,25 +43,47 @@ const processPaidClaim = async (claimReference, logger) => {
   }
 }
 
+const trackPaymentStatusError = ({ claimReference, statuses, sbi, type, logger, paymentCheckCount }) => {
+  logger.info({ claimReference, sbi, type }, `Payment has not been paid after ${paymentCheckCount} status requests`)
+  appInsights.defaultClient.trackException({
+    exception: new Error('Payment has not been updated to paid status'),
+    properties: {
+      claimReference,
+      statuses,
+      sbi,
+      type
+    }
+  })
+}
+
 const processPaymentDataEntry = async (paymentDataEntry, logger) => {
-  const { agreementNumber: claimReference, status } = paymentDataEntry
+  const { agreementNumber: claimReference, status, events } = paymentDataEntry
   logger.info({ claimReference, status }, 'Processing data entry')
 
   if (status.name === PaymentHubStatus.SETTLED) {
     await processPaidClaim(claimReference, logger)
-  } else {
-    const [affectedRows] = await incrementPaymentCheckCount(claimReference)
+    return
+  }
 
-    if (affectedRows.length && affectedRows[0][0].paymentCheckCount === PAYMENT_CHECK_COUNT_LIMIT) {
-      appInsights.defaultClient.trackException({
-        exception: new Error('Exceeded attempts to retrieve paid payment status'),
-        properties: {
-          claimReference,
-          payDataStatus: status.name,
-          sbi: affectedRows[0][0].data.sbi
-        }
-      })
-    }
+  const updatedPayment = await incrementPaymentCheckCount(claimReference)
+  if (!updatedPayment) {
+    logger.error({ claimReference }, 'No rows returned from incrementing paymentCheckCount')
+    return
+  }
+
+  const { paymentCheckCount: paymentCheckCountStr, data: { sbi } = {} } = updatedPayment
+  const paymentCheckCount = Number(paymentCheckCountStr)
+  const statuses = events.map((event) => ({
+    status: event.status.name,
+    date: event.timestamp
+  }))
+
+  if (paymentCheckCount === DAILY_RETRY_LIMIT) {
+    trackPaymentStatusError({ claimReference, statuses, sbi, type: 'INITIAL', logger, paymentCheckCount })
+  }
+
+  if (paymentCheckCount > DAILY_RETRY_LIMIT) {
+    trackPaymentStatusError({ claimReference, statuses, sbi, type: 'FINAL', logger, paymentCheckCount })
   }
 }
 
@@ -87,7 +107,6 @@ const createReceiver = async (messageId) => {
 }
 
 const processFrnRequest = async (frn, logger, claimReferences) => {
-  logger.setBindings({ frn })
   const requestMessageId = uuid()
   const sessionId = uuid()
   const requestMessage = createPaymentDataRequest(frn)
@@ -151,6 +170,6 @@ export const requestPaymentStatus = async (logger) => {
   }
 
   for (const frn of uniqueFrns) {
-    await processFrnRequest(frn, logger, claimReferences)
+    await processFrnRequest(frn, logger.child({ frn }), claimReferences)
   }
 }

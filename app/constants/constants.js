@@ -49,3 +49,8 @@ export const Status = {
 export const PaymentHubStatus = {
   SETTLED: 'Settled'
 }
+
+export const DAILY_RETRY_LIMIT = 3
+export const DAILY_RETRY_FROM_DAYS = 1
+
+export const FINAL_RETRY_DAYS = 10

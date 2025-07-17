@@ -5,6 +5,7 @@ import { createBlobClient } from '../../../../app/storage.js'
 import { requestPaymentStatus } from '../../../../app/jobs/request-payment-status'
 import { MessageReceiver } from 'ffc-messaging'
 import { defaultClient } from 'applicationinsights'
+import waitingForLedgerResponse from '../../../data/data-requests/0c8f8076-ff05-43cb-91f2-13d7abec9f6b.json'
 
 jest.mock('../../../../app/repositories/payment-repository')
 jest.mock('../../../../app/messaging/send-payment-data-request')
@@ -35,7 +36,8 @@ describe('requestPaymentStatus', () => {
   const loggerMock = {
     info: jest.fn(),
     error: jest.fn(),
-    setBindings: jest.fn()
+    setBindings: jest.fn(),
+    child: jest.fn().mockReturnThis()
   }
 
   const completeMessageMock = jest.fn().mockResolvedValue()
@@ -160,29 +162,28 @@ describe('requestPaymentStatus', () => {
     expect(defaultClient.trackException).not.toHaveBeenCalled()
   })
 
-  test('raises appInsights exception when the maximum number of attempts limit has been reached', async () => {
+  test('raises appInsights exception when the daily retry limit has been reached', async () => {
     getBlobMock.mockResolvedValue({
-      data: [{ agreementNumber: 'RESH-F99F-E09F', status: { name: 'not_paid' } }]
+      data: [{
+        agreementNumber: 'RESH-F99F-E09F',
+        status: { name: 'not_paid' },
+        events: [
+          { status: { name: 'Routed to Request Editor for debt data' }, timestamp: '27/03/2025 12:03' },
+          { status: { name: 'Debt data attached' }, timestamp: '28/03/2025 12:03' }
+        ]
+      }]
     })
-    incrementPaymentCheckCount.mockResolvedValue(
-      [
-        [
-          [{
-            id: '32742adb-f37d-4bc8-8927-7f7d7cfc685e',
-            applicationReference: 'RESH-F99F-E09F',
-            data: { sbi: '234234', value: 436, invoiceLines: [{ value: 436, description: 'G00 - Gross value of claim', standardCode: 'AHWR-Sheep' }], sourceSystem: 'AHWR', marketingYear: 2025, agreementNumber: 'ABC-1234', paymentRequestNumber: 1 },
-            createdAt: '2025-06-25T08:24:56.309Z',
-            updatedAt: '2025-07-11T15:49:20.297Z',
-            status: 'ack',
-            paymentResponse: [{}],
-            paymentCheckCount: 3,
-            frn: '12345'
-          }],
-          1
-        ],
-        2
-      ]
-    )
+    incrementPaymentCheckCount.mockResolvedValue({
+      id: '32742adb-f37d-4bc8-8927-7f7d7cfc685e',
+      applicationReference: 'RESH-F99F-E09F',
+      data: { sbi: '234234', value: 436, invoiceLines: [{ value: 436, description: 'G00 - Gross value of claim', standardCode: 'AHWR-Sheep' }], sourceSystem: 'AHWR', marketingYear: 2025, agreementNumber: 'ABC-1234', paymentRequestNumber: 1 },
+      createdAt: '2025-06-25T08:24:56.309Z',
+      updatedAt: '2025-07-11T15:49:20.297Z',
+      status: 'ack',
+      paymentResponse: [{}],
+      paymentCheckCount: '3',
+      frn: '12345'
+    })
 
     await requestPaymentStatus(loggerMock)
 
@@ -191,8 +192,79 @@ describe('requestPaymentStatus', () => {
     expect(deleteBlobMock).toHaveBeenCalled()
     expect(completeMessageMock).toHaveBeenCalled()
     expect(defaultClient.trackException).toHaveBeenCalledWith({
-      exception: expect.any(Error),
-      properties: { claimReference: 'RESH-F99F-E09F', payDataStatus: 'not_paid', sbi: '234234' }
+      exception: new Error('Payment has not been updated to paid status'),
+      properties: {
+        claimReference: 'RESH-F99F-E09F',
+        statuses: [
+          { status: 'Routed to Request Editor for debt data', date: '27/03/2025 12:03' },
+          { status: 'Debt data attached', date: '28/03/2025 12:03' }
+        ],
+        sbi: '234234',
+        type: 'INITIAL'
+      }
+    })
+  })
+
+  test('raises appInsights exception when the delayed retry limit has been reached', async () => {
+    getBlobMock.mockResolvedValue(waitingForLedgerResponse)
+    getPendingPayments.mockResolvedValue([{
+      dataValues: {
+        frn: '1100306986',
+        applicationReference: 'RESH-F99F-E09F'
+      }
+    }])
+
+    incrementPaymentCheckCount.mockResolvedValue({
+      id: '32742adb-f37d-4bc8-8927-7f7d7cfc685e',
+      applicationReference: 'RESH-F99F-E09F',
+      data: { sbi: '234234', value: 436, invoiceLines: [{ value: 436, description: 'G00 - Gross value of claim', standardCode: 'AHWR-Sheep' }], sourceSystem: 'AHWR', marketingYear: 2025, agreementNumber: 'ABC-1234', paymentRequestNumber: 1 },
+      createdAt: '2025-06-25T08:24:56.309Z',
+      updatedAt: '2025-07-11T15:49:20.297Z',
+      status: 'ack',
+      paymentResponse: [{}],
+      paymentCheckCount: '4',
+      frn: '12345'
+    })
+
+    await requestPaymentStatus(loggerMock)
+
+    expect(incrementPaymentCheckCount).toHaveBeenCalledWith('RESH-F99F-E09F')
+    expect(sendMessage).not.toHaveBeenCalled()
+    expect(deleteBlobMock).toHaveBeenCalled()
+    expect(completeMessageMock).toHaveBeenCalled()
+    expect(defaultClient.trackException).toHaveBeenCalledWith({
+      exception: new Error('Payment has not been updated to paid status'),
+      properties: {
+        claimReference: 'RESH-F99F-E09F',
+        statuses: [
+          {
+            date: '24/03/2025 14:44',
+            status: 'Extracted from batch'
+          },
+          {
+            date: '24/03/2025 14:44',
+            status: 'Enriched with mandatory data'
+          },
+          {
+            date: '24/03/2025 14:44',
+            status: 'Routed to Cross Border for calculation'
+          },
+          {
+            date: '27/03/2025 12:03',
+            status: 'Routed to Request Editor for debt data'
+          },
+          {
+            date: '31/03/2025 09:54',
+            status: 'Debt data attached'
+          },
+          {
+            date: '31/03/2025 09:54',
+            status: 'Routed for Request Editor for ledger assignment'
+          }
+        ],
+        sbi: '234234',
+        type: 'FINAL'
+      }
     })
   })
 
