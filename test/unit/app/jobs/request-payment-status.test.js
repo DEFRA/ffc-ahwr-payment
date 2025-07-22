@@ -63,7 +63,7 @@ describe('requestPaymentStatus', () => {
         applicationReference: 'RESH-F99F-E09F'
       }
     }])
-    updatePaymentStatusByClaimRef.mockResolvedValue([1, [{ dataValues: { sbi: '107021978' } }]])
+    updatePaymentStatusByClaimRef.mockResolvedValue([1, [{ dataValues: { data: { sbi: '107021978' } } }]])
     MessageReceiver.mockImplementation(() => ({
       acceptSession: jest.fn().mockResolvedValue(),
       receiveMessages: jest.fn().mockResolvedValue([{ body: { uri: 'blob://test-uri' } }]),

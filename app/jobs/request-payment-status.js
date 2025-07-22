@@ -29,10 +29,11 @@ const processPaidClaim = async (claimReference, logger) => {
   const [, updatedRows] = await updatePaymentStatusByClaimRef(claimReference, Status.PAID)
 
   if (updatedRows?.length === 1) {
+    const { data: { sbi } = {} } = updatedRows[0].dataValues
     await sendMessage(
       {
         claimRef: claimReference,
-        sbi: updatedRows[0].dataValues.sbi
+        sbi
       },
       moveClaimToPaidMsgType,
       applicationRequestQueue,
