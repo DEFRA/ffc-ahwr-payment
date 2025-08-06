@@ -47,8 +47,8 @@ describe(('Process check status request'), () => {
   })
 
   test('when validation fails message is dead-lettered', async () => {
-    await processCheckStatusRequest(mockedLogger, {}, receiver)
-    expect(mockErrorLogger).toHaveBeenCalledTimes(1)
+    await processCheckStatusRequest(mockedLogger, { body: {} }, receiver)
+    expect(mockErrorLogger).toHaveBeenCalledTimes(2)
     expect(receiver.deadLetterMessage).toHaveBeenCalledTimes(1)
   })
 

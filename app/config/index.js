@@ -10,9 +10,9 @@ const schema = joi.object({
   isDev: joi.boolean(),
   sendPaymentRequestOutbound: joi.boolean().required(),
   requestPaymentStatusScheduler: {
-    enabled: joi.bool(),
-    schedule: joi.string(),
-    initialAttempts: joi.number()
+    enabled: joi.bool().required(),
+    schedule: joi.string().required(),
+    initialAttempts: joi.number().required()
   },
   checkStatusRequestType: joi.string().required()
 })
