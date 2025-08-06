@@ -9,7 +9,7 @@ import {
 } from '../repositories/payment-repository.js'
 import { createBlobClient } from '../storage.js'
 import { v4 as uuid } from 'uuid'
-import { DAILY_RETRY_LIMIT, PaymentHubStatus, Status } from '../constants/constants.js'
+import { PaymentHubStatus, Status } from '../constants/constants.js'
 import appInsights from 'applicationinsights'
 
 const {
@@ -17,6 +17,9 @@ const {
     moveClaimToPaidMsgType,
     applicationRequestQueue,
     paymentDataRequestResponseQueue
+  },
+  requestPaymentStatusScheduler: {
+    initialAttempts: DAILY_RETRY_LIMIT
   }
 } = config
 
@@ -83,7 +86,7 @@ const processPaymentDataEntry = async (paymentDataEntry, logger) => {
     trackPaymentStatusError({ claimReference, statuses, sbi, type: 'INITIAL', logger, paymentCheckCount })
   }
 
-  if (paymentCheckCount > DAILY_RETRY_LIMIT) {
+  if (paymentCheckCount === DAILY_RETRY_LIMIT + 1) {
     trackPaymentStatusError({ claimReference, statuses, sbi, type: 'FINAL', logger, paymentCheckCount })
   }
 }
@@ -107,7 +110,7 @@ const createReceiver = async (messageId) => {
   return receiver
 }
 
-const processFrnRequest = async (frn, logger, claimReferences) => {
+export const processFrnRequest = async (frn, logger, claimReferences) => {
   const requestMessageId = uuid()
   const sessionId = uuid()
   const requestMessage = createPaymentDataRequest(frn)

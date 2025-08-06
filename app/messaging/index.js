@@ -1,25 +1,28 @@
 import { MessageReceiver } from 'ffc-messaging'
 import { processApplicationPaymentRequest } from './process-application-payment-request.js'
 import { processPaymentResponse } from './process-payment-response.js'
-import { config } from '../config/message-queue.js'
+import { config } from '../config/index.js'
+import { processCheckStatusRequest } from './process-check-status-request.js'
 
 let applicationClaimReceiver
 let paymentActionReceiver
 
+const { checkStatusRequestType } = config
+
 export const start = async (logger) => {
-  const { applicationPaymentRequestQueue, paymentResponseSubscription } = config
+  const { messageQueueConfig: { applicationPaymentRequestQueue, paymentResponseSubscription } } = config
+
   const applicationClaimAction = message => {
-    const childLogger = logger.child({})
-    processApplicationPaymentRequest(childLogger, message, applicationClaimReceiver)
+    routeMessage(message, logger)
   }
   applicationClaimReceiver = new MessageReceiver(applicationPaymentRequestQueue, applicationClaimAction)
   await applicationClaimReceiver.subscribe()
 
-  const paymentRequestAction = message => {
+  const paymentResponseAction = message => {
     const childLogger = logger.child({})
     processPaymentResponse(childLogger, message, paymentActionReceiver)
   }
-  paymentActionReceiver = new MessageReceiver(paymentResponseSubscription, paymentRequestAction)
+  paymentActionReceiver = new MessageReceiver(paymentResponseSubscription, paymentResponseAction)
   await paymentActionReceiver.subscribe()
 
   logger.info('Ready to receive messages')
@@ -28,4 +31,14 @@ export const start = async (logger) => {
 export const stop = async () => {
   await applicationClaimReceiver.closeConnection()
   await paymentActionReceiver.closeConnection()
+}
+
+export const routeMessage = async (message, logger) => {
+  const childLogger = logger.child({})
+  const { applicationProperties } = message
+  if (applicationProperties.type === checkStatusRequestType) {
+    processCheckStatusRequest(childLogger, message, applicationClaimReceiver)
+  } else {
+    processApplicationPaymentRequest(childLogger, message, applicationClaimReceiver)
+  }
 }

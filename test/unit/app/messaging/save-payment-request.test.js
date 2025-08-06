@@ -12,14 +12,6 @@ jest.mock('../../../../app/storage', () => ({
 }))
 jest.mock('../../../../app/messaging/send-message')
 jest.mock('../../../../app/messaging/payment-request-schema')
-jest.mock('../../../../app/config', () => ({
-  storage: {
-    storageAccount: 'mockStorageAccount',
-    useConnectionString: false,
-    endemicsSettingsContainer: 'endemics-settings',
-    connectionString: 'connectionString'
-  }
-}))
 jest.mock('applicationinsights', () => ({ defaultClient: { trackException: jest.fn(), trackEvent: jest.fn() }, dispose: jest.fn() }))
 
 const paymentRepoGetSpy = jest.spyOn(paymentRepo, 'get')
