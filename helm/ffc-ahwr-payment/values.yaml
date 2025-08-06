@@ -48,6 +48,7 @@ container:
   paymentDataRequestResponseQueueAddress: ffc-pay-data-request-response
   requestPaymentStatusEnabled: "false"
   requestPaymentStatusSchedule: 0 20 * * 1-5
+  requestPaymentInitialAttempts: 3
   imagePullPolicy: IfNotPresent
   requestMemory: 10Mi
   requestCpu: 10m

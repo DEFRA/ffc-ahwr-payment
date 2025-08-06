@@ -2,7 +2,7 @@ import { incrementPaymentCheckCount, updatePaymentStatusByClaimRef, getPendingPa
 import { sendPaymentDataRequest } from '../../../../app/messaging/send-payment-data-request'
 import { sendMessage } from '../../../../app/messaging/send-message'
 import { createBlobClient } from '../../../../app/storage.js'
-import { requestPaymentStatus } from '../../../../app/jobs/request-payment-status'
+import { processFrnRequest, requestPaymentStatus } from '../../../../app/jobs/request-payment-status'
 import { MessageReceiver } from 'ffc-messaging'
 import { defaultClient } from 'applicationinsights'
 import waitingForLedgerResponse from '../../../data/data-requests/0c8f8076-ff05-43cb-91f2-13d7abec9f6b.json'
@@ -18,6 +18,9 @@ jest.mock('../../../../app/config', () => ({
       moveClaimToPaidMsgType: 'move-claim-to-paid-msg-type',
       applicationRequestQueue: 'application-request-queue',
       paymentDataRequestResponseQueue: 'payment-data-request-response-queue'
+    },
+    requestPaymentStatusScheduler: {
+      initialAttempts: 3
     }
   }
 }))
@@ -266,6 +269,30 @@ describe('requestPaymentStatus', () => {
         type: 'FINAL'
       }
     })
+  })
+
+  test('does not raise appInsights exception when the delayed retry limit has been exceeded', async () => {
+    getBlobMock.mockResolvedValue(waitingForLedgerResponse)
+
+    incrementPaymentCheckCount.mockResolvedValue({
+      id: '32742adb-f37d-4bc8-8927-7f7d7cfc685e',
+      applicationReference: 'RESH-F99F-E09F',
+      data: { sbi: '234234', value: 436, invoiceLines: [{ value: 436, description: 'G00 - Gross value of claim', standardCode: 'AHWR-Sheep' }], sourceSystem: 'AHWR', marketingYear: 2025, agreementNumber: 'ABC-1234', paymentRequestNumber: 1 },
+      createdAt: '2025-06-25T08:24:56.309Z',
+      updatedAt: '2025-07-11T15:49:20.297Z',
+      status: 'ack',
+      paymentResponse: [{}],
+      paymentCheckCount: '5',
+      frn: '1100306986'
+    })
+
+    await processFrnRequest('1100306986', loggerMock, new Set(['RESH-F99F-E09F']))
+
+    expect(incrementPaymentCheckCount).toHaveBeenCalledWith('RESH-F99F-E09F')
+    expect(sendMessage).not.toHaveBeenCalled()
+    expect(deleteBlobMock).toHaveBeenCalled()
+    expect(completeMessageMock).toHaveBeenCalled()
+    expect(defaultClient.trackException).not.toHaveBeenCalled()
   })
 
   test('does not raise appInsights exception when no payments were found to increment paymentCheckCount', async () => {

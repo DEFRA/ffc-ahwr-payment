@@ -11,8 +11,10 @@ const schema = joi.object({
   sendPaymentRequestOutbound: joi.boolean().required(),
   requestPaymentStatusScheduler: {
     enabled: joi.bool(),
-    schedule: joi.string()
-  }
+    schedule: joi.string(),
+    initialAttempts: joi.number()
+  },
+  checkStatusRequestType: joi.string().required()
 })
 
 const baseConfig = {
@@ -22,8 +24,10 @@ const baseConfig = {
   sendPaymentRequestOutbound: process.env.SEND_PAYMENT_REQUEST === 'true',
   requestPaymentStatusScheduler: {
     enabled: process.env.REQUEST_PAYMENT_STATUS_ENABLED === 'true',
-    schedule: process.env.REQUEST_PAYMENT_STATUS_SCHEDULE ?? '0 11 * * 1-5'
-  }
+    schedule: process.env.REQUEST_PAYMENT_STATUS_SCHEDULE ?? '0 11 * * 1-5',
+    initialAttempts: Number.parseInt(process.env.REQUEST_PAYMENT_INITIAL_ATTEMPTS ?? '3', 10)
+  },
+  checkStatusRequestType: 'uk.gov.ffc.ahwr.check.status.request'
 }
 
 const { error } = schema.validate(baseConfig, { abortEarly: false })

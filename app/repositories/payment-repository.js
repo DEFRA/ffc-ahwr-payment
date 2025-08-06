@@ -1,8 +1,14 @@
-import { DAILY_RETRY_FROM_DAYS, DAILY_RETRY_LIMIT, FINAL_RETRY_DAYS, Status } from '../constants/constants.js'
+import { DAILY_RETRY_FROM_DAYS, FINAL_RETRY_DAYS, Status } from '../constants/constants.js'
+import { config } from '../config/index.js'
 import dataModels from '../data/index.js'
 import { Op } from 'sequelize'
 import { subDays } from 'date-fns'
 
+const {
+  requestPaymentStatusScheduler: {
+    initialAttempts: DAILY_RETRY_LIMIT
+  }
+} = config
 const { models } = dataModels
 
 export async function get (reference) {

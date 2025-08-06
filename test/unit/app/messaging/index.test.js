@@ -8,6 +8,8 @@ jest.mock('../../../../app/config/message-queue', () => ({
     paymentResponseSubscription: 'payment-response-subscription'
   }
 }))
+jest.mock('../../../../app/messaging/process-check-status-request.js', () => ({}))
+jest.mock('../../../../app/messaging/process-application-payment-request.js', () => ({}))
 
 const mocksubscribe = jest.fn()
 const mockClose = jest.fn()
