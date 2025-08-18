@@ -1,15 +1,17 @@
+import { StatusCodes } from 'http-status-codes'
+
 export const healthRoutes = [{
   method: 'GET',
   path: '/healthy',
-  handler: (request, h) => {
-    return h.response('ok').code(200)
+  handler: (_request, h) => {
+    return h.response('ok').code(StatusCodes.OK)
   }
 },
 {
   method: 'GET',
   path: '/healthz',
-  handler: (request, h) => {
-    return h.response('ok').code(200)
+  handler: (_request, h) => {
+    return h.response('ok').code(StatusCodes.OK)
   }
 }
 ]

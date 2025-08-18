@@ -1,5 +1,6 @@
 import joi from 'joi'
 import { get } from '../../repositories/payment-repository.js'
+import { StatusCodes } from 'http-status-codes'
 
 export const paymentApiRoutes = [{
   method: 'GET',
@@ -13,9 +14,9 @@ export const paymentApiRoutes = [{
     handler: async (request, h) => {
       const payment = (await get(request.params.reference))
       if (payment.dataValues) {
-        return h.response(payment.dataValues).code(200)
+        return h.response(payment.dataValues).code(StatusCodes.OK)
       } else {
-        return h.response('Not Found').code(404).takeover()
+        return h.response('Not Found').code(StatusCodes.NOT_FOUND).takeover()
       }
     }
   }

@@ -3,7 +3,7 @@ import { requestPaymentStatus } from './request-payment-status.js'
 import cron from 'node-cron'
 import appInsights from 'applicationinsights'
 
-const scheduler = {
+const requestPaymentStatusScheduler = {
   plugin: {
     name: 'requestPaymentStatusScheduler',
     register: async (server) => {
@@ -37,4 +37,4 @@ const scheduler = {
   }
 }
 
-export default scheduler
+export default requestPaymentStatusScheduler

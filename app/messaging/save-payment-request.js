@@ -1,4 +1,4 @@
-import { paymentRequest } from '../constants/constants.js'
+import { paymentRequest as paymentRequestConstant } from '../constants/constants.js'
 import { get, set } from '../repositories/payment-repository.js'
 import { validateApplicationPaymentRequest } from './application-payment-request-schema.js'
 import { validatePaymentRequest } from './payment-request-schema.js'
@@ -16,7 +16,7 @@ const buildPaymentRequest = async (logger, applicationPaymentRequest) => {
     sbi,
     whichReview: species
   } = applicationPaymentRequest
-  const { description, paymentRequestNumber, sourceSystem } = paymentRequest
+  const { description, paymentRequestNumber, sourceSystem } = paymentRequestConstant
   const marketingYear = new Date().getFullYear()
   const blobServiceClient = createBlobServiceClient()
   const pricesConfig = await blobServiceClient.getBlob(logger, 'claim-prices-config.json', config.endemicsSettingsContainer)
