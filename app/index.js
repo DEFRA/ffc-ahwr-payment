@@ -12,14 +12,13 @@ const init = async () => {
   server.logger.info(`App insights ${appInsightsRunning ? '' : 'not '}running`)
 }
 
-process.on('SIGTERM', async () => {
+const handleSignal = async () => {
   await stop()
   process.exit(0)
-})
+}
 
-process.on('SIGINT', async () => {
-  await stop()
-  process.exit(0)
-})
+process.on('SIGTERM', handleSignal)
+
+process.on('SIGINT', handleSignal)
 
 await init()
