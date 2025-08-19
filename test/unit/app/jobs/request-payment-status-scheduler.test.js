@@ -1,4 +1,4 @@
-import scheduler from '../../../../app/jobs/request-payment-status-scheduler.js'
+import requestPaymentStatusScheduler from '../../../../app/jobs/request-payment-status-scheduler.js'
 import { config } from '../../../../app/config/index.js'
 import { requestPaymentStatus } from '../../../../app/jobs/request-payment-status.js'
 import cron from 'node-cron'
@@ -47,7 +47,7 @@ describe('requestPaymentStatusScheduler', () => {
   test('should register cron job when enabled', async () => {
     config.requestPaymentStatusScheduler.enabled = true
 
-    await scheduler.plugin.register(server)
+    await requestPaymentStatusScheduler.plugin.register(server)
 
     expect(logger.info).toHaveBeenCalledWith(
       { schedule: '* * * * *' },
@@ -59,7 +59,7 @@ describe('requestPaymentStatusScheduler', () => {
   test('should not register cron job when not enabled', async () => {
     config.requestPaymentStatusScheduler.enabled = false
 
-    await scheduler.plugin.register(server)
+    await requestPaymentStatusScheduler.plugin.register(server)
 
     expect(logger.info).toHaveBeenCalledWith(
       'Payment status scheduler is disabled. Skipping cron job registration.'
@@ -74,7 +74,7 @@ describe('requestPaymentStatusScheduler', () => {
       cronCallback.mockImplementation(cb)
       return cb
     })
-    await scheduler.plugin.register(server)
+    await requestPaymentStatusScheduler.plugin.register(server)
     requestPaymentStatus.mockResolvedValue()
 
     await cronCallback()
@@ -94,7 +94,7 @@ describe('requestPaymentStatusScheduler', () => {
     const error = new Error('Failure')
     requestPaymentStatus.mockRejectedValue(error)
 
-    await scheduler.plugin.register(server)
+    await requestPaymentStatusScheduler.plugin.register(server)
     await cronCallback()
 
     expect(logger.error).toHaveBeenCalledWith(

@@ -1,6 +1,6 @@
 {
   "name": "ffc-ahwr-payment",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "FFC Vet Visits Payment Service",
   "homepage": "https://github.com/DEFRA/ffc-ahwr-payment",
   "main": "app/index.js",
@@ -27,6 +27,7 @@
     "dotenv": "^16.0.3",
     "ffc-messaging": "^2.10.1",
     "hapi-pino": "11.0.1",
+    "http-status-codes": "^2.3.0",
     "joi": "^17.6.0",
     "node-cron": "^3.0.2",
     "pg": "^8.7.3",

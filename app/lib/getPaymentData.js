@@ -26,10 +26,11 @@ export const getPaymentData = (typeOfLivestock, testResults, pricesConfig, isEnd
       }
     }
   }
-  const standardCode = speciesAmounts[typeOfLivestock]?.code
+  // Note that 'isEndemic' will never be false anymore as we don't allow claim of old world claims. This should be tidied up in a different PR.
+  const nonEnedmicsStandardCode = speciesAmounts[typeOfLivestock]?.code
   const value = speciesAmounts[typeOfLivestock]?.value
   return {
-    standardCode,
+    standardCode: nonEnedmicsStandardCode,
     value
   }
 }

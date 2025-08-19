@@ -21,12 +21,6 @@ jest.mock('applicationinsights', () => {
   }
 })
 
-const mockInfoLogger = jest.fn()
-
-const mockedLogger = {
-  info: mockInfoLogger
-}
-
 describe('Application Insights', () => {
   beforeEach(() => {
     delete process.env.APPLICATIONINSIGHTS_CONNECTION_STRING
@@ -38,18 +32,16 @@ describe('Application Insights', () => {
     process.env.APPINSIGHTS_CLOUDROLE = appName
     process.env.APPLICATIONINSIGHTS_CONNECTION_STRING = 'something'
 
-    setup(mockedLogger)
+    const result = setup()
 
+    expect(result).toBeTruthy()
     expect(mockStart).toHaveBeenCalledTimes(1)
     expect(tags[cloudRoleTag]).toEqual(appName)
-    expect(mockInfoLogger).toHaveBeenCalledTimes(1)
-    expect(mockInfoLogger).toHaveBeenCalledWith('App Insights Running')
   })
 
   test('logs out not running message when env var does not exist', () => {
-    setup(mockedLogger)
+    const result = setup()
 
-    expect(mockInfoLogger).toHaveBeenCalledTimes(1)
-    expect(mockInfoLogger).toHaveBeenCalledWith('App Insights Not Running!')
+    expect(result).toBeFalsy()
   })
 })
