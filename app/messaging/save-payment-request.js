@@ -4,22 +4,34 @@ import { validateApplicationPaymentRequest } from './application-payment-request
 import { validatePaymentRequest } from './payment-request-schema.js'
 import { getPaymentData } from '../lib/getPaymentData.js'
 import { createBlobServiceClient } from '../storage.js'
-import { config } from '../config/storage.js'
+import { config } from '../config/index.js'
+
+export const isPigsAndPaymentsUserJourney = (dateOfVisit) => {
+  return new Date(dateOfVisit) >= new Date(config.pigsAndPayments.releaseDate)
+}
+
+const getPricesConfig = async (dateOfVisit, logger) => {
+  const filename = isPigsAndPaymentsUserJourney(dateOfVisit) ? 'claim-prices-config-20260122.json' : 'claim-prices-config.json'
+  return createBlobServiceClient().getBlob(logger, filename, config.storageConfig.endemicsSettingsContainer)
+}
 
 const buildPaymentRequest = async (logger, applicationPaymentRequest) => {
   const {
     isEndemics,
     reviewTestResults,
     claimType,
+    dateOfVisit,
     optionalPiHuntValue,
     reference: agreementNumber,
     sbi,
     whichReview: species
   } = applicationPaymentRequest
   const { description, paymentRequestNumber, sourceSystem } = paymentRequestConstant
+
   const marketingYear = new Date().getFullYear()
-  const blobServiceClient = createBlobServiceClient()
-  const pricesConfig = await blobServiceClient.getBlob(logger, 'claim-prices-config.json', config.endemicsSettingsContainer)
+
+  const pricesConfig = await getPricesConfig(dateOfVisit, logger)
+
   const { standardCode, value } = getPaymentData(species, reviewTestResults, pricesConfig, isEndemics, claimType, optionalPiHuntValue)
 
   return {
