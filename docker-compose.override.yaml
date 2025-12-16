@@ -9,7 +9,7 @@ services:
     container_name: ffc-ahwr-payment-development
     environment:
       USE_PRETTY_PRINT: ${USE_PRETTY_PRINT:-true}
-      PIGS_AND_PAYMENTS_RELEASE_DATE: ${PIGS_AND_PAYMENTS_RELEASE_DATE:-2025-12-01}
+      PIGS_AND_PAYMENTS_RELEASE_DATE: '2025-12-01'
     ports:
       - "3005:3000"
       - "9235:9229"
