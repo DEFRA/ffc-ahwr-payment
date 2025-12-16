@@ -3,11 +3,12 @@ import { validatePaymentRequest } from '../../../../app/messaging/payment-reques
 import * as getPayment from '../../../../app/lib/getPaymentData'
 import * as paymentRepo from '../../../../app/repositories/payment-repository'
 
+const mockGetBlob = jest.fn()
 jest.mock('../../../../app/repositories/payment-repository')
 jest.mock('../../../../app/lib/getPaymentData')
 jest.mock('../../../../app/storage', () => ({
   createBlobServiceClient: jest.fn(() => ({
-    getBlob: jest.fn()
+    getBlob: mockGetBlob
   }))
 }))
 jest.mock('../../../../app/messaging/send-message')
@@ -28,6 +29,8 @@ const reference = 'AA-123-456'
 const applicationPaymentRequestMissingFrn = {
   reference,
   sbi: '123456789',
+  claimType: 'R',
+  dateOfVisit: '2025-11-30',
   whichReview: 'beef',
   isEndemics: false
 }
@@ -124,6 +127,8 @@ describe('Save payment request part 2', () => {
 
     await savePaymentRequest(mockedLogger, applicationPaymentRequest)
 
+    expect(mockGetBlob).toHaveBeenCalledTimes(1)
+    expect(mockGetBlob).toHaveBeenCalledWith(expect.any(Object), 'claim-prices-config.json', expect.any(String))
     expect(paymentRepoSetSpy).toHaveBeenCalledTimes(1)
     expect(paymentRepoSetSpy).toHaveBeenCalledWith(
       'AA-123-456', {
@@ -137,5 +142,17 @@ describe('Save payment request part 2', () => {
       },
       '923456789'
     )
+  })
+
+  test('uses increased payment price config file when dateOfVisit after golive', async () => {
+    paymentRepoGetSpy.mockResolvedValueOnce()
+    validatePaymentRequest.mockReturnValueOnce(true)
+
+    const requestWithVisitDatePostPigsAndPaymentsGolive = { ...applicationPaymentRequest, dateOfVisit: '2026-01-22' }
+
+    await savePaymentRequest(mockedLogger, requestWithVisitDatePostPigsAndPaymentsGolive)
+
+    expect(mockGetBlob).toHaveBeenCalledTimes(1)
+    expect(mockGetBlob).toHaveBeenCalledWith(expect.any(Object), 'claim-prices-config-20260122.json', expect.any(String))
   })
 })

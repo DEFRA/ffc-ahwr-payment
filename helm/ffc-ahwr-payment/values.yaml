@@ -55,6 +55,7 @@ container:
   limitMemory: 120Mi
   limitCpu: 120m
   port: 3000
+  pigsAndPaymentsReleaseDate: '2026-01-22'
 
 postgresService:
   postgresDb: ffc_ahwr_payment

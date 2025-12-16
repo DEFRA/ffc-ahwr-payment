@@ -14,7 +14,10 @@ const schema = joi.object({
     schedule: joi.string().required(),
     initialAttempts: joi.number().required()
   },
-  checkStatusRequestType: joi.string().required()
+  checkStatusRequestType: joi.string().required(),
+  pigsAndPayments: {
+    releaseDate: joi.string().required()
+  }
 })
 
 const baseConfig = {
@@ -27,7 +30,10 @@ const baseConfig = {
     schedule: process.env.REQUEST_PAYMENT_STATUS_SCHEDULE ?? '0 11 * * 1-5',
     initialAttempts: Number.parseInt(process.env.REQUEST_PAYMENT_INITIAL_ATTEMPTS ?? '3', 10)
   },
-  checkStatusRequestType: 'uk.gov.ffc.ahwr.check.status.request'
+  checkStatusRequestType: 'uk.gov.ffc.ahwr.check.status.request',
+  pigsAndPayments: {
+    releaseDate: process.env.PIGS_AND_PAYMENTS_RELEASE_DATE || '2026-01-22'
+  }
 }
 
 const { error } = schema.validate(baseConfig, { abortEarly: false })
