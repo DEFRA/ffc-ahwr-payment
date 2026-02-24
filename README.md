@@ -1,3 +1,5 @@
+# ⚠️ Note this repository is being archived, and is replaced by the backend service at https://github.com/DEFRA/ahwr-payment-proxy/ ⚠️
+
 # FFC AHWR Payments Manager
 
 > Application Payments Manager for Annual Health and Welfare Review
